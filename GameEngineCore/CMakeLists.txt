@@ -34,3 +34,7 @@ target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glfw)
 #spdlog
 add_subdirectory(../external/spdlog ${CMAKE_CURRENT_BINARY_DIR}/spdlog)
 target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE spdlog)
+
+#glad
+add_subdirectory(../external/glad ${CMAKE_CURRENT_BINARY_DIR}/glad)
+target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glad)

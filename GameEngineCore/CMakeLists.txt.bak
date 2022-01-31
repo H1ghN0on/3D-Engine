@@ -11,7 +11,6 @@ includes/GameEngineCore/Log.hpp
 #переменная для всех исходных кодов (cpp)
 set(ENGINE_PRIVATE_SOURCES 
 src/GameEngineCore/Application.cpp
-src/GameEngineCore/Log.cpp
 )
 
 #компилируем статическую библиотеку для проекта
