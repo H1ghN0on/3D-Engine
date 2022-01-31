@@ -2,15 +2,20 @@ cmake_minimum_required(VERSION 3.12)
 
 set(ENGINE_PROJECT_NAME GameEngineCore)
 
-#переменная для всех инклудов (hpp)
+#переменные для всех инклудов (hpp)
 set(ENGINE_PUBLIC_INCLUDES 
 includes/GameEngineCore/Application.hpp
 includes/GameEngineCore/Log.hpp
 )
 
-#переменная для всех исходных кодов (cpp)
+set(ENGINE_PRIVATE_INCLUDES
+includes/GameEngineCore/Window.hpp
+)
+
+#переменные для всех исходных кодов (cpp)
 set(ENGINE_PRIVATE_SOURCES 
 src/GameEngineCore/Application.cpp
+src/GameEngineCore/Window.cpp
 )
 
 #компилируем статическую библиотеку для проекта
@@ -34,3 +39,7 @@ target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glfw)
 #spdlog
 add_subdirectory(../external/spdlog ${CMAKE_CURRENT_BINARY_DIR}/spdlog)
 target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE spdlog)
+
+#glad
+add_subdirectory(../external/glad ${CMAKE_CURRENT_BINARY_DIR}/glad)
+target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glad)

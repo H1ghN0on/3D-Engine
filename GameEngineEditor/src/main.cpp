@@ -1,7 +1,6 @@
 #include <iostream>
 #include <memory>
 
-
 #include <GameEngineCore/Application.hpp>
 
 class MyApp : public GameEngine::Application {

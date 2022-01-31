@@ -2,25 +2,32 @@ cmake_minimum_required(VERSION 3.12)
 
 set(ENGINE_PROJECT_NAME GameEngineCore)
 
-#переменная для всех инклудов (hpp)
+#переменные для всех инклудов (hpp)
 set(ENGINE_PUBLIC_INCLUDES 
-includes/GameEngineCore/Application.hpp
-includes/GameEngineCore/Log.hpp
+	includes/GameEngineCore/Application.hpp
+	includes/GameEngineCore/Log.hpp
 )
 
-#переменная для всех исходных кодов (cpp)
+set(ENGINE_PRIVATE_INCLUDES
+	src/GameEngineCore/Window.hpp
+)
+
+#переменные для всех исходных кодов (cpp)
 set(ENGINE_PRIVATE_SOURCES 
-src/GameEngineCore/Application.cpp
+	src/GameEngineCore/Application.cpp
+	src/GameEngineCore/Window.cpp
 )
 
 #компилируем статическую библиотеку для проекта
 add_library(${ENGINE_PROJECT_NAME} STATIC 
 	${ENGINE_PUBLIC_INCLUDES}
+	${ENGINE_PRIVATE_INCLUDES}
 	${ENGINE_PRIVATE_SOURCES}
 )
 
 #линкуем все, что находится внутри папки inclues
 target_include_directories(${ENGINE_PROJECT_NAME} PUBLIC includes)
+target_include_directories(${ENGINE_PROJECT_NAME} PRIVATE src)
 
 #указываем нужный компилятор
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_17)
