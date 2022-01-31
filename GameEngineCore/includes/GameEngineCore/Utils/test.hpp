@@ -1,6 +1,0 @@
-namespace GameEngine {
-
-	void sayHello();
-
-}
-

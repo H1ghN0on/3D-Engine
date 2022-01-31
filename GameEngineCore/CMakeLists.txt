@@ -2,10 +2,35 @@ cmake_minimum_required(VERSION 3.12)
 
 set(ENGINE_PROJECT_NAME GameEngineCore)
 
-add_library(${ENGINE_PROJECT_NAME} STATIC 
-	src/GameEngineCore/Utils/test.cpp
-	includes/GameEngineCore/Utils/test.hpp
+#переменная для всех инклудов (hpp)
+set(ENGINE_PUBLIC_INCLUDES 
+includes/GameEngineCore/Application.hpp
+includes/GameEngineCore/Log.hpp
 )
 
+#переменная для всех исходных кодов (cpp)
+set(ENGINE_PRIVATE_SOURCES 
+src/GameEngineCore/Application.cpp
+)
+
+#компилируем статическую библиотеку для проекта
+add_library(${ENGINE_PROJECT_NAME} STATIC 
+	${ENGINE_PUBLIC_INCLUDES}
+	${ENGINE_PRIVATE_SOURCES}
+)
+
+#линкуем все, что находится внутри папки inclues
 target_include_directories(${ENGINE_PROJECT_NAME} PUBLIC includes)
+
+#указываем нужный компилятор
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_17)
+
+#вызывает магию cmake внутри glfw
+add_subdirectory(../external/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
+
+#линкуем glfw к таргету, при этом glfw будет использоваться ТОЛЬКО внутри ядра
+target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glfw)
+
+#spdlog
+add_subdirectory(../external/spdlog ${CMAKE_CURRENT_BINARY_DIR}/spdlog)
+target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE spdlog)
