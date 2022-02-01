@@ -10,14 +10,41 @@ namespace GameEngine {
         LOG_INFO("IT'S HIGH NOON");
     }
 
-	Application::~Application() {
+    Application::~Application() {
         LOG_INFO("THIS IS THE END");
-	}
+    }
 
-	int Application::start(unsigned int window_width, unsigned int window_height, const char* title) {
+    int Application::start(unsigned int window_width, unsigned int window_height, const char* title) {
         m_pWindow = std::make_unique<Window>(window_width, window_height, title);
+        //setting callback to window
 
-        while (true) {
+
+        m_eventDispatcher.addEventListener<WindowResizeEvent>(
+            [](WindowResizeEvent& event) {
+                LOG_INFO("[EVENT] Set window size to {0}x{1}", event.width, event.height);
+            }
+        );
+
+        m_eventDispatcher.addEventListener<WindowCloseEvent>(
+            [&](WindowCloseEvent& event) {
+                this -> m_isWindowClosed = true;
+                LOG_INFO("[EVENT] Window Closed");
+            }
+        );
+
+        m_eventDispatcher.addEventListener<MouseMovedEvent>(
+            [&](MouseMovedEvent& event) {
+                LOG_INFO("[EVENT] Mouse moved x:{0} y:{1}", event.x, event.y);
+            }
+        );
+
+        m_pWindow->set_event_callback(
+            [&](BaseEvent& event) {
+                m_eventDispatcher.dispatch(event);
+            }
+        );
+
+        while (!m_isWindowClosed) {
             m_pWindow->on_update();
             this -> on_update();
         }

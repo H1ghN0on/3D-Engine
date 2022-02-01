@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <memory>
+#include "GameEngineCore/Event.hpp"
 
 namespace GameEngine {
 
@@ -16,9 +17,12 @@ namespace GameEngine {
 
 		virtual int start(unsigned int window_width, unsigned int window_height, const char* title);
 
-		virtual void on_update() {};
+		virtual void on_update() {}
+		
 	private:
-		std::unique_ptr<class Window> m_pWindow;
+		bool m_isWindowClosed;
+		std::unique_ptr<class Window> m_pWindow = nullptr;
+		EventDispatcher m_eventDispatcher;
 	};
 }
 

@@ -6,6 +6,7 @@ set(ENGINE_PROJECT_NAME GameEngineCore)
 set(ENGINE_PUBLIC_INCLUDES 
 	includes/GameEngineCore/Application.hpp
 	includes/GameEngineCore/Log.hpp
+	includes/GameEngineCore/Event.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES
