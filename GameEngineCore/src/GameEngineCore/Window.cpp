@@ -24,6 +24,8 @@ namespace GameEngine {
         0.0f, 0.0f, 1.0f
     };
 
+    //in - enter attributes
+    //out - output attributes
     const char* vertexShader =
         "#version 460\n"
         "layout(location = 0) in vec3 vertexPosition;"
@@ -155,26 +157,53 @@ namespace GameEngine {
         glDeleteShader(vs);
         glDeleteShader(fs);
 
+        //keeping vertexes in gpu memory
+        //generating the points buffer
         GLuint pointsVbo = 0;
         glGenBuffers(1, &pointsVbo);
-        glBindBuffer(GL_ARRAY_BUFFER, pointsVbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
 
+        //generating the colors buffer
         GLuint colorsVbo = 0;
         glGenBuffers(1, &colorsVbo);
-        glBindBuffer(GL_ARRAY_BUFFER, colorsVbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
 
+
+
+        //generating vertex array object (vertex info container) and connecting to it
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
 
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, pointsVbo);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
+        glBindBuffer(GL_ARRAY_BUFFER, pointsVbo);
+
+        //setting the buffer type
+        //setting vertexes to the points buffer
+
+        //1arg - buffer type, 
+        //2arg - size of target array, 
+        //3arg - target array, 
+        //4arg - gpu control (static or dynamic)
+        glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+        //setting the structure of vertex array
+        //1arg - location
+        //2arg - size of vertex attrib (3 == vec3)
+        //3arg - type of vertex attrib
+        //4arg - normalisation?
+        //5arg - step (0: auto, 3: actual step))
+        //6arg - start margin
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+
+        //likewise
         glEnableVertexAttribArray(1);
+
         glBindBuffer(GL_ARRAY_BUFFER, colorsVbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        //disconnect vao
+        glBindVertexArray(0);
 
         return 0;
 
@@ -193,9 +222,10 @@ namespace GameEngine {
             m_backgroundColor[3]);
         glClear(GL_COLOR_BUFFER_BIT);
 
-
+        //connecting shaders and vao to render
         glUseProgram(shaderProgram);
         glBindVertexArray(vao);
+        //draw triangle
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
