@@ -32,7 +32,7 @@ namespace GameEngine {
 		//set callback from Application, it will be called, when the specific event (f.e. window resize) was triggered
 		void set_event_callback(const EventCallbackFn& cb) {
 			m_data.eventCallbackFn = cb;
-		} 
+		}
 	private:
 		//personal WindowData for the window
 		struct WindowData {
@@ -50,7 +50,7 @@ namespace GameEngine {
 
 		GLFWwindow* m_pWindow;
 		WindowData m_data;
-
+		float m_backgroundColor[4] = { 1.f, 0.f, 0.f, 0.f };
 	};
 }
 

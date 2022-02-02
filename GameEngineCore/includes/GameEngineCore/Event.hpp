@@ -26,7 +26,7 @@ namespace GameEngine {
 	public:
 		template <class EventType>
 		void addEventListener(std::function<void(EventType&)> callback) {
-			//моя задача - поместить в главный массив коллбек под правильным индексом
+			//transform EventType to BaseEvent
 			auto baseCallback = [func = std::move(callback)](BaseEvent& e) {
 				if (e.get_type() == EventType::type) {
 					func(static_cast<EventType&>(e));
