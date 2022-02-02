@@ -12,16 +12,35 @@ namespace GameEngine {
    
     static bool s_GLFW_initialized = false;
 
+    GLfloat rectangleVertices[] = {
+        0.5f, 0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f
+    };
+
+    GLuint indices[] = {
+        0, 1, 3,
+        1, 2, 3
+    };
+
     GLfloat points[] = {
         0.0f, 0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f
+        -0.5f, -0.5f, 0.0f,
+
+         0.5f, -0.5f, 0.0f,  
+        -0.5f, -0.5f, 0.0f, 
+        -0.5f,  0.5f, 0.0f
     };
 
     GLfloat colors[] = {
         1.0f, 0.0f, 0.0f,
         0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f
+        0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
     };
 
     //in - enter attributes
@@ -127,6 +146,7 @@ namespace GameEngine {
             }
         );
 
+  
         glfwSetFramebufferSizeCallback(m_pWindow,
             [](GLFWwindow* pWindow, int width, int height) {
                 glViewport(0, 0, width, height);
@@ -157,6 +177,21 @@ namespace GameEngine {
         glDeleteShader(vs);
         glDeleteShader(fs);
 
+        //RECTANGLE
+
+        //GLuint rectangleVbo;
+        //glGenBuffers(1, &rectangleVbo);
+        //glBindBuffer(GL_ARRAY_BUFFER, rectangleVbo);
+        //glBufferData(GL_ARRAY_BUFFER, sizeof(rectangleVertices), rectangleVertices, GL_STATIC_DRAW);
+
+        //GLuint ebo;
+        //glGenBuffers(1, &ebo);
+
+        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+
+
         //keeping vertexes in gpu memory
         //generating the points buffer
         GLuint pointsVbo = 0;
@@ -167,18 +202,18 @@ namespace GameEngine {
         glGenBuffers(1, &colorsVbo);
 
 
-
         //generating vertex array object (vertex info container) and connecting to it
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
 
         glEnableVertexAttribArray(0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, pointsVbo);
 
         //setting the buffer type
-        //setting vertexes to the points buffer
+        glBindBuffer(GL_ARRAY_BUFFER, pointsVbo);
 
+        //setting vertexes to the points buffer
+        
         //1arg - buffer type, 
         //2arg - size of target array, 
         //3arg - target array, 
@@ -186,6 +221,7 @@ namespace GameEngine {
         glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
 
         //setting the structure of vertex array
+        // 
         //1arg - location
         //2arg - size of vertex attrib (3 == vec3)
         //3arg - type of vertex attrib
@@ -201,6 +237,11 @@ namespace GameEngine {
         glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
 
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        //RECTANGLE
+
+        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
         //disconnect vao
         glBindVertexArray(0);
@@ -226,8 +267,11 @@ namespace GameEngine {
         glUseProgram(shaderProgram);
         glBindVertexArray(vao);
         //draw triangle
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
+        //draw rectangle
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize.x = static_cast<float>(get_width());
