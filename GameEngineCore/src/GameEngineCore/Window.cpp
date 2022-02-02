@@ -3,6 +3,7 @@
 
 #include "GameEngineCore/Window.hpp"
 #include "GameEngineCore/Log.hpp"
+#include "GameEngineCore/Rendering/OpenGL/ShaderProgram.hpp"
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
@@ -65,6 +66,7 @@ namespace GameEngine {
 
     GLuint shaderProgram;
     GLuint vao;
+    std::unique_ptr<ShaderProgram> p_shaderProgram = nullptr;
 
 	Window::Window(const unsigned int width, const unsigned int height, std::string title):
         m_data({width, height, std::move(title)})
@@ -152,30 +154,13 @@ namespace GameEngine {
                 glViewport(0, 0, width, height);
             }
         );
+        //Create Shader Program
+        p_shaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
 
-        //generation of vertex shader
-        GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-        //link shader program to vs
-        glShaderSource(vs, 1, &vertexShader, nullptr);
-        //compile shader
-        glCompileShader(vs);
-
-        //fragment shader
-        GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fs, 1, &fragmentShader, nullptr);
-        glCompileShader(fs);
-
-        //generate universal program
-        shaderProgram = glCreateProgram();
-        
-        //linking two shaders
-        glAttachShader(shaderProgram, vs);
-        glAttachShader(shaderProgram, fs);
-        glLinkProgram(shaderProgram);
-
-        //deleting shaders
-        glDeleteShader(vs);
-        glDeleteShader(fs);
+        if (!p_shaderProgram->isCompiled())
+        {
+            return false;
+        }
 
         //RECTANGLE
 
@@ -264,7 +249,7 @@ namespace GameEngine {
         glClear(GL_COLOR_BUFFER_BIT);
 
         //connecting shaders and vao to render
-        glUseProgram(shaderProgram);
+        p_shaderProgram->bind();
         glBindVertexArray(vao);
         //draw triangle
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

@@ -34,7 +34,7 @@ namespace GameEngine {
 
         m_eventDispatcher.addEventListener<MouseMovedEvent>(
             [&](MouseMovedEvent& event) {
-                LOG_INFO("[EVENT] Mouse moved x:{0} y:{1}", event.x, event.y);
+      
             }
         );
 

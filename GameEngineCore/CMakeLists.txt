@@ -11,19 +11,29 @@ set(ENGINE_PUBLIC_INCLUDES
 
 set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Window.hpp
+	src/GameEngineCore/Rendering/OpenGL/ShaderProgram.hpp
 )
 
 #переменные для всех исходных кодов (cpp)
 set(ENGINE_PRIVATE_SOURCES 
 	src/GameEngineCore/Application.cpp
 	src/GameEngineCore/Window.cpp
+	src/GameEngineCore/Rendering/OpenGL/ShaderProgram.cpp
 )
 
 #компилируем статическую библиотеку для проекта
-add_library(${ENGINE_PROJECT_NAME} STATIC 
+
+set(ENGINE_ALL_SOURCES 
 	${ENGINE_PUBLIC_INCLUDES}
 	${ENGINE_PRIVATE_INCLUDES}
 	${ENGINE_PRIVATE_SOURCES}
+)
+add_library(${ENGINE_PROJECT_NAME} STATIC 
+	${ENGINE_ALL_SOURCES}
+)
+#файловая структура отображается в Visual Studio как в проводнике
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
+	${ENGINE_ALL_SOURCES}
 )
 
 #линкуем все, что находится внутри папки inclues
