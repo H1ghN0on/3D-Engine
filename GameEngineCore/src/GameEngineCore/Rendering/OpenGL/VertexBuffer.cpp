@@ -4,6 +4,76 @@
 #include <glad/glad.h>
 
 namespace GameEngine {
+
+    constexpr unsigned int shaderDataTypeToComponentsCount(const ShaderDataType type)
+    {
+        switch (type)
+        {
+        case ShaderDataType::Float:
+        case ShaderDataType::Int:
+            return 1;
+
+        case ShaderDataType::Float2:
+        case ShaderDataType::Int2:
+            return 2;
+
+        case ShaderDataType::Float3:
+        case ShaderDataType::Int3:
+            return 3;
+
+        case ShaderDataType::Float4:
+        case ShaderDataType::Int4:
+            return 4;
+        }
+
+        LOG_ERROR("shaderDataTypeToComponentsCount: unknown ShaderDataType!");
+        return 0;
+    }
+
+
+    constexpr size_t shaderDataTypeSize(const ShaderDataType type)
+    {
+        switch (type)
+        {
+        case ShaderDataType::Float:
+        case ShaderDataType::Float2:
+        case ShaderDataType::Float3:
+        case ShaderDataType::Float4:
+            return sizeof(GLfloat) * shaderDataTypeToComponentsCount(type);
+
+        case ShaderDataType::Int:
+        case ShaderDataType::Int2:
+        case ShaderDataType::Int3:
+        case ShaderDataType::Int4:
+            return sizeof(GLint) * shaderDataTypeToComponentsCount(type);
+        }
+
+        LOG_ERROR("shaderDataTypeSize: unknown ShaderDataType!");
+        return 0;
+    }
+
+
+    constexpr unsigned int shaderDataTypeToComponentType(const ShaderDataType type)
+    {
+        switch (type)
+        {
+        case ShaderDataType::Float:
+        case ShaderDataType::Float2:
+        case ShaderDataType::Float3:
+        case ShaderDataType::Float4:
+            return GL_FLOAT;
+
+        case ShaderDataType::Int:
+        case ShaderDataType::Int2:
+        case ShaderDataType::Int3:
+        case ShaderDataType::Int4:
+            return GL_INT;
+        }
+
+        LOG_ERROR("shaderDataTypeToComponentType: unknown ShaderDataType!");
+        return GL_FLOAT;
+    }
+
 	//cast EUsage to GLenum (user type to opengl type)
 	constexpr GLenum usageToGLenum(const VertexBuffer::EUsage usage) {
 		switch (usage) {
@@ -18,7 +88,20 @@ namespace GameEngine {
 		return GL_STREAM_DRAW;
 	}
 
-	VertexBuffer::VertexBuffer(const void* data, const size_t size, const EUsage usage) {
+    //Generate Buffer Element info from its name (f.e.FLOAT3 means array of 3 GL_Float elements with the 24bytes size)
+	BufferElement::BufferElement(const ShaderDataType _type)
+		: type(_type)
+		, componentType(shaderDataTypeToComponentType(_type))
+		, componentsCount(shaderDataTypeToComponentsCount(_type))
+		, size(shaderDataTypeSize(_type))
+		, offset(0)
+	{
+	}
+
+
+	VertexBuffer::VertexBuffer(const void* data, const size_t size, BufferLayout bufferLayout, const EUsage usage) 
+		: m_bufferLayout(std::move(bufferLayout)) 
+	{
 		//generate new buffer
 		glGenBuffers(1, &m_id);
 		//make the buffer current
@@ -37,8 +120,10 @@ namespace GameEngine {
 		return *this;
 	}
 
-	VertexBuffer::VertexBuffer(VertexBuffer&& vertexBuffer) noexcept {
-		m_id = vertexBuffer.m_id;
+	VertexBuffer::VertexBuffer(VertexBuffer&& vertexBuffer) noexcept 
+        : m_id(vertexBuffer.m_id)
+        , m_bufferLayout(std::move(vertexBuffer.m_bufferLayout))
+    {
 		vertexBuffer.m_id = 0;
 	}
 	//make the buffer current

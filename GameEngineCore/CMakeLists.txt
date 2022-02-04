@@ -13,6 +13,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Window.hpp
 	src/GameEngineCore/Rendering/OpenGL/ShaderProgram.hpp
 	src/GameEngineCore/Rendering/OpenGL/VertexBuffer.hpp
+	src/GameEngineCore/Rendering/OpenGL/VertexArray.hpp
 )
 
 #переменные для всех исходных кодов (cpp)
@@ -21,6 +22,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/GameEngineCore/Window.cpp
 	src/GameEngineCore/Rendering/OpenGL/ShaderProgram.cpp
 	src/GameEngineCore/Rendering/OpenGL/VertexBuffer.cpp
+	src/GameEngineCore/Rendering/OpenGL/VertexArray.cpp
 )
 
 #компилируем статическую библиотеку для проекта
