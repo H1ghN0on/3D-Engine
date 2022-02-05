@@ -12,12 +12,13 @@
 #include "GameEngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 #include "GameEngineCore/Rendering/OpenGL/VertexArray.hpp"
 #include "GameEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
-
+#include "GameEngineCore/Rendering/OpenGL/Camera.hpp"
 
 namespace GameEngine {
    
 
     static bool s_GLFW_initialized = false;
+    static bool isPerspective = false;
 
     GLfloat rectangleVertices[] = {
        -0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 0.0f,
@@ -41,6 +42,8 @@ namespace GameEngine {
     float rotate = 0.f;
     float translate[] = { 0.f, 0.f, 0.f };
 
+    float cameraPosition[] = { 0.f, 0.f, 1.f };
+    float cameraRotation[] = {0.f, 0.f, 0.f};
 
     //in - enter attributes
     //out - output attributes
@@ -50,10 +53,11 @@ namespace GameEngine {
         layout(location = 0) in vec3 vertexPosition;
         layout(location = 1) in vec3 vertexColor;
         uniform mat4 transformMatrix;
+        uniform mat4 viewAndProjectionMatrix;
         out vec3 color;
         void main() {
            color = vertexColor;
-           gl_Position = transformMatrix * vec4(vertexPosition, 1.0);
+           gl_Position = viewAndProjectionMatrix * transformMatrix * vec4(vertexPosition, 1.0);
         })";
     
     const char* fragmentShader =
@@ -82,6 +86,7 @@ namespace GameEngine {
 
     std::unique_ptr<IndexBuffer> p_indexBuffer = nullptr;
 
+    Camera camera;
 
 	Window::Window(const unsigned int width, const unsigned int height, std::string title):
         m_data({width, height, std::move(title)})
@@ -187,7 +192,7 @@ namespace GameEngine {
         p_oneBufferVAO->addVertexBuffer(*p_pointsAndColorsVBO);
         p_oneBufferVAO->setIndexBuffer(*p_indexBuffer); 
 
-
+        
         return 0;
 
 	}
@@ -231,8 +236,22 @@ namespace GameEngine {
         );
 
         glm::mat4 transformMatrix = translateMatrix * rotateMatrix * scaleMatrix;
-
         p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
+
+        if (isPerspective) {
+            camera.setType(Camera::ProjectionType::Perspective);
+        }
+        else {
+            camera.setType(Camera::ProjectionType::Orthographic);
+        }
+
+        camera.setPositionAndRotation(
+            glm::vec3(cameraPosition[0], cameraPosition[1], cameraPosition[2]), 
+            glm::vec3(cameraRotation[0], cameraRotation[1], cameraRotation[2])
+        );
+        glm::mat4 viewAndProjectionMatrix = camera.getProjectionMatrix() * camera.getViewMatrix();
+        p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
+
         p_oneBufferVAO->bind();
 
         //draw triangle
@@ -254,11 +273,15 @@ namespace GameEngine {
 
         ImGui::Begin("Background Color Window");
         ImGui::ColorEdit4("Background Color", m_backgroundColor);
+        ImGui::TextColored(ImVec4(1, 0, 1, 1), "Transform Object");
         ImGui::SliderFloat3("Scale", scale, 0.f, 2.f);
         ImGui::SliderFloat("Rotate", &rotate, 0.f, 360.f);
         ImGui::SliderFloat3("Translate", translate, -1.f, 1.f);
+        ImGui::TextColored(ImVec4(1, 0, 1, 1), "Transform Camera");
+        ImGui::SliderFloat3("Camera Translate", cameraPosition, -10.f, 10.f);
+        ImGui::SliderFloat3("Camera Rotate", cameraRotation, 0.f, 360.f);
+        ImGui::Checkbox("Perspective", &isPerspective);
         ImGui::End();
-
 
 
         ImGui::Render();
