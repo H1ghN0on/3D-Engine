@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/mat3x3.hpp>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -9,28 +10,29 @@
 #include "GameEngineCore/Rendering/OpenGL/ShaderProgram.hpp"
 #include "GameEngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 #include "GameEngineCore/Rendering/OpenGL/VertexArray.hpp"
+#include "GameEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
+
 
 namespace GameEngine {
    
-    static bool isOneBuffer = false;
+
     static bool s_GLFW_initialized = false;
 
-    GLfloat points[] = {
-        0.0f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-    };
-
-    GLfloat colors[] = {
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f,
+    GLfloat rectangleVertices[] = {
+       -0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,
+       -0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,
+        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f
     };
 
     GLfloat pointsAndColors[] = {
         0.0f, 0.5f, 0.0f,       1.0f, 1.0f, 0.0f,
         0.5f, -0.5f, 0.0f,      0.0f, 1.0f, 1.0f,
         -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 1.0f,
+    };
+
+    GLuint indices[] = {
+        0, 1, 2, 3, 2, 1
     };
 
     //in - enter attributes
@@ -57,27 +59,17 @@ namespace GameEngine {
         ShaderDataType::Float3,
         ShaderDataType::Float3
     };
-    BufferLayout bufferElementNumberOne {
-        ShaderDataType::Float3,
-    };
 
-    BufferLayout bufferElementNumberTwo{
-        ShaderDataType::Float3,
-    };
 
     GLuint vao;
 
     std::unique_ptr<ShaderProgram> p_shaderProgram = nullptr;
 
-    std::unique_ptr<VertexBuffer> p_pointsVBO = nullptr;
-    std::unique_ptr<VertexBuffer> p_colorsVBO = nullptr;
-    
     std::unique_ptr<VertexBuffer> p_pointsAndColorsVBO = nullptr;
 
-    std::unique_ptr<VertexArray> p_twoBuffersVAO = nullptr;
     std::unique_ptr<VertexArray> p_oneBufferVAO = nullptr;
 
-    
+    std::unique_ptr<IndexBuffer> p_indexBuffer = nullptr;
 
 
 	Window::Window(const unsigned int width, const unsigned int height, std::string title):
@@ -175,17 +167,32 @@ namespace GameEngine {
         }
         //keeping vertexes in gpu memory
         //generating the points buffer
-        p_pointsVBO = std::make_unique<VertexBuffer>(points, sizeof(points), bufferElementNumberOne, VertexBuffer::EUsage::Static);
-        p_colorsVBO = std::make_unique<VertexBuffer>(colors, sizeof(colors), bufferElementNumberTwo, VertexBuffer::EUsage::Static);
-        p_pointsAndColorsVBO = std::make_unique<VertexBuffer>(pointsAndColors, sizeof(pointsAndColors), oneElement, VertexBuffer::EUsage::Static);
+  
+        p_pointsAndColorsVBO = std::make_unique<VertexBuffer>(rectangleVertices, sizeof(rectangleVertices), oneElement);
         //generating vertex array object (vertex info container) and connecting to it
-        p_twoBuffersVAO = std::make_unique<VertexArray>();
-        p_twoBuffersVAO->addBuffer(*p_pointsVBO);
-        p_twoBuffersVAO->addBuffer(*p_colorsVBO);
-
         p_oneBufferVAO = std::make_unique<VertexArray>();
-        p_oneBufferVAO->addBuffer(*p_pointsAndColorsVBO);
+        p_indexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices)/sizeof(GLuint));
 
+        p_oneBufferVAO->addVertexBuffer(*p_pointsAndColorsVBO);
+        p_oneBufferVAO->setIndexBuffer(*p_indexBuffer); 
+
+
+        glm::mat3 mat1(4, 0, 0, 2, 8, 1, 0, 1, 0);
+        glm::mat3 mat2(4, 2, 9, 2, 0, 4, 1, 4, 2);
+
+        glm::mat3 result = mat1 * mat2;
+
+        LOG_INFO("");
+        LOG_INFO("|{0:3} {1:3} {2:3}|", result[0][0], result[1][0], result[2][0]);
+        LOG_INFO("|{0:3} {1:3} {2:3}|", result[0][1], result[1][1], result[2][1]);
+        LOG_INFO("|{0:3} {1:3} {2:3}|", result[0][2], result[1][2], result[2][2]);
+        LOG_INFO("");
+
+        glm::vec4 vec(1, 2, 3, 4);
+        glm::mat4 matIdentity(1);
+        
+        glm::vec4 resultVec = matIdentity * vec;
+        LOG_INFO("|{0} {1} {2} {3}|", resultVec.x, resultVec.y, resultVec.z, resultVec.w);
         return 0;
 
 	}
@@ -206,17 +213,12 @@ namespace GameEngine {
         //connecting shaders and vao to render
         p_shaderProgram->bind();
 
-        if (isOneBuffer) {
-            p_oneBufferVAO->bind();
-        }
-        else {
-            p_twoBuffersVAO->bind();
-        }
+        p_oneBufferVAO->bind();
 
         //draw triangle
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, p_oneBufferVAO->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
         //draw rectangle
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         
@@ -232,7 +234,6 @@ namespace GameEngine {
 
         ImGui::Begin("Background Color Window");
         ImGui::ColorEdit4("Background Color", m_backgroundColor);
-        ImGui::Checkbox("One buffer", &isOneBuffer);
         ImGui::End();
 
 

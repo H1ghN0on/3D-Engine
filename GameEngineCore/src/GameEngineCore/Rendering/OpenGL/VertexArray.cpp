@@ -40,7 +40,7 @@ namespace GameEngine {
 		glBindVertexArray(0);
 	}
 
-	void VertexArray::addBuffer(const VertexBuffer& vertexBuffer) {
+	void VertexArray::addVertexBuffer(const VertexBuffer& vertexBuffer) {
 		//connecting vao and vbo
 		bind();
 		vertexBuffer.bind();
@@ -61,4 +61,10 @@ namespace GameEngine {
 		}
 	}
 
+	void VertexArray::setIndexBuffer(const IndexBuffer& indexBuffer) {
+		//connecting vao and vbo
+		bind();
+		indexBuffer.bind();
+		m_indicesCount = indexBuffer.getCount();
+	}
 }

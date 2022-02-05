@@ -14,6 +14,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Rendering/OpenGL/ShaderProgram.hpp
 	src/GameEngineCore/Rendering/OpenGL/VertexBuffer.hpp
 	src/GameEngineCore/Rendering/OpenGL/VertexArray.hpp
+	src/GameEngineCore/Rendering/OpenGL/IndexBuffer.hpp
 )
 
 #переменные для всех исходных кодов (cpp)
@@ -23,6 +24,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/GameEngineCore/Rendering/OpenGL/ShaderProgram.cpp
 	src/GameEngineCore/Rendering/OpenGL/VertexBuffer.cpp
 	src/GameEngineCore/Rendering/OpenGL/VertexArray.cpp
+	src/GameEngineCore/Rendering/OpenGL/IndexBuffer.cpp
 )
 
 #компилируем статическую библиотеку для проекта
@@ -60,6 +62,11 @@ target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE spdlog)
 #glad
 add_subdirectory(../external/glad ${CMAKE_CURRENT_BINARY_DIR}/glad)
 target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glad)
+
+#glm
+add_subdirectory(../external/glm ${CMAKE_CURRENT_BINARY_DIR}/glm)
+target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glm)
+
 
 
 set(IMGUI_INCLUDES 
