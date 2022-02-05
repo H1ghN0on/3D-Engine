@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/mat3x3.hpp>
+#include <glm/trigonometric.hpp>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -35,25 +36,35 @@ namespace GameEngine {
         0, 1, 2, 3, 2, 1
     };
 
+    //properties of transform matrix
+    float scale[] = { 1.f, 1.f, 1.f };
+    float rotate = 0.f;
+    float translate[] = { 0.f, 0.f, 0.f };
+
+
     //in - enter attributes
     //out - output attributes
+    //uniform - global shader program variable
     const char* vertexShader =
-        "#version 460\n"
-        "layout(location = 0) in vec3 vertexPosition;"
-        "layout(location = 1) in vec3 vertexColor;"
-        "out vec3 color;"
-        "void main() {"
-        "   color = vertexColor;"
-        "   gl_Position = vec4(vertexPosition, 1.0);"
-        "}";
+        R"(#version 460
+        layout(location = 0) in vec3 vertexPosition;
+        layout(location = 1) in vec3 vertexColor;
+        uniform mat4 transformMatrix;
+        out vec3 color;
+        void main() {
+           color = vertexColor;
+           gl_Position = transformMatrix * vec4(vertexPosition, 1.0);
+        })";
     
     const char* fragmentShader =
-        "#version 460\n"
-        "in vec3 color;"
-        "out vec4 fragColor;"
-        "void main() {"
-        " fragColor = vec4(color, 1.0);"
-        "}";
+        R"(#version 460
+        in vec3 color;
+        out vec4 fragColor;
+   
+        void main() {
+        fragColor = vec4(color, 1.0);
+        })";
+;
 
     BufferLayout oneElement{
         ShaderDataType::Float3,
@@ -177,22 +188,6 @@ namespace GameEngine {
         p_oneBufferVAO->setIndexBuffer(*p_indexBuffer); 
 
 
-        glm::mat3 mat1(4, 0, 0, 2, 8, 1, 0, 1, 0);
-        glm::mat3 mat2(4, 2, 9, 2, 0, 4, 1, 4, 2);
-
-        glm::mat3 result = mat1 * mat2;
-
-        LOG_INFO("");
-        LOG_INFO("|{0:3} {1:3} {2:3}|", result[0][0], result[1][0], result[2][0]);
-        LOG_INFO("|{0:3} {1:3} {2:3}|", result[0][1], result[1][1], result[2][1]);
-        LOG_INFO("|{0:3} {1:3} {2:3}|", result[0][2], result[1][2], result[2][2]);
-        LOG_INFO("");
-
-        glm::vec4 vec(1, 2, 3, 4);
-        glm::mat4 matIdentity(1);
-        
-        glm::vec4 resultVec = matIdentity * vec;
-        LOG_INFO("|{0} {1} {2} {3}|", resultVec.x, resultVec.y, resultVec.z, resultVec.w);
         return 0;
 
 	}
@@ -212,7 +207,32 @@ namespace GameEngine {
 
         //connecting shaders and vao to render
         p_shaderProgram->bind();
+        float radiansRotate = glm::radians(rotate);
 
+        glm::mat4 scaleMatrix(
+            scale[0], 0, 0, 0,
+            0, scale[1], 0, 0,
+            0, 0, scale[2], 0,
+            0, 0, 0, 1
+        );
+
+        glm::mat4 rotateMatrix(
+            cos(radiansRotate), sin(radiansRotate), 0, 0,
+            -sin(radiansRotate), cos(radiansRotate), 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
+
+        glm::mat4 translateMatrix(
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            translate[0], translate[1], translate[2], 1
+        );
+
+        glm::mat4 transformMatrix = translateMatrix * rotateMatrix * scaleMatrix;
+
+        p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
         p_oneBufferVAO->bind();
 
         //draw triangle
@@ -234,6 +254,9 @@ namespace GameEngine {
 
         ImGui::Begin("Background Color Window");
         ImGui::ColorEdit4("Background Color", m_backgroundColor);
+        ImGui::SliderFloat3("Scale", scale, 0.f, 2.f);
+        ImGui::SliderFloat("Rotate", &rotate, 0.f, 360.f);
+        ImGui::SliderFloat3("Translate", translate, -1.f, 1.f);
         ImGui::End();
 
 

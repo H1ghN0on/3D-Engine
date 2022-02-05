@@ -1,6 +1,7 @@
 #include "ShaderProgram.hpp";
 #include "GameEngineCore/Log.hpp";
 
+#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
  
 namespace GameEngine {
@@ -77,6 +78,12 @@ namespace GameEngine {
 	ShaderProgram::~ShaderProgram()
 	{
 		glDeleteProgram(m_id);
+	}
+
+	//setting the uniform variable
+	void ShaderProgram::setMatrix4(const char* name, const glm::mat4& matrix) const
+	{
+		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void ShaderProgram::bind() const
