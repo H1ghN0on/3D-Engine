@@ -5,6 +5,7 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
+#include <soil/src/SOIL.h>
 
 #include "GameEngineCore/Window.hpp"
 #include "GameEngineCore/Log.hpp"
@@ -13,12 +14,24 @@
 #include "GameEngineCore/Rendering/OpenGL/VertexArray.hpp"
 #include "GameEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
 #include "GameEngineCore/Rendering/OpenGL/Camera.hpp"
+#include "GameEngineCore/Rendering/OpenGL/Texture.hpp"
 
 namespace GameEngine {
    
 
     static bool s_GLFW_initialized = false;
     static bool isPerspective = false;
+
+    GLfloat cubeVertices[] = {
+        -1.0, -1.0,  -1.0,      1.0f, 1.0f, 0.0f,      1.0f, 1.0f,
+        1.0, -1.0,  -1.0,       0.0f, 1.0f, 1.0f,      0.0f, 1.0f,
+        1.0,  1.0,  -1.0,       1.0f, 0.0f, 1.0f,      0.0f, 0.0f,
+        -1.0,  1.0,  -1.0,      1.0f, 0.0f, 0.0f,      1.0f, 0.0f,
+        -1.0, -1.0, 1.0,        1.0f, 1.0f, 0.0f,      1.0f, 1.0f,
+        1.0, -1.0, 1.0,         0.0f, 1.0f, 1.0f,      0.0f, 1.0f,
+        1.0,  1.0, 1.0,         1.0f, 0.0f, 1.0f,      0.0f, 0.0f,
+        -1.0,  1.0, 1.0,        1.0f, 0.0f, 0.0f,      1.0f, 0.0f
+    };
 
     GLfloat rectangleVertices[] = {
        -0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 0.0f,
@@ -37,14 +50,47 @@ namespace GameEngine {
         0, 1, 2, 3, 2, 1
     };
 
+    GLint cubeIndices[] = {
+                 0, 2, 1,
+                0, 3, 2,
+
+                1,2,6,
+                6,5,1,
+
+                4,5,6,
+                6,7,4,
+
+                2,3,6,
+                6,3,7,
+
+                0,7,3,
+                0,4,7,
+
+                0,1,5,
+                0,5,4
+    };
+
     //properties of transform matrix
     float scale[] = { 1.f, 1.f, 1.f };
     float rotate = 0.f;
     float translate[] = { 0.f, 0.f, 0.f };
 
+    float initPositions[6][3] = {
+        { 0.f, 0.f, 0.f },
+        { 2.0f,  5.0f, -15.0f },
+        { -1.5f, -2.2f, -2.5f },
+        { -3.8f, -2.0f, -12.3f },
+        { 2.4f, -0.4f, -3.5f},
+        { -1.7f,  3.0f, -7.5f}
+    };
+
     float cameraPosition[] = { 0.f, 0.f, 1.f };
     float cameraRotation[] = {0.f, 0.f, 0.f};
 
+    int width = 5, height;
+    const char* chiakiTextureLocation = "../../GameEngineCore/assets/chiaki.png";
+    const char* leopardTextureLocation = "../../GameEngineCore/assets/leopard.jpg";
+    
     //in - enter attributes
     //out - output attributes
     //uniform - global shader program variable
@@ -52,41 +98,53 @@ namespace GameEngine {
         R"(#version 460
         layout(location = 0) in vec3 vertexPosition;
         layout(location = 1) in vec3 vertexColor;
+        layout (location = 2) in vec2 texturePosition; 
         uniform mat4 transformMatrix;
         uniform mat4 viewAndProjectionMatrix;
         out vec3 color;
+        out vec2 textureCoord;
         void main() {
            color = vertexColor;
            gl_Position = viewAndProjectionMatrix * transformMatrix * vec4(vertexPosition, 1.0);
+           textureCoord = texturePosition;
         })";
     
     const char* fragmentShader =
         R"(#version 460
         in vec3 color;
+        in vec2 textureCoord;
         out vec4 fragColor;
+
+        uniform sampler2D ourTexture;
    
         void main() {
-        fragColor = vec4(color, 1.0);
+        fragColor = texture(ourTexture, textureCoord) * vec4(color, 1.0f);
+
         })";
 ;
 
     BufferLayout oneElement{
         ShaderDataType::Float3,
-        ShaderDataType::Float3
+        ShaderDataType::Float3,
+        ShaderDataType::Float2
     };
 
 
     GLuint vao;
+    GLuint texture;
 
     std::unique_ptr<ShaderProgram> p_shaderProgram = nullptr;
 
-    std::unique_ptr<VertexBuffer> p_pointsAndColorsVBO = nullptr;
+    std::unique_ptr<VertexBuffer> p_cubeVBO = nullptr;
+
 
     std::unique_ptr<VertexArray> p_oneBufferVAO = nullptr;
 
     std::unique_ptr<IndexBuffer> p_indexBuffer = nullptr;
 
     Camera camera;
+    Texture chiakiTexture;
+    Texture leopardTexture;
 
 	Window::Window(const unsigned int width, const unsigned int height, std::string title):
         m_data({width, height, std::move(title)})
@@ -174,6 +232,10 @@ namespace GameEngine {
                 glViewport(0, 0, width, height);
             }
         );
+
+        
+        glEnable(GL_DEPTH_TEST);
+       
         //Create Shader Program
         p_shaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
 
@@ -181,15 +243,19 @@ namespace GameEngine {
         {
             return false;
         }
+
+        chiakiTexture.createTexture(chiakiTextureLocation, Texture::WrappingMode::Repeat, Texture::MipmapFilterMode::LinearLinear);
+        leopardTexture.createTexture(leopardTextureLocation, Texture::WrappingMode::Repeat, Texture::MipmapFilterMode::LinearLinear);
         //keeping vertexes in gpu memory
         //generating the points buffer
   
-        p_pointsAndColorsVBO = std::make_unique<VertexBuffer>(rectangleVertices, sizeof(rectangleVertices), oneElement);
+        p_cubeVBO = std::make_unique<VertexBuffer>(cubeVertices, sizeof(cubeVertices), oneElement);
         //generating vertex array object (vertex info container) and connecting to it
         p_oneBufferVAO = std::make_unique<VertexArray>();
-        p_indexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices)/sizeof(GLuint));
+        p_indexBuffer = std::make_unique<IndexBuffer>(cubeIndices, sizeof(cubeIndices)/sizeof(GLuint));
 
-        p_oneBufferVAO->addVertexBuffer(*p_pointsAndColorsVBO);
+        p_oneBufferVAO->addVertexBuffer(*p_cubeVBO);
+        
         p_oneBufferVAO->setIndexBuffer(*p_indexBuffer); 
 
         
@@ -208,9 +274,11 @@ namespace GameEngine {
             m_backgroundColor[1],
             m_backgroundColor[2],
             m_backgroundColor[3]);
-        glClear(GL_COLOR_BUFFER_BIT);
-
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //connecting shaders and vao to render
+
+        chiakiTexture.bind();
+
         p_shaderProgram->bind();
         float radiansRotate = glm::radians(rotate);
 
@@ -221,22 +289,6 @@ namespace GameEngine {
             0, 0, 0, 1
         );
 
-        glm::mat4 rotateMatrix(
-            cos(radiansRotate), sin(radiansRotate), 0, 0,
-            -sin(radiansRotate), cos(radiansRotate), 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-        );
-
-        glm::mat4 translateMatrix(
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            translate[0], translate[1], translate[2], 1
-        );
-
-        glm::mat4 transformMatrix = translateMatrix * rotateMatrix * scaleMatrix;
-        p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
 
         if (isPerspective) {
             camera.setType(Camera::ProjectionType::Perspective);
@@ -253,11 +305,29 @@ namespace GameEngine {
         p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
 
         p_oneBufferVAO->bind();
-
+   
         //draw triangle
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawElements(GL_TRIANGLES, p_oneBufferVAO->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
+        for (int i = 0; i < 6; i++) {
+            glm::mat4 translateMatrix(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                initPositions[i][0], initPositions[i][1], initPositions[i][2], 1
+            );
+            glm::mat4 rotateMatrix(
+                cos(radiansRotate), sin(radiansRotate), 0, 0,
+                -sin(radiansRotate), cos(radiansRotate), 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            );
+
+            glm::mat4 transformMatrix = translateMatrix * rotateMatrix * scaleMatrix;
+            p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
+            glDrawElements(GL_TRIANGLES, p_oneBufferVAO->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
+        }
+        
         //draw rectangle
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         
@@ -276,9 +346,9 @@ namespace GameEngine {
         ImGui::TextColored(ImVec4(1, 0, 1, 1), "Transform Object");
         ImGui::SliderFloat3("Scale", scale, 0.f, 2.f);
         ImGui::SliderFloat("Rotate", &rotate, 0.f, 360.f);
-        ImGui::SliderFloat3("Translate", translate, -1.f, 1.f);
+        ImGui::SliderFloat3("Translate", translate, -5.f, 5.f);
         ImGui::TextColored(ImVec4(1, 0, 1, 1), "Transform Camera");
-        ImGui::SliderFloat3("Camera Translate", cameraPosition, -10.f, 10.f);
+        ImGui::SliderFloat3("Camera Translate", cameraPosition, -5.f, 5.f);
         ImGui::SliderFloat3("Camera Rotate", cameraRotation, 0.f, 360.f);
         ImGui::Checkbox("Perspective", &isPerspective);
         ImGui::End();
