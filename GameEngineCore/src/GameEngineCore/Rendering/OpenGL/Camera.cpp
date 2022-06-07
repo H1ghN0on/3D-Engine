@@ -3,37 +3,30 @@
 #include "Camera.hpp"
 
 namespace GameEngine {
-	Camera::Camera(glm::vec3 position, glm::vec3 rotation, Camera::ProjectionType type)
-		: m_position(position)
-		, m_rotation(rotation)
-		, m_type(type)
-	{
-		updateViewMatrix();
-		updateProjectionMatrix();
-	}
 
-	void Camera::updateViewMatrix() {
+
+	void Camera::updateViewMatrix(glm::vec3 _positionVec, glm::vec3 _rotationVec) {
 		glm::mat4 translateMatrix(
 			1, 0, 0, 0,
 			0, 1, 0, 0,
 			0, 0, 1, 0,
-			-m_position[0], -m_position[1], -m_position[2], 1
+			-_positionVec[0], -_positionVec[1], -_positionVec[2], 1
 		);
-		float rotationInRadians_x = glm::radians(-m_rotation.x);
+		float rotationInRadians_x = glm::radians(-_rotationVec.x);
 		glm::mat4 rotationMatrix_x(
 			1, 0, 0, 0,
 			0, cos(rotationInRadians_x), sin(rotationInRadians_x), 0,
 			0, -sin(rotationInRadians_x), cos(rotationInRadians_x), 0,
 			0, 0, 0, 1
 		);
-		float rotationInRadians_y = glm::radians(-m_rotation.y);
+		float rotationInRadians_y = glm::radians(-_rotationVec.y);
 		glm::mat4 rotationMatrix_y(
 			cos(rotationInRadians_y), 0, -sin(rotationInRadians_y), 0,
 			0, 1, 0, 0,
 			sin(rotationInRadians_y), 0, cos(rotationInRadians_y), 0,
 			0, 0, 0, 1
 		);
-		float rotationInRadians_z = glm::radians(-m_rotation.z);
+		float rotationInRadians_z = glm::radians(-_rotationVec.z);
 		glm::mat4 rotationMatrix_z(
 			cos(rotationInRadians_z), sin(rotationInRadians_z), 0, 0,
 			-sin(rotationInRadians_z), cos(rotationInRadians_z), 0, 0,
@@ -44,9 +37,9 @@ namespace GameEngine {
 		m_viewMatrix = rotationMatrix_y * rotationMatrix_x  * translateMatrix;
 	}
 
-	void Camera::updateProjectionMatrix() {
+	void Camera::updateProjectionMatrix(ProjectionType _type) {
 		//projection
-		if (m_type == ProjectionType::Orthographic) {
+		if (_type == ProjectionType::Orthographic) {
 			float r = 2;
 			float t = 2;
 			float f = 100;
@@ -70,26 +63,26 @@ namespace GameEngine {
 
 	}
 
-	void Camera::setPosition(glm::vec3 position) {
-		m_position = position;
-		updateViewMatrix();
-	}
+	//void Camera::setPosition(glm::vec3 position) {
+	//	m_position = position;
+	//	updateViewMatrix();
+	//}
 
-	void Camera::setRotation(glm::vec3 rotation) {
-		m_rotation = rotation;
-		updateViewMatrix();
-	}
+	//void Camera::setRotation(glm::vec3 rotation) {
+	//	m_rotation = rotation;
+	//	updateViewMatrix();
+	//}
 
-	void Camera::setType(Camera::ProjectionType type) {
-		m_type = type;
-		updateProjectionMatrix();
-	}
+	//void Camera::setType(Camera::ProjectionType type) {
+	//	m_type = type;
+	//	updateProjectionMatrix();
+	//}
 
 
-	void Camera::setPositionAndRotation(glm::vec3 position, glm::vec3 rotation) {
-		m_position = position;
-		m_rotation = rotation;
-		updateViewMatrix();
-	}
+	//void Camera::setPositionAndRotation(glm::vec3 position, glm::vec3 rotation) {
+	//	m_position = position;
+	//	m_rotation = rotation;
+	//	updateViewMatrix();
+	//}
 
 }

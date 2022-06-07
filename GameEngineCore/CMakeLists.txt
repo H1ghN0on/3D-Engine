@@ -18,6 +18,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Rendering/OpenGL/Camera.hpp
 	src/GameEngineCore/Rendering/OpenGL/Texture.hpp
 	src/GameEngineCore/Rendering/OpenGL/Renderer.hpp
+	src/GameEngineCore/Rendering/OpenGL/CameraObject.hpp
 )
 
 #переменные для всех исходных кодов (cpp)
@@ -31,6 +32,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/GameEngineCore/Rendering/OpenGL/Camera.cpp
 	src/GameEngineCore/Rendering/OpenGL/Texture.cpp
 	src/GameEngineCore/Rendering/OpenGL/Renderer.cpp
+	src/GameEngineCore/Rendering/OpenGL/CameraObject.cpp
 )
 
 #компилируем статическую библиотеку для проекта

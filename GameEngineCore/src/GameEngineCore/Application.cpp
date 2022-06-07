@@ -45,6 +45,7 @@ namespace GameEngine {
         );
 
         while (!m_isWindowClosed) {
+
             m_pWindow->on_update();
             this -> on_update();
         }
