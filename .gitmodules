@@ -14,4 +14,4 @@
 
 [submodule "external/soil"]
 	path = external/soil
-	url = https://github.com/paralin/soil.git
+	url = https://github.com/burtonageo/SOIL.git

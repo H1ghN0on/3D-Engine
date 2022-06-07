@@ -3,6 +3,7 @@
 #include "GameEngineCore/Log.hpp"
 #include "IndexBuffer.hpp"
 
+
 namespace GameEngine {
     constexpr GLenum usage_to_GLenum(const VertexBuffer::EUsage usage)
     {

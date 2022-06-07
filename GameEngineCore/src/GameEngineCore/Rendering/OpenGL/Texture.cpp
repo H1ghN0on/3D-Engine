@@ -1,8 +1,8 @@
-#include <soil/src/SOIL.h>
 #include <glad/glad.h>
 #include <glm/vec4.hpp>
 #include "Texture.hpp"
 #include "GameEngineCore/Log.hpp"
+#include <SOIL/SOIL.h>
 
 namespace GameEngine {
 	

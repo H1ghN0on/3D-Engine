@@ -17,6 +17,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Rendering/OpenGL/IndexBuffer.hpp
 	src/GameEngineCore/Rendering/OpenGL/Camera.hpp
 	src/GameEngineCore/Rendering/OpenGL/Texture.hpp
+	src/GameEngineCore/Rendering/OpenGL/Renderer.hpp
 )
 
 #переменные для всех исходных кодов (cpp)
@@ -29,6 +30,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/GameEngineCore/Rendering/OpenGL/IndexBuffer.cpp
 	src/GameEngineCore/Rendering/OpenGL/Camera.cpp
 	src/GameEngineCore/Rendering/OpenGL/Texture.cpp
+	src/GameEngineCore/Rendering/OpenGL/Renderer.cpp
 )
 
 #компилируем статическую библиотеку для проекта
@@ -46,7 +48,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 	${ENGINE_ALL_SOURCES}
 )
 
-#линкуем все, что находится внутри папки inclues
+#линкуем все, что находится внутри папки incldues
 target_include_directories(${ENGINE_PROJECT_NAME} PUBLIC includes)
 target_include_directories(${ENGINE_PROJECT_NAME} PRIVATE src)
 
@@ -73,7 +75,7 @@ target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glm)
 
 #soil
 add_subdirectory(../external/soil ${CMAKE_CURRENT_BINARY_DIR}/soil)
-target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE SOIL)
+target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE soil)
 
 
 

@@ -1,11 +1,9 @@
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/mat3x3.hpp>
 #include <glm/trigonometric.hpp>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
-#include <soil/src/SOIL.h>
 
 #include "GameEngineCore/Window.hpp"
 #include "GameEngineCore/Log.hpp"
@@ -15,11 +13,10 @@
 #include "GameEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
 #include "GameEngineCore/Rendering/OpenGL/Camera.hpp"
 #include "GameEngineCore/Rendering/OpenGL/Texture.hpp"
+#include "GameEngineCore/Rendering/OpenGL/Renderer.hpp"
 
 namespace GameEngine {
-   
-
-    static bool s_GLFW_initialized = false;
+  
     static bool isPerspective = false;
 
     GLfloat cubeVertices[] = {
@@ -165,28 +162,27 @@ namespace GameEngine {
 
         LOG_INFO("Creating window '{0}', {1}x{2}", m_data.title, m_data.width, m_data.height);
 
-        if (!s_GLFW_initialized) {
-            if (!glfwInit()) {
-                LOG_CRITICAL("Failed to initialize GLFW");
-                return -1;
+        glfwSetErrorCallback([](int code, const char* description) {
+                LOG_CRITICAL("GLFW error: {0}", description);
             }
-            s_GLFW_initialized = true;
+        );
+
+        if (!glfwInit()) {
+            LOG_CRITICAL("Failed to initialize GLFW");
+            return -1;
         }
 
         m_pWindow = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, nullptr);
         if (!m_pWindow)
         {
             LOG_CRITICAL("Failed to initialize window");
-            glfwTerminate();
             return -2;
         }
-
-        glfwMakeContextCurrent(m_pWindow);
-
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-            LOG_CRITICAL("Failed to initialize GLAD");
+        
+        if (!Renderer::init(m_pWindow)) {
+            LOG_CRITICAL("Failed to initialize OpenGL renderer");
             return -3;
-        }
+        };
 
         //link window properties to personal WindowData structure
         glfwSetWindowUserPointer(m_pWindow, &m_data);
@@ -229,12 +225,12 @@ namespace GameEngine {
   
         glfwSetFramebufferSizeCallback(m_pWindow,
             [](GLFWwindow* pWindow, int width, int height) {
-                glViewport(0, 0, width, height);
+                Renderer::setViewport(width, height);
             }
         );
 
-        
-        glEnable(GL_DEPTH_TEST);
+        Renderer::enableDepth();
+
        
         //Create Shader Program
         p_shaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
@@ -263,18 +259,24 @@ namespace GameEngine {
 
 	}
     void Window::shutdown() {
+        if (ImGui::GetCurrentContext()) {
+            ImGui::DestroyContext();
+        }
         glfwDestroyWindow(m_pWindow);
         glfwTerminate();
     }
 
     void Window::on_update() {
 
-        glClearColor(
-            m_backgroundColor[0], 
+        Renderer::setClearColor(
+            m_backgroundColor[0],
             m_backgroundColor[1],
             m_backgroundColor[2],
-            m_backgroundColor[3]);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            m_backgroundColor[3]
+        );
+
+        //Renderer::clear();
+        Renderer::clear(BitfieldMask::All);
         //connecting shaders and vao to render
 
         chiakiTexture.bind();
@@ -325,7 +327,7 @@ namespace GameEngine {
 
             glm::mat4 transformMatrix = translateMatrix * rotateMatrix * scaleMatrix;
             p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
-            glDrawElements(GL_TRIANGLES, p_oneBufferVAO->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
+            Renderer::draw(*p_oneBufferVAO);
         }
         
         //draw rectangle

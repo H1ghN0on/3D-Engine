@@ -23,6 +23,6 @@ namespace GameEngine {
 	private:
 		unsigned int m_id = 0;
 		unsigned int m_elementsCount = 0;
-		size_t m_indicesCount;
+		size_t m_indicesCount = 0;
 	};
 }

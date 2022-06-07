@@ -23,7 +23,7 @@ namespace GameEngine {
 		return *this;
 	}
 
-	VertexArray:: VertexArray(VertexArray&& vertexArray) noexcept
+	VertexArray::VertexArray(VertexArray&& vertexArray) noexcept
 		: m_id(vertexArray.m_id)
 		, m_elementsCount(vertexArray.m_elementsCount) 
 	{
