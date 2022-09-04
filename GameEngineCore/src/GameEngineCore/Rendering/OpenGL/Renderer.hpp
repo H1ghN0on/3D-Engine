@@ -24,7 +24,6 @@ namespace GameEngine {
 		);
 		static void enableDepth();
 
-
 		static const char* getVendorStr();
 		static const char* getRendererStr();
 		static const char* getVersionStr();

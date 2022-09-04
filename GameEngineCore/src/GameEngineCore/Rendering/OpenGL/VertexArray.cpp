@@ -14,26 +14,44 @@ namespace GameEngine {
 		glDeleteVertexArrays(1, &m_id);
 	}
 
+	VertexArray& VertexArray::operator=(const VertexArray& vertexArray) noexcept {
+		m_id = vertexArray.m_id;
+		m_elementsCount = vertexArray.m_elementsCount;
+		m_indicesCount = vertexArray.m_indicesCount;
+		return *this;
+	}
+
+	VertexArray::VertexArray(const VertexArray& vertexArray) noexcept {
+		m_id = vertexArray.m_id;
+		m_elementsCount = vertexArray.m_elementsCount;
+		m_indicesCount = vertexArray.m_indicesCount;
+	}
+
 	//move
 	VertexArray& VertexArray::operator=(VertexArray&& vertexArray) noexcept {
 		m_id = vertexArray.m_id;
 		m_elementsCount = vertexArray.m_elementsCount;
+		m_indicesCount = vertexArray.m_indicesCount;
 		vertexArray.m_id = 0;
 		vertexArray.m_elementsCount = 0;
+		vertexArray.m_indicesCount = 0;
 		return *this;
 	}
 
 	VertexArray::VertexArray(VertexArray&& vertexArray) noexcept
 		: m_id(vertexArray.m_id)
-		, m_elementsCount(vertexArray.m_elementsCount) 
+		, m_elementsCount(vertexArray.m_elementsCount)
+		, m_indicesCount(vertexArray.m_indicesCount)
 	{
 		vertexArray.m_id = 0;
 		vertexArray.m_elementsCount = 0;
+		vertexArray.m_indicesCount = 0;
 	}
 
 	//make the buffer current
 	void VertexArray::bind() const {
 		glBindVertexArray(m_id);
+		
 	}
 	//make the buffer uncurrent
 	void VertexArray::unbind() {
@@ -44,7 +62,7 @@ namespace GameEngine {
 		//connecting vao and vbo
 		bind();
 		vertexBuffer.bind();
-
+		m_verticesCount = vertexBuffer.getVerticesCount();
 		//get the buffer layout, then setting buffer elements of layout to vao
 		for (const BufferElement& current_element : vertexBuffer.getLayout().getElements())
 		{
@@ -56,9 +74,12 @@ namespace GameEngine {
 				GL_FALSE,
 				static_cast<GLsizei>(vertexBuffer.getLayout().getStride()),
 				reinterpret_cast<const void*>(current_element.offset)
+
 			);
+			
 			++m_elementsCount;
 		}
+		
 	}
 
 	void VertexArray::setIndexBuffer(const IndexBuffer& indexBuffer) {
@@ -66,5 +87,9 @@ namespace GameEngine {
 		bind();
 		indexBuffer.bind();
 		m_indicesCount = indexBuffer.getCount();
+	}
+
+	bool VertexArray::hasIndexBuffer() const {
+		return m_indicesCount == 0;
 	}
 }

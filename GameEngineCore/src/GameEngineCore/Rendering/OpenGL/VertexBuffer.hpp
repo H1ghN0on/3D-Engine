@@ -60,7 +60,13 @@ namespace GameEngine {
 			Stream
 		};
 
-		VertexBuffer(const void* data, const size_t size, BufferLayout bufferLayout, const EUsage usage = VertexBuffer::EUsage::Static);
+		VertexBuffer(
+			unsigned int verticesCount,
+			const void* data, 
+			size_t size, 
+			BufferLayout bufferLayout, 
+			const EUsage usage = VertexBuffer::EUsage::Static
+		);
 		~VertexBuffer();
 
 		VertexBuffer(const VertexBuffer&) = delete;
@@ -70,11 +76,12 @@ namespace GameEngine {
 
 		void bind() const;
 		static void unbind();
-
+		unsigned int getVerticesCount() const { return verticesCount;  }
 		const BufferLayout& getLayout() const { return m_bufferLayout; }
 
 	private:
 		unsigned int m_id = 0;
 		BufferLayout m_bufferLayout;
+		unsigned int verticesCount;
 	};
 }

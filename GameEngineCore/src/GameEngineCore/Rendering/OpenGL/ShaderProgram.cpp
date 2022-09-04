@@ -96,6 +96,10 @@ namespace GameEngine {
 		glUseProgram(0);
 	}
 
+	unsigned int ShaderProgram::get() {
+		return m_id;
+	}
+
 	//move
 	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram)
 	{

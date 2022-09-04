@@ -10,19 +10,22 @@ namespace GameEngine {
 		VertexArray();
 		~VertexArray();
 
-		VertexArray(const VertexArray&) = delete;
-		VertexArray& operator=(const VertexArray&) = delete;
+		VertexArray(const VertexArray&) noexcept;
+		VertexArray& operator=(const VertexArray&) noexcept;
 		VertexArray(VertexArray&&) noexcept;
 		VertexArray& operator=(VertexArray&&) noexcept;
 
 		void addVertexBuffer(const VertexBuffer& vertexBuffer);
 		void setIndexBuffer(const IndexBuffer& indexBuffer);
 		void bind() const;
+		bool hasIndexBuffer() const;
 		static void unbind();
 		size_t getIndicesCount() const { return m_indicesCount; }
+		unsigned int getVerticesCount() const { return m_verticesCount; }
 	private:
 		unsigned int m_id = 0;
 		unsigned int m_elementsCount = 0;
+		unsigned int m_verticesCount = 0;
 		size_t m_indicesCount = 0;
 	};
 }

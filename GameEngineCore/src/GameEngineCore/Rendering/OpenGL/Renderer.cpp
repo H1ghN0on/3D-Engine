@@ -24,12 +24,18 @@ namespace GameEngine {
 
     void Renderer::draw(const VertexArray& vertexArray) {
         vertexArray.bind();
+        
+        if (vertexArray.hasIndexBuffer()) {
+            //ренедер при рисовании не по индексам
+            glDrawArrays(GL_TRIANGLES, 0, vertexArray.getVerticesCount());
+        }
         glDrawElements(
             GL_TRIANGLES, 
             static_cast<GLsizei>(vertexArray.getIndicesCount()), 
             GL_UNSIGNED_INT, 
             nullptr
         );
+        vertexArray.unbind();
     }
 
 

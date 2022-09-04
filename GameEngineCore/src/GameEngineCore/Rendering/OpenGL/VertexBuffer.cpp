@@ -62,7 +62,7 @@ namespace GameEngine {
         case ShaderDataType::Float3:
         case ShaderDataType::Float4:
             return GL_FLOAT;
-
+            
         case ShaderDataType::Int:
         case ShaderDataType::Int2:
         case ShaderDataType::Int3:
@@ -99,8 +99,9 @@ namespace GameEngine {
 	}
 
 
-	VertexBuffer::VertexBuffer(const void* data, const size_t size, BufferLayout bufferLayout, const EUsage usage) 
+	VertexBuffer::VertexBuffer(unsigned int verticesCount, const void* data, size_t size, BufferLayout bufferLayout, const EUsage usage) 
 		: m_bufferLayout(std::move(bufferLayout)) 
+        , verticesCount(verticesCount)
 	{
 		//generate new buffer
 		glGenBuffers(1, &m_id);

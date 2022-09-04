@@ -1,5 +1,6 @@
 #include "CameraObject.hpp"
 #include <iostream>
+#include <glm/trigonometric.hpp>
 
 
 namespace GameEngine {
@@ -14,11 +15,11 @@ namespace GameEngine {
 		, rotation(_rotation)
 		, type(_type)
 	{
-		updateViewMatrix(position, rotation);
+		updateViewMatrix(position, position + front, up);
 		updateProjectionMatrix(type);
 	}
 
-	void CameraObject::move(Direction dir, float deltaTime) {
+	void CameraObject::translate(Direction dir, float deltaTime) {
 		float trueSpeed = speed * deltaTime;
 		switch(dir) {
 
@@ -51,30 +52,35 @@ namespace GameEngine {
 				break;
 			}
 		}
-		updateViewMatrix(position, rotation);
+	
+		updateViewMatrix(position, position + front, up);
 	}
 
 	void CameraObject::rotate(float x, float y) {
-
-		float xoffset = lastX - x;
+	
+		float xoffset = x - lastX;
 		float yoffset = lastY - y;
 		lastX = x;
 		lastY = y;
 
 		xoffset *= sensitivity;
 		yoffset *= sensitivity;
-		rotation[0] += yoffset;
 		rotation[1] += xoffset;
+		rotation[0] += yoffset;
+	
 
 		if (rotation[0] > 90)
 			rotation[0] = 90;
 		if (rotation[0] < -90.f)
 			rotation[0] = -90.f;
 
-		
-		updateViewMatrix(position, rotation);
+		front.x = cos(glm::radians(rotation[0])) * cos(glm::radians(rotation[1]));
+		front.y = sin(glm::radians(rotation[0]));
+		front.z = cos(glm::radians(rotation[0])) * sin(glm::radians(rotation[1]));
+		front = glm::normalize(front);
 
-		/* todo - идти в направлении взляда */
+		updateViewMatrix(position, position + front, up);
+
 	}
 
 	void CameraObject::setType(ProjectionType _type) {
@@ -82,8 +88,8 @@ namespace GameEngine {
 		updateProjectionMatrix(type);
 	}
 
-	void CameraObject::update() {
-		glm::mat4 viewAndProjectionMatrix = getProjectionMatrix() * getViewMatrix();
+	glm::mat4 CameraObject::update() {
+		return getProjectionMatrix() * getViewMatrix();
 	}
 
 

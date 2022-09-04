@@ -1,40 +1,36 @@
 #include <glm/trigonometric.hpp>
 
 #include "Camera.hpp"
+#include <glm/ext/matrix_transform.hpp>
 
 namespace GameEngine {
 
 
-	void Camera::updateViewMatrix(glm::vec3 _positionVec, glm::vec3 _rotationVec) {
-		glm::mat4 translateMatrix(
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			-_positionVec[0], -_positionVec[1], -_positionVec[2], 1
-		);
-		float rotationInRadians_x = glm::radians(-_rotationVec.x);
-		glm::mat4 rotationMatrix_x(
-			1, 0, 0, 0,
-			0, cos(rotationInRadians_x), sin(rotationInRadians_x), 0,
-			0, -sin(rotationInRadians_x), cos(rotationInRadians_x), 0,
-			0, 0, 0, 1
-		);
-		float rotationInRadians_y = glm::radians(-_rotationVec.y);
-		glm::mat4 rotationMatrix_y(
-			cos(rotationInRadians_y), 0, -sin(rotationInRadians_y), 0,
-			0, 1, 0, 0,
-			sin(rotationInRadians_y), 0, cos(rotationInRadians_y), 0,
-			0, 0, 0, 1
-		);
-		float rotationInRadians_z = glm::radians(-_rotationVec.z);
-		glm::mat4 rotationMatrix_z(
-			cos(rotationInRadians_z), sin(rotationInRadians_z), 0, 0,
-			-sin(rotationInRadians_z), cos(rotationInRadians_z), 0, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1
-		);
+	void Camera::updateViewMatrix(glm::vec3 position, glm::vec3 front, glm::vec3 up) {
 
-		m_viewMatrix = rotationMatrix_y * rotationMatrix_x  * translateMatrix;
+		glm::vec3 frontVector = glm::normalize(position - front);
+
+		glm::vec3 rightVector = glm::normalize(glm::cross(up, frontVector));
+
+
+		glm::vec3 upVector = glm::cross(frontVector, rightVector);
+
+		glm::mat4 orientation = {
+		   glm::vec4(rightVector.x, upVector.x, frontVector.x, 0),
+		   glm::vec4(rightVector.y, upVector.y, frontVector.y, 0),
+		   glm::vec4(rightVector.z, upVector.z, frontVector.z, 0),
+		   glm::vec4(0, 0, 0, 1)
+
+
+		};
+
+		glm::mat4 translation = {
+		   glm::vec4(1, 0, 0, 0),
+		   glm::vec4(0, 1, 0, 0),
+		   glm::vec4(0, 0, 1, 0),
+		   glm::vec4(-position.x, -position.y, -position.z, 1)
+		};
+		m_viewMatrix = orientation * translation;
 	}
 
 	void Camera::updateProjectionMatrix(ProjectionType _type) {
