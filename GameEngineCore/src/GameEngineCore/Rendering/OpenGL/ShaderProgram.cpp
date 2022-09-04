@@ -1,10 +1,25 @@
 #include "ShaderProgram.hpp";
 #include "GameEngineCore/Log.hpp";
 
+#include <fstream>
+#include <sstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
  
 namespace GameEngine {
+
+	std::string readShader(const char* filepath) {
+		std::string shader;
+		std::ifstream shaderFile(filepath);
+		std::stringstream ss;
+		if (!shaderFile) {
+			LOG_CRITICAL("Shader file has not been opened: {0}", filepath);
+		}
+		ss << shaderFile.rdbuf();
+		return ss.str();
+	}
+
+
 	bool createShader(const char* source, const GLenum shaderType, GLuint& shaderId) {
 		//create shader
 		shaderId = glCreateShader(shaderType);
@@ -29,17 +44,21 @@ namespace GameEngine {
 		return true;
 	}
 
-	ShaderProgram::ShaderProgram(const char* vertexShaderSrc, const char* fragmentShaderSrc) {
+
+
+	ShaderProgram::ShaderProgram(const char* vertexShaderPath, const char* fragmentShaderPath) {
 		//creating vertex and fragment shaders
+		std::string vertexShaderSrc = readShader(vertexShaderPath);
+		std::string fragmentShaderSrc = readShader(fragmentShaderPath);
 		GLuint vertexShaderId = 0;
-		if (!createShader(vertexShaderSrc, GL_VERTEX_SHADER, vertexShaderId)) {
+		if (!createShader(vertexShaderSrc.c_str(), GL_VERTEX_SHADER, vertexShaderId)) {
 			LOG_CRITICAL("VERTEX SHADER: compile-time error!");
 			glDeleteShader(vertexShaderId);
 			return;
 		}
 
 		GLuint fragmentShaderId = 0;
-		if (!createShader(fragmentShaderSrc, GL_FRAGMENT_SHADER, fragmentShaderId)) {
+		if (!createShader(fragmentShaderSrc.c_str(), GL_FRAGMENT_SHADER, fragmentShaderId)) {
 			LOG_CRITICAL("FRAGMENT SHADER: compile-time error!");
 			glDeleteShader(vertexShaderId);
 			glDeleteShader(fragmentShaderId);
@@ -81,9 +100,30 @@ namespace GameEngine {
 	}
 
 	//setting the uniform variable
+
+	void ShaderProgram::setMatrix3(const char* name, const glm::mat3& matrix) const
+	{
+		glUniformMatrix3fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(matrix));
+	}
+
 	void ShaderProgram::setMatrix4(const char* name, const glm::mat4& matrix) const
 	{
 		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(matrix));
+	}
+
+	void ShaderProgram::setVec2(const char* name, const glm::vec2& vector) const
+	{
+		glUniform2fv(glGetUniformLocation(m_id, name), 1, glm::value_ptr(vector));
+	}
+
+	void ShaderProgram::setVec3(const char* name, const glm::vec3& vector) const
+	{
+		glUniform3fv(glGetUniformLocation(m_id, name), 1, glm::value_ptr(vector));
+	}
+
+	void ShaderProgram::setVec4(const char* name, const glm::vec4& vector) const
+	{
+		glUniform4fv(glGetUniformLocation(m_id, name), 1, glm::value_ptr(vector));
 	}
 
 	void ShaderProgram::bind() const

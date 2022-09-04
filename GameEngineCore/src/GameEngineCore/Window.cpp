@@ -8,7 +8,8 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
-
+#include <chrono>
+#include <math.h>
 #include "GameEngineCore/Window.hpp"
 #include "GameEngineCore/Log.hpp"
 #include "GameEngineCore/Rendering/OpenGL/ShaderProgram.hpp"
@@ -48,81 +49,6 @@ namespace GameEngine {
     //in - enter attributes
     //out - output attributes
     //uniform - global shader program variable
-    const char* vertexShader =
-        R"(#version 460
-        layout(location = 0) in vec3 vertexPosition;
-        layout (location = 1) in vec3 normal;
-
-        
-
-        uniform mat4 transformMatrix;
-        uniform mat4 viewAndProjectionMatrix;
-
-        out vec3 Normal;
-        out vec3 FragPos;
-        void main() {
-           Normal = normal;
-           FragPos = vec3(transformMatrix * vec4(vertexPosition, 1.0));
-           gl_Position = viewAndProjectionMatrix * transformMatrix * vec4(vertexPosition, 1.0);
-        })";
-    
-    const char* fragmentShader =
-        R"(#version 460
-    
-        out vec4 color;
-   
-        uniform vec3 objectColor;
-        uniform vec3 lightColor;
-
-        in vec3 Normal;
-        in vec3 FragPos;
-        uniform vec3 lightPos;
-        uniform vec3 viewPos;
-        void main() {
-
-        //”„≈—“№ ћј“–»÷” Ќќ–ћјЋ≈…
-
-        float specularStrength = 0.5f;
-        float ambientStrength = 0.1f;
-        vec3 ambient = ambientStrength * lightColor;
-
-        vec3 norm = normalize(Normal);
-        vec3 lightDir = normalize(lightPos - FragPos);    
-        vec3 viewDir = normalize(viewPos - FragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);
-
-        //степень задаЄт силу блеска
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-        vec3 specular = specularStrength * spec * lightColor;
-
-        float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * lightColor;
-
-        color = vec4((ambient + diffuse + specular) * objectColor, 1.0f);
-
-
-        })";
-
-    const char* lightVertexShader = 
-        R"(#version 460
-        layout(location = 0) in vec3 vertexPosition;
-
-        uniform mat4 transformMatrix;
-        uniform mat4 viewAndProjectionMatrix;
-        out vec3 color;
-        void main() {
-       
-           gl_Position = viewAndProjectionMatrix * transformMatrix * vec4(vertexPosition, 1.0);
-        })";
-
-    const char* lightFragmentShader =
-        R"(#version 460
-        out vec4 color;
-        
-        void main() {
-        color = vec4(0.75f, 0.0f, 1.0f, 1.0f);
-
-        })";
 ;
 
     std::unique_ptr<CameraObject> camera = nullptr;
@@ -342,14 +268,14 @@ namespace GameEngine {
 
 
         //Create Shader Program
-        p_shaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
+        p_shaderProgram = std::make_unique<ShaderProgram>("../../GameEngineCore/shaders/ContainerShader.vs", "../../GameEngineCore/shaders/ContainerShader.frag");
 
         if (!p_shaderProgram->isCompiled())
         {
             return false;
         }
 
-        p_lightShaderProgram = std::make_unique<ShaderProgram>(lightVertexShader, lightFragmentShader);
+        p_lightShaderProgram = std::make_unique<ShaderProgram>("../../GameEngineCore/shaders/LightingShader.vs", "../../GameEngineCore/shaders/LightingShader.frag");
 
         if (!p_lightShaderProgram->isCompiled())
         {
@@ -392,19 +318,15 @@ namespace GameEngine {
 
         glm::vec3 camPos = camera->getPosition();
 
-        GLint lightPosLoc = glGetUniformLocation(p_shaderProgram->get(), "lightPos");
-        GLint viewPosLoc = glGetUniformLocation(p_shaderProgram->get(), "viewPos");
-        GLint objectColorLoc = glGetUniformLocation(p_shaderProgram->get(), "objectColor");
-        GLint lightColorLoc = glGetUniformLocation(p_shaderProgram->get(), "lightColor");
-        glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-        glUniform3f(lightColorLoc, 0.75f, 0.0f, 1.0f); // зададим цвет источника света (белый)
-        glUniform3f(lightPosLoc, translate2.x, translate2.y, translate2.z); 
-        glUniform3f(viewPosLoc, camPos.x, camPos.y, camPos.z);
+        
 
         //Draw camera
 
         glm::mat4 viewAndProjectionMatrix = camera->update();
-       
+        p_shaderProgram->setVec3("lightPos", translate2);
+        p_shaderProgram->setVec3("viewPos", camPos);
+        p_shaderProgram->setVec3("lightColor", glm::vec3(1.0f, 0.5f, 0.31f));
+        p_shaderProgram->setVec3("objectColor", glm::vec3(0.75f, 0.0f, 1.0f));
         //Draw corral cube
         auto transformMatrix = toyCube->update(scale, translate, rotate);
         p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
@@ -412,6 +334,8 @@ namespace GameEngine {
         Renderer::draw(*(toyCube->getVertexArray()));
 
         //Draw light cube
+        translate2.x = sin(currentFrame) * 1.5;
+        translate2.z = cos(currentFrame) * 1.5;
 
         transformMatrix = lightCube->update(scale2, translate2, rotate2);
         p_lightShaderProgram->bind();

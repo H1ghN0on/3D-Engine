@@ -22,7 +22,13 @@ namespace GameEngine {
 		unsigned int get();
 
 		bool isCompiled() const { return m_isCompiled; }
+
+		void setMatrix3(const char* name, const glm::mat3& matrix) const;
 		void setMatrix4(const char* name, const glm::mat4& matrix) const;
+
+		void setVec2(const char* name, const glm::vec2& vector) const;
+		void setVec3(const char* name, const glm::vec3& vector) const;
+		void setVec4(const char* name, const glm::vec4& vector) const;
 
 	private:
 		bool m_isCompiled = false;
