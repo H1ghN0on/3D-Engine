@@ -33,13 +33,13 @@ namespace GameEngine {
 
 
     //properties of transform matrix
-    glm::vec3 scale = { 1.f, 1.f, 1.f };
-    float rotate = 0.f;
-    glm::vec3 translate = { 0.f, 0.f, 0.f };
+    glm::vec3 containerScale = { 1.0f, 1.0f, 1.0f };
+    float containerRotate = 0.f;
+    glm::vec3 containerTranslate = { 0.f, 0.f, 0.f };
 
-    glm::vec3 scale2 = { 0.2f, 0.2f, 0.2f };
-    float rotate2 = 0.f;
-    glm::vec3 translate2 = { 2.0f, 0.0f, 1.0f };
+    glm::vec3 lightScale = { 0.2f, 0.2f, 0.2f };
+    float lightRotate = 0.f;
+    glm::vec3 lightPosition = { 2.0f, 0.0f, 1.0f };
 
 
     int width = 5, height;
@@ -265,17 +265,15 @@ namespace GameEngine {
         lightCube = std::make_unique<Object>(oneElement, lightCubeVertices, sizeof(lightCubeVertices), indices, 36);
       
 
-
-
         //Create Shader Program
-        p_shaderProgram = std::make_unique<ShaderProgram>("../../GameEngineCore/shaders/ContainerShader.vs", "../../GameEngineCore/shaders/ContainerShader.frag");
+        p_shaderProgram = std::make_unique<ShaderProgram>("ContainerShader.vs", "ContainerShader.frag");
 
         if (!p_shaderProgram->isCompiled())
         {
             return false;
         }
 
-        p_lightShaderProgram = std::make_unique<ShaderProgram>("../../GameEngineCore/shaders/LightingShader.vs", "../../GameEngineCore/shaders/LightingShader.frag");
+        p_lightShaderProgram = std::make_unique<ShaderProgram>("LightingShader.vs", "LightingShader.frag");
 
         if (!p_lightShaderProgram->isCompiled())
         {
@@ -323,21 +321,33 @@ namespace GameEngine {
         //Draw camera
 
         glm::mat4 viewAndProjectionMatrix = camera->update();
-        p_shaderProgram->setVec3("lightPos", translate2);
+        p_shaderProgram->setVec3("lightPos", lightPosition);
         p_shaderProgram->setVec3("viewPos", camPos);
-        p_shaderProgram->setVec3("lightColor", glm::vec3(1.0f, 0.5f, 0.31f));
-        p_shaderProgram->setVec3("objectColor", glm::vec3(0.75f, 0.0f, 1.0f));
+        p_shaderProgram->setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        p_shaderProgram->setVec3("objectColor", glm::vec3(0.0f, 1.0f, 0.0f));
+        p_shaderProgram->setVec3("material.ambient", glm::vec3(0.0215f, 0.1745f, 0.0215f));
+        p_shaderProgram->setVec3("material.diffuse", glm::vec3(0.07568f, 0.61424f, 0.07568f));
+        p_shaderProgram->setVec3("material.specular", glm::vec3(0.633f, 0.727811f, 0.633f));
+        p_shaderProgram->setFloat("material.shininess", 32.f);
+
+        p_shaderProgram->setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        p_shaderProgram->setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f)); // darken the light a bit to fit the scene
+        p_shaderProgram->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
         //Draw corral cube
-        auto transformMatrix = toyCube->update(scale, translate, rotate);
+
+
+
+        auto transformMatrix = toyCube->update(containerScale, containerTranslate, containerRotate);
         p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
         p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
         Renderer::draw(*(toyCube->getVertexArray()));
 
         //Draw light cube
-        translate2.x = sin(currentFrame) * 1.5;
-        translate2.z = cos(currentFrame) * 1.5;
+        //lightPosition.x = sin(currentFrame) * 1.5;
+        //lightPosition.z = cos(currentFrame) * 1.5;
 
-        transformMatrix = lightCube->update(scale2, translate2, rotate2);
+        transformMatrix = lightCube->update(lightScale, lightPosition, lightRotate);
         p_lightShaderProgram->bind();
         p_lightShaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
         p_lightShaderProgram->setMatrix4("transformMatrix", transformMatrix);
@@ -346,7 +356,7 @@ namespace GameEngine {
 
 
         //GUI
-        ImGuiIO& io = ImGui::GetIO();
+        /*ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize.x = static_cast<float>(get_width());
         io.DisplaySize.y = static_cast<float>(get_height());
 
@@ -367,7 +377,7 @@ namespace GameEngine {
 
 
         ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
 
         glfwSwapBuffers(m_pWindow);
         glfwPollEvents();

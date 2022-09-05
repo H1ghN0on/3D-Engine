@@ -10,7 +10,8 @@ namespace GameEngine {
 
 	std::string readShader(const char* filepath) {
 		std::string shader;
-		std::ifstream shaderFile(filepath);
+		std::string allShadersPath = "../../GameEngineCore/shaders/";
+		std::ifstream shaderFile(allShadersPath.append(filepath));
 		std::stringstream ss;
 		if (!shaderFile) {
 			LOG_CRITICAL("Shader file has not been opened: {0}", filepath);
@@ -126,6 +127,10 @@ namespace GameEngine {
 		glUniform4fv(glGetUniformLocation(m_id, name), 1, glm::value_ptr(vector));
 	}
 
+	void ShaderProgram::setFloat(const char* name, const float value) const {
+		glUniform1f(glGetUniformLocation(m_id, name), value);
+	}
+
 	void ShaderProgram::bind() const
 	{
 		glUseProgram(m_id);
@@ -160,6 +165,5 @@ namespace GameEngine {
 		shaderProgram.m_id = 0;
 		shaderProgram.m_isCompiled = false;
 	}
-
 
 }
