@@ -25,8 +25,7 @@ namespace GameEngine {
 		}
 	}
 
-	
-	void Texture::createTexture(const char* fileLocation, WrappingMode wrappingMode, MipmapFilterMode mipmapFilterMode, float const(&borderColor)[4]) {
+	Texture::Texture(const char* fileLocation, WrappingMode wrappingMode, MipmapFilterMode mipmapFilterMode, float const(&borderColor)[4]) {
 		unsigned char* image = SOIL_load_image(fileLocation, &m_width, &m_height, 0, SOIL_LOAD_RGB);
 		if (!image) {
 			LOG_CRITICAL("Image load failed: {0}", SOIL_last_result());

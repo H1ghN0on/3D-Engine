@@ -31,6 +31,7 @@ namespace GameEngine {
 		void setVec4(const char* name, const glm::vec4& vector) const;
 
 		void setFloat(const char* name, const float value) const;
+		void setInt(const char* name, const int value) const;
 
 	private:
 		bool m_isCompiled = false;

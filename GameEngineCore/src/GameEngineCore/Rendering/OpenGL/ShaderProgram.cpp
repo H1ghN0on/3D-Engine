@@ -131,6 +131,10 @@ namespace GameEngine {
 		glUniform1f(glGetUniformLocation(m_id, name), value);
 	}
 
+	void ShaderProgram::setInt(const char* name, const int value) const {
+		glUniform1i(glGetUniformLocation(m_id, name), value);
+	}
+
 	void ShaderProgram::bind() const
 	{
 		glUseProgram(m_id);

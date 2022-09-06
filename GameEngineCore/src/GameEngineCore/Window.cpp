@@ -45,6 +45,8 @@ namespace GameEngine {
     int width = 5, height;
     const char* chiakiTextureLocation = "../../GameEngineCore/assets/chiaki.png";
     const char* leopardTextureLocation = "../../GameEngineCore/assets/leopard.jpg";
+    const char* containerTextureLocation = "../../GameEngineCore/assets/container.png";
+    const char* containerBorderTextureLocation = "../../GameEngineCore/assets/containerBorder.png";
     
     //in - enter attributes
     //out - output attributes
@@ -57,9 +59,8 @@ namespace GameEngine {
     std::unique_ptr<ShaderProgram> p_shaderProgram = nullptr;
     std::unique_ptr<ShaderProgram> p_lightShaderProgram = nullptr;
 
-   
-    Texture chiakiTexture;
-    Texture leopardTexture;
+    std::unique_ptr<Texture> containerTexture = nullptr;
+    std::unique_ptr<Texture> containerBorderTexture = nullptr;
 
 	Window::Window(const unsigned int width, const unsigned int height, std::string title):
         m_data({width, height, std::move(title)})
@@ -103,49 +104,49 @@ namespace GameEngine {
             1.0,  1.0, 1.0,         
             -1.0,  1.0, 1.0,       
     };
+    
+    GLfloat cubeVertices[288] = {
+       -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-    GLfloat cubeVertices[216] = {
-     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
 
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
 
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
 
     GLuint indices[36] = {
@@ -260,8 +261,26 @@ namespace GameEngine {
             ShaderDataType::Float3,
         };
 
+        BufferLayout threeElement{
+            ShaderDataType::Float3,
+            ShaderDataType::Float3,
+            ShaderDataType::Float2,
+        };
+
+        containerTexture = std::make_unique<Texture>(
+            containerTextureLocation,
+            Texture::WrappingMode::Repeat,
+            Texture::MipmapFilterMode::LinearLinear
+         );
+
+        containerBorderTexture = std::make_unique<Texture>(
+            containerBorderTextureLocation,
+            Texture::WrappingMode::Repeat,
+            Texture::MipmapFilterMode::LinearLinear
+            );
+
         //Cubes
-        toyCube = std::make_unique<Object>(twoElement, cubeVertices, sizeof(cubeVertices), nullptr, 36);
+        toyCube = std::make_unique<Object>(threeElement, cubeVertices, sizeof(cubeVertices), nullptr, 36);
         lightCube = std::make_unique<Object>(oneElement, lightCubeVertices, sizeof(lightCubeVertices), indices, 36);
       
 
@@ -312,27 +331,37 @@ namespace GameEngine {
         Renderer::clear(BitfieldMask::All);
 
 
+
         p_shaderProgram->bind();
+
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        containerTexture->bind();
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        containerBorderTexture->bind();
+
 
         glm::vec3 camPos = camera->getPosition();
 
         
-
         //Draw camera
+        glm::vec3 lightAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+        glm::vec3 lightDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+        glm::vec3 lightSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
 
         glm::mat4 viewAndProjectionMatrix = camera->update();
         p_shaderProgram->setVec3("lightPos", lightPosition);
         p_shaderProgram->setVec3("viewPos", camPos);
         p_shaderProgram->setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-        p_shaderProgram->setVec3("objectColor", glm::vec3(0.0f, 1.0f, 0.0f));
-        p_shaderProgram->setVec3("material.ambient", glm::vec3(0.0215f, 0.1745f, 0.0215f));
-        p_shaderProgram->setVec3("material.diffuse", glm::vec3(0.07568f, 0.61424f, 0.07568f));
-        p_shaderProgram->setVec3("material.specular", glm::vec3(0.633f, 0.727811f, 0.633f));
-        p_shaderProgram->setFloat("material.shininess", 32.f);
+        p_shaderProgram->setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
-        p_shaderProgram->setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        p_shaderProgram->setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f)); // darken the light a bit to fit the scene
-        p_shaderProgram->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        p_shaderProgram->setInt("material.diffuse", 0);
+        p_shaderProgram->setInt("material.specular", 1);
+        p_shaderProgram->setFloat("material.shininess", 64.f);
+        p_shaderProgram->setVec3("light.ambient", lightAmbient);
+        p_shaderProgram->setVec3("light.diffuse", lightDiffuse); // darken the light a bit to fit the scene
+        p_shaderProgram->setVec3("light.specular", lightSpecular);
 
         //Draw corral cube
 
