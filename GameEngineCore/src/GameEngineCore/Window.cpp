@@ -51,7 +51,7 @@ namespace GameEngine {
 
     glm::vec3 lightScale = { 0.2f, 0.2f, 0.2f };
     float lightRotate = 0.f;
-    glm::vec3 lightPosition = { 2.0f, 0.0f, 1.0f };
+    glm::vec3 lightPosition = { 1.2f, 1.0f, 2.0f };
 
 
     int width = 5, height;
@@ -375,7 +375,6 @@ namespace GameEngine {
         glm::vec3 lightSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
 
         glm::mat4 viewAndProjectionMatrix = camera->update();
-        p_shaderProgram->setVec3("lightPos", lightPosition);
         p_shaderProgram->setVec3("viewPos", camPos);
         p_shaderProgram->setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
         p_shaderProgram->setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -391,7 +390,10 @@ namespace GameEngine {
         p_shaderProgram->setVec3("light.diffuse", lightDiffuse); 
         p_shaderProgram->setVec3("light.specular", lightSpecular);
         p_shaderProgram->setVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
-
+        p_shaderProgram->setVec3("light.position", lightPosition);
+        p_shaderProgram->setFloat("light.constant", 1.0f);
+        p_shaderProgram->setFloat("light.linear", 0.09f);
+        p_shaderProgram->setFloat("light.quadratic", 0.032f);
         //Draw corral cube
 
 
@@ -415,7 +417,7 @@ namespace GameEngine {
         //lightPosition.x = sin(currentFrame) * 1.5;
         //lightPosition.z = cos(currentFrame) * 1.5;
 
-        auto transformMatrix = lightCube->update(lightScale, glm::vec3(-0.2f, -1.0f, -0.3f) * -5.f, lightRotate);
+        auto transformMatrix = lightCube->update(lightScale, lightPosition , lightRotate);
         p_lightShaderProgram->bind();
         p_lightShaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
         p_lightShaderProgram->setMatrix4("transformMatrix", transformMatrix);
