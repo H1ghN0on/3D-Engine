@@ -36,6 +36,18 @@ namespace GameEngine {
     glm::vec3 containerScale = { 1.0f, 1.0f, 1.0f };
     float containerRotate = 0.f;
     glm::vec3 containerTranslate = { 0.f, 0.f, 0.f };
+    glm::vec3 containerPositions[] = {
+     glm::vec3(0.0f,  0.0f,  0.0f),
+     glm::vec3(2.0f,  5.0f, -15.0f),
+     glm::vec3(-1.5f, -2.2f, -2.5f),
+     glm::vec3(-3.8f, -2.0f, -12.3f),
+     glm::vec3(2.4f, -0.4f, -3.5f),
+     glm::vec3(-1.7f,  3.0f, -7.5f),
+     glm::vec3(1.3f, -2.0f, -2.5f),
+     glm::vec3(1.5f,  2.0f, -2.5f),
+     glm::vec3(1.5f,  0.2f, -1.5f),
+     glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
 
     glm::vec3 lightScale = { 0.2f, 0.2f, 0.2f };
     float lightRotate = 0.f;
@@ -288,6 +300,8 @@ namespace GameEngine {
         );
 
 
+ 
+
         //Cubes
         toyCube = std::make_unique<Object>(threeElement, cubeVertices, sizeof(cubeVertices), nullptr, 36);
         lightCube = std::make_unique<Object>(oneElement, lightCubeVertices, sizeof(lightCubeVertices), indices, 36);
@@ -371,31 +385,41 @@ namespace GameEngine {
 
         p_shaderProgram->setInt("material.diffuse", 0);
         p_shaderProgram->setInt("material.specular", 1);
-        p_shaderProgram->setInt("material.emission", 2);
+
         p_shaderProgram->setFloat("material.shininess", 32.f);
         p_shaderProgram->setVec3("light.ambient", lightAmbient);
         p_shaderProgram->setVec3("light.diffuse", lightDiffuse); 
         p_shaderProgram->setVec3("light.specular", lightSpecular);
+        p_shaderProgram->setVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
 
         //Draw corral cube
 
 
 
-        auto transformMatrix = toyCube->update(containerScale, containerTranslate, containerRotate);
+       /* auto transformMatrix = toyCube->update(containerScale, containerTranslate, containerRotate);
         p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
         p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
-        Renderer::draw(*(toyCube->getVertexArray()));
+        Renderer::draw(*(toyCube->getVertexArray()));*/
+
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            float angle = 20.0f * i;
+            auto transformMatrix = toyCube->update(containerScale, containerPositions[i], angle);
+            p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
+            p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
+            Renderer::draw(*(toyCube->getVertexArray()));
+        }
+
 
         //Draw light cube
         //lightPosition.x = sin(currentFrame) * 1.5;
         //lightPosition.z = cos(currentFrame) * 1.5;
 
-        transformMatrix = lightCube->update(lightScale, lightPosition, lightRotate);
+        auto transformMatrix = lightCube->update(lightScale, glm::vec3(-0.2f, -1.0f, -0.3f) * -5.f, lightRotate);
         p_lightShaderProgram->bind();
         p_lightShaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
         p_lightShaderProgram->setMatrix4("transformMatrix", transformMatrix);
         Renderer::draw(*(lightCube->getVertexArray()));
-
 
 
         //GUI
