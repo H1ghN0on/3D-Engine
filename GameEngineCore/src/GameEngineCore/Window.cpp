@@ -397,59 +397,47 @@ namespace GameEngine {
         p_shaderProgram->setFloat("material.shininess", 32.f);
 
 
+        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> dirLight = {
+            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
+            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
+            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
+            { "direction", { ShaderProgram::PropertyTypes::Vec3, sunLightDirection } },
+        };
 
-        p_shaderProgram->setVec3("dirLight.ambient", glm::vec3(0.05f, 0.05f, 0.05f));
-        p_shaderProgram->setVec3("dirLight.diffuse", glm::vec3(0.4f, 0.4f, 0.4f));
-        p_shaderProgram->setVec3("dirLight.specular", glm::vec3(0.5, 0.5f, 0.5f));
-        p_shaderProgram->setVec3("dirLight.direction", sunLightDirection);
+        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> spotLight = {
+            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
+            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
+            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
+            { "cutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(12.5f)) } },
+            { "outerCutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(17.5f)) } },
+            { "position", { ShaderProgram::PropertyTypes::Vec3, camera->getPosition() } },
+            { "direction", { ShaderProgram::PropertyTypes::Vec3, camera->getFront() } },
+            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
+            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
+            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
+        };
 
+        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> pointLight = {
+            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.0f, 0.0f, 0.0f) } },
+            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
+            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
+            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
+            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
+            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
+        };
 
-        p_shaderProgram->setVec3("spotLight.ambient", glm::vec3(0.05f, 0.05f, 0.05f));
-        p_shaderProgram->setVec3("spotLight.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
-        p_shaderProgram->setVec3("spotLight.specular", glm::vec3(1.f, 1.f, 1.f));
-        p_shaderProgram->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        p_shaderProgram->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-        p_shaderProgram->setVec3("spotLight.position", camera->getPosition());
-        p_shaderProgram->setVec3("spotLight.direction", camera->getFront());
-        p_shaderProgram->setFloat("spotLight.constant", 1.0f);
-        p_shaderProgram->setFloat("spotLight.linear", 0.09f);
-        p_shaderProgram->setFloat("spotLight.quadratic", 0.032f);
+        std::vector<std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>>> pointLights;
 
-        p_shaderProgram->setVec3("pointLights[0].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
-        p_shaderProgram->setVec3("pointLights[0].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-        p_shaderProgram->setVec3("pointLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        p_shaderProgram->setVec3("pointLights[0].position", lightPositions[0]);
-        p_shaderProgram->setFloat("pointLights[0].constant", 1.0f);
-        p_shaderProgram->setFloat("pointLights[0].linear", 0.09f);
-        p_shaderProgram->setFloat("pointLights[0].quadratic", 0.032f);
-
-        p_shaderProgram->setVec3("pointLights[1].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
-        p_shaderProgram->setVec3("pointLights[1].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-        p_shaderProgram->setVec3("pointLights[1].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        p_shaderProgram->setVec3("pointLights[1].position", lightPositions[1]);
-        p_shaderProgram->setFloat("pointLights[1].constant", 1.0f);
-        p_shaderProgram->setFloat("pointLights[1].linear", 0.09f);
-        p_shaderProgram->setFloat("pointLights[1].quadratic", 0.032f);
-
-        p_shaderProgram->setVec3("pointLights[2].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
-        p_shaderProgram->setVec3("pointLights[2].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-        p_shaderProgram->setVec3("pointLights[2].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        p_shaderProgram->setVec3("pointLights[2].position", lightPositions[2]);
-        p_shaderProgram->setFloat("pointLights[2].constant", 1.0f);
-        p_shaderProgram->setFloat("pointLights[2].linear", 0.09f);
-        p_shaderProgram->setFloat("pointLights[2].quadratic", 0.032f);
-
-        p_shaderProgram->setVec3("pointLights[3].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
-        p_shaderProgram->setVec3("pointLights[3].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-        p_shaderProgram->setVec3("pointLights[3].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        p_shaderProgram->setVec3("pointLights[3].position", lightPositions[3]);
-        p_shaderProgram->setFloat("pointLights[3].constant", 1.0f);
-        p_shaderProgram->setFloat("pointLights[3].linear", 0.09f);
-        p_shaderProgram->setFloat("pointLights[3].quadratic", 0.032f);
-
-        //Draw corral cube
+        for (auto& pos : lightPositions) {
+            pointLight["position"] = { ShaderProgram::PropertyTypes::Vec3, pos };
+            pointLights.push_back(pointLight);
+        }
 
 
+
+        p_shaderProgram->setObject("dirLight", dirLight);
+        p_shaderProgram->setObject("spotLight", spotLight);
+        p_shaderProgram->setObjects("pointLights", pointLights);
 
        /* auto transformMatrix = toyCube->update(containerScale, containerTranslate, containerRotate);
         p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);

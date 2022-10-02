@@ -8,6 +8,8 @@
  
 namespace GameEngine {
 
+
+
 	std::string readShader(const char* filepath) {
 		std::string shader;
 		std::string allShadersPath = "../../GameEngineCore/shaders/";
@@ -133,6 +135,59 @@ namespace GameEngine {
 
 	void ShaderProgram::setInt(const char* name, const int value) const {
 		glUniform1i(glGetUniformLocation(m_id, name), value);
+	}
+
+	void ShaderProgram::setObject(
+		const char* name, 
+		std::map<char*, std::pair<PropertyTypes, std::any>> properties
+	) const {
+		for (auto& item : properties)
+		{
+			std::string propertyName = std::string(item.first);
+			std::string objectPropertyFullName = std::string(name) + "." + propertyName;
+		
+			PropertyTypes propertyType = item.second.first;
+			auto propertyValue = item.second.second;
+
+			switch (item.second.first) {
+				case PropertyTypes::Int: {
+					setInt(objectPropertyFullName.c_str(), std::any_cast<int>(propertyValue));
+					break;
+				}
+				case PropertyTypes::Float: {
+					setFloat(objectPropertyFullName.c_str(), std::any_cast<float> (propertyValue));
+					break;
+				}
+				case PropertyTypes::Vec3: {
+					setVec3(objectPropertyFullName.c_str(), std::any_cast<glm::vec3>(propertyValue));
+					break;
+				}
+				case PropertyTypes::Vec4: {
+					setVec4(objectPropertyFullName.c_str(), std::any_cast<glm::vec4>(propertyValue));
+					break;
+				}
+				case PropertyTypes::Mat3: {
+					setMatrix3(objectPropertyFullName.c_str(), std::any_cast<glm::mat3>(propertyValue));
+					break;
+				}
+				case PropertyTypes::Mat4: {
+					setMatrix4(objectPropertyFullName.c_str(), std::any_cast<glm::mat4>(propertyValue));
+					break;
+				}
+			}
+		}
+	}
+
+
+	void ShaderProgram::setObjects(
+		const char* name, 
+		std::vector<std::map<char*, std::pair<PropertyTypes, std::any>>> objects
+	) const {
+		for (auto it = objects.begin(); it != objects.end(); ++it) {
+			int index = std::distance(objects.begin(), it);
+			std::string objectName = std::string(name) + "[" + std::to_string(index) + "]";
+			setObject(objectName.c_str(), *it);
+		}
 	}
 
 	void ShaderProgram::bind() const

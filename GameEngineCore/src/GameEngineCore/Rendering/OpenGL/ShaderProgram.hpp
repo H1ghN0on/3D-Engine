@@ -1,7 +1,9 @@
 #pragma once
 
 #include <glm/mat4x4.hpp>
-
+#include <map>
+#include <vector>
+#include <any>
 namespace GameEngine {
 
 	class ShaderProgram {
@@ -15,6 +17,11 @@ namespace GameEngine {
 		ShaderProgram() = delete;
 		ShaderProgram(const ShaderProgram&) = delete;
 		ShaderProgram& operator=(const ShaderProgram&) = delete;
+
+
+		enum class PropertyTypes {
+			Vec3, Vec4, Float, Int, Mat3, Mat4
+		};
 
 		void bind() const;
 		static void unbind();
@@ -32,6 +39,11 @@ namespace GameEngine {
 
 		void setFloat(const char* name, const float value) const;
 		void setInt(const char* name, const int value) const;
+
+		
+		void setObject(const char* name, std::map<char*, std::pair<PropertyTypes, std::any>> properties) const;
+		void setObjects(const char* name, std::vector<std::map<char*, std::pair<PropertyTypes, std::any>>>) const;
+
 
 	private:
 		bool m_isCompiled = false;
