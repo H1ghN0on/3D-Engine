@@ -47,7 +47,8 @@ namespace GameEngine {
     const char* leopardTextureLocation = "../../GameEngineCore/assets/leopard.jpg";
     const char* containerTextureLocation = "../../GameEngineCore/assets/container.png";
     const char* containerBorderTextureLocation = "../../GameEngineCore/assets/containerBorder.png";
-    
+    const char* matrixTextureLocation = "../../GameEngineCore/assets/matrix.jpg";
+
     //in - enter attributes
     //out - output attributes
     //uniform - global shader program variable
@@ -61,6 +62,7 @@ namespace GameEngine {
 
     std::unique_ptr<Texture> containerTexture = nullptr;
     std::unique_ptr<Texture> containerBorderTexture = nullptr;
+    std::unique_ptr<Texture> matrixTexture = nullptr;
 
 	Window::Window(const unsigned int width, const unsigned int height, std::string title):
         m_data({width, height, std::move(title)})
@@ -279,6 +281,13 @@ namespace GameEngine {
             Texture::MipmapFilterMode::LinearLinear
             );
 
+        matrixTexture = std::make_unique<Texture>(
+            matrixTextureLocation,
+            Texture::WrappingMode::Edge,
+            Texture::MipmapFilterMode::LinearLinear
+        );
+
+
         //Cubes
         toyCube = std::make_unique<Object>(threeElement, cubeVertices, sizeof(cubeVertices), nullptr, 36);
         lightCube = std::make_unique<Object>(oneElement, lightCubeVertices, sizeof(lightCubeVertices), indices, 36);
@@ -318,6 +327,9 @@ namespace GameEngine {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+    
+
+
         handleKeyPress(m_pWindow);
 
         Renderer::setClearColor(
@@ -340,11 +352,9 @@ namespace GameEngine {
         // bind specular map
         glActiveTexture(GL_TEXTURE1);
         containerBorderTexture->bind();
-
-
+        glActiveTexture(GL_TEXTURE2);
+        matrixTexture->bind();
         glm::vec3 camPos = camera->getPosition();
-
-        
         //Draw camera
         glm::vec3 lightAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
         glm::vec3 lightDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -356,11 +366,15 @@ namespace GameEngine {
         p_shaderProgram->setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
         p_shaderProgram->setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
+        glm::vec3 material = { 2.0f, 1.f, 32.f };
+
+
         p_shaderProgram->setInt("material.diffuse", 0);
         p_shaderProgram->setInt("material.specular", 1);
-        p_shaderProgram->setFloat("material.shininess", 64.f);
+        p_shaderProgram->setInt("material.emission", 2);
+        p_shaderProgram->setFloat("material.shininess", 32.f);
         p_shaderProgram->setVec3("light.ambient", lightAmbient);
-        p_shaderProgram->setVec3("light.diffuse", lightDiffuse); // darken the light a bit to fit the scene
+        p_shaderProgram->setVec3("light.diffuse", lightDiffuse); 
         p_shaderProgram->setVec3("light.specular", lightSpecular);
 
         //Draw corral cube
