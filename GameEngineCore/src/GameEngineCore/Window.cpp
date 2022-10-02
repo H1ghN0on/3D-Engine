@@ -389,8 +389,10 @@ namespace GameEngine {
         p_shaderProgram->setVec3("light.ambient", lightAmbient);
         p_shaderProgram->setVec3("light.diffuse", lightDiffuse); 
         p_shaderProgram->setVec3("light.specular", lightSpecular);
-        p_shaderProgram->setVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
-        p_shaderProgram->setVec3("light.position", lightPosition);
+        p_shaderProgram->setVec3("light.position", camera->getPosition());
+        p_shaderProgram->setVec3("light.direction", camera->getFront());
+        p_shaderProgram->setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+        p_shaderProgram->setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
         p_shaderProgram->setFloat("light.constant", 1.0f);
         p_shaderProgram->setFloat("light.linear", 0.09f);
         p_shaderProgram->setFloat("light.quadratic", 0.032f);

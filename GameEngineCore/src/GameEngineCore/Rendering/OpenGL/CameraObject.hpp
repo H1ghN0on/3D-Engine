@@ -26,7 +26,7 @@ namespace GameEngine {
 		void rotate(float x, float y);
 		glm::mat4 update();
 		void setType(ProjectionType type);
-
+		glm::vec3 getFront() const { return front;  }
 		glm::vec3 getPosition() const { return position; }
 	private:
 
