@@ -9,73 +9,144 @@ struct Material {
     sampler2D emission;
 };
 
-struct Light {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-    vec3 position;
-    vec3 direction;
-    float cutOff;
-    float outerCutOff;
-
-    float constant;
-    float linear;
-    float quadratic;
-
-};
-
-uniform Light light;
 uniform Material material;
-uniform vec3 objectColor;
 
 in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
 uniform vec3 viewPos;
-void main() {
 
-        //УЧЕСТЬ МАТРИЦУ НОРМАЛЕЙ
+struct DirLight {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    vec3 direction;
+};
 
-    vec3 norm = normalize(Normal);
+struct PointLight {
+    vec3 position;
 
-    vec3 lightDir = normalize(light.position - FragPos);
+    float constant;
+    float linear;
+    float quadratic;
 
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct SpotLight {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    vec3 direction;
+    vec3 position;
+    float cutOff;
+    float outerCutOff;
+    float constant;
+    float linear;
+    float quadratic;
+};
+
+#define NR_POINT_LIGHTS 4
+
+uniform DirLight dirLight;
+uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform SpotLight spotLight;
+
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
+
+    //направление света от источника
+    vec3 lightDir = normalize(-light.direction);
+
+    // vec3 emissionFactor = step(vec3(1.0), vec3(1.0) - vec3(texture(material.specular, TexCoords)));
+    // vec3 emission = emissionFactor * vec3(texture(material.emission, TexCoords));
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    // комбинируем результаты
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    return (ambient + diffuse + specular);
+}
+
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {
     //затухание
-    // float lightToFragDistance = length(light.position - FragPos);
-    // float attenuation = 1.0 / (light.constant + light.linear * lightToFragDistance +
-    //     light.quadratic * (lightToFragDistance * lightToFragDistance));
+    vec3 lightDir = normalize(light.position - fragPos);
+    float lightToFragDistance = length(light.position - fragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * lightToFragDistance +
+        light.quadratic * (lightToFragDistance * lightToFragDistance));
 
+    //расчёт света
+
+    // vec3 emissionFactor = step(vec3(1.0), vec3(1.0) - vec3(texture(material.specular, TexCoords)));
+    // vec3 emission = emissionFactor * vec3(texture(material.emission, TexCoords));
+
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+    return (ambient + diffuse + specular);
+}
+
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {
+    vec3 lightDir = normalize(light.position - fragPos);
     //projector
     //угол между фрагментом и источником света
     float theta = dot(lightDir, normalize(-light.direction));
     float epsilon = light.cutOff - light.outerCutOff;
-
+    //интенсивность света между границами конусов
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 
-        // vec3 emissionFactor = step(vec3(1.0), vec3(1.0) - vec3(texture(material.specular, TexCoords)));
-        // vec3 emission = emissionFactor * vec3(texture(material.emission, TexCoords));
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
-    vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
+    //затухание
+    float lightToFragDistance = length(light.position - fragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * lightToFragDistance + light.quadratic * (lightToFragDistance * lightToFragDistance));    
 
-        //степень задаёт силу блеска
+    //расчёт света
+
+    // vec3 emissionFactor = step(vec3(1.0), vec3(1.0) - vec3(texture(material.specular, TexCoords)));
+    // vec3 emission = emissionFactor * vec3(texture(material.emission, TexCoords));
+
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+    vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
 
-    float diff = max(dot(norm, lightDir), 0.0);
+    float diff = max(dot(normal, lightDir), 0.0);
+
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
-    diffuse *= intensity;
-    specular *= intensity;
-        // ambient *= attenuation;
-        // diffuse *= attenuation;
-        // specular *= attenuation;
 
-    color = vec4((ambient + diffuse + specular) * objectColor, 1.0f);
+    ambient *= attenuation * intensity;
+    diffuse *= attenuation * intensity;
+    specular *= attenuation * intensity;
 
-        //для эмиссии
-        //color = vec4((emission + ambient + diffuse + specular) * objectColor, 1.0f);
+    return (ambient + diffuse + specular);
+}
 
-    //для направленного источника света
-    // vec3 lightDir = normalize(-light.direction);
+void main() {
+
+    //УЧЕСТЬ МАТРИЦУ НОРМАЛЕЙ
+
+    vec3 norm = normalize(Normal);
+    vec3 viewDir = normalize(viewPos - FragPos);
+    // фаза 1: Направленный источник освещения
+    vec3 result = CalcDirLight(dirLight, norm, viewDir);
+
+    // фаза 2: Точечные источники
+    for(int i = 0; i < NR_POINT_LIGHTS; i++) result += CalcPointLight(pointLights[i], norm, viewDir, FragPos);    
+
+    // фаза 3: фонарик
+    result += CalcSpotLight(spotLight, norm, viewDir, FragPos);
+
+    color = vec4(result, 1.0f);
 
 }
