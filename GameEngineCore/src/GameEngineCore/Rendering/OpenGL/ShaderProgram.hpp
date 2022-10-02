@@ -14,9 +14,9 @@ namespace GameEngine {
 		ShaderProgram& operator=(ShaderProgram&&);
 		~ShaderProgram();
 
-		ShaderProgram() = delete;
-		ShaderProgram(const ShaderProgram&) = delete;
-		ShaderProgram& operator=(const ShaderProgram&) = delete;
+		ShaderProgram();
+		ShaderProgram(const ShaderProgram&);
+		ShaderProgram& operator=(const ShaderProgram&);
 
 
 		enum class PropertyTypes {

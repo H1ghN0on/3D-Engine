@@ -22,9 +22,14 @@
 #include "GameEngineCore/Rendering/OpenGL/Renderer.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <GameEngineCore/Rendering/OpenGL/Model.hpp>
 
 
 namespace GameEngine {
+
+
+
+
     float deltaTime = 0.0f;	// время между текущим и последним кадрами
     float lastFrame = 0.0f; // время последнего кадра
     float lastX = 400, lastY = 300;
@@ -80,6 +85,7 @@ namespace GameEngine {
     std::unique_ptr<Object> toyCube = nullptr;
     std::unique_ptr<ShaderProgram> p_shaderProgram = nullptr;
     std::unique_ptr<ShaderProgram> p_lightShaderProgram = nullptr;
+    std::unique_ptr<ShaderProgram> p_modelShaderProgram = nullptr;
 
     std::unique_ptr<Texture> containerTexture = nullptr;
     std::unique_ptr<Texture> containerBorderTexture = nullptr;
@@ -115,7 +121,7 @@ namespace GameEngine {
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) camera->translate(CameraObject::Direction::Down, deltaTime);
     }
 
-
+    Model* ourModel = nullptr;
 
     GLfloat lightCubeVertices[24] = {
             -1.0, -1.0,  -1.0,    
@@ -309,7 +315,7 @@ namespace GameEngine {
         );
 
 
- 
+        ourModel = new Model("../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx");
 
         //Cubes
         toyCube = std::make_unique<Object>(threeElement, cubeVertices, sizeof(cubeVertices), nullptr, 36);
@@ -325,6 +331,8 @@ namespace GameEngine {
         }
 
         p_lightShaderProgram = std::make_unique<ShaderProgram>("LightingShader.vs", "LightingShader.frag");
+
+        p_modelShaderProgram = std::make_unique<ShaderProgram>("ModelLoadingShader.vs", "ModelLoadingShader.frag");
 
         if (!p_lightShaderProgram->isCompiled())
         {
@@ -350,8 +358,6 @@ namespace GameEngine {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-    
-
 
         handleKeyPress(m_pWindow);
 
@@ -365,112 +371,120 @@ namespace GameEngine {
         //Renderer::clear();
         Renderer::clear(BitfieldMask::All);
 
-
-
-        p_shaderProgram->bind();
-
-        // bind diffuse map
-        glActiveTexture(GL_TEXTURE0);
-        containerTexture->bind();
-        // bind specular map
-        glActiveTexture(GL_TEXTURE1);
-        containerBorderTexture->bind();
-        glActiveTexture(GL_TEXTURE2);
-        matrixTexture->bind();
-        glm::vec3 camPos = camera->getPosition();
-        //Draw camera
-        glm::vec3 lightAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-        glm::vec3 lightDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-        glm::vec3 lightSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
+        p_modelShaderProgram->bind();
 
         glm::mat4 viewAndProjectionMatrix = camera->update();
-        p_shaderProgram->setVec3("viewPos", camPos);
-        p_shaderProgram->setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-        p_shaderProgram->setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        p_modelShaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
+        glm::mat4 model(1.f);
 
-        glm::vec3 material = { 2.0f, 1.f, 32.f };
+        p_modelShaderProgram->setMatrix4("transformMatrix", model);
 
-
-        p_shaderProgram->setInt("material.diffuse", 0);
-        p_shaderProgram->setInt("material.specular", 1);
-
-        p_shaderProgram->setFloat("material.shininess", 32.f);
+        ourModel->draw(*p_modelShaderProgram);
 
 
-        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> dirLight = {
-            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
-            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
-            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
-            { "direction", { ShaderProgram::PropertyTypes::Vec3, sunLightDirection } },
-        };
+       // // bind diffuse map
+       // glActiveTexture(GL_TEXTURE0);
+       // containerTexture->bind();
+       // // bind specular map
+       // glActiveTexture(GL_TEXTURE1);
+       // containerBorderTexture->bind();
+       // glActiveTexture(GL_TEXTURE2);
+       // matrixTexture->bind();
+       // glm::vec3 camPos = camera->getPosition();
+       // glm::mat4 viewAndProjectionMatrix = camera->update();
+       // //Draw camera
+       // glm::vec3 lightAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+       // glm::vec3 lightDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+       // glm::vec3 lightSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
 
-        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> spotLight = {
-            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
-            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
-            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
-            { "cutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(12.5f)) } },
-            { "outerCutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(17.5f)) } },
-            { "position", { ShaderProgram::PropertyTypes::Vec3, camera->getPosition() } },
-            { "direction", { ShaderProgram::PropertyTypes::Vec3, camera->getFront() } },
-            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
-            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
-            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
-        };
+     
+       //p_shaderProgram->setVec3("viewPos", camPos);
+       //p_shaderProgram->setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+       //p_shaderProgram->setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
-        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> pointLight = {
-            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.0f, 0.0f, 0.0f) } },
-            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
-            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
-            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
-            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
-            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
-        };
-
-        std::vector<std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>>> pointLights;
-
-        for (auto& pos : lightPositions) {
-            pointLight["position"] = { ShaderProgram::PropertyTypes::Vec3, pos };
-            pointLights.push_back(pointLight);
-        }
+       //glm::vec3 material = { 2.0f, 1.f, 32.f };
 
 
+       //p_shaderProgram->setInt("material.diffuse", 0);
+       //p_shaderProgram->setInt("material.specular", 1);
 
-        p_shaderProgram->setObject("dirLight", dirLight);
-        p_shaderProgram->setObject("spotLight", spotLight);
-        p_shaderProgram->setObjects("pointLights", pointLights);
-
-       /* auto transformMatrix = toyCube->update(containerScale, containerTranslate, containerRotate);
-        p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
-        p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
-        Renderer::draw(*(toyCube->getVertexArray()));*/
-
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            float angle = 20.0f * i;
-            auto transformMatrix = toyCube->update(containerScale, containerPositions[i], angle);
-            p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
-            p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
-            Renderer::draw(*(toyCube->getVertexArray()));
-        }
+       //p_shaderProgram->setFloat("material.shininess", 32.f);
 
 
-        //Draw light cube
-        //lightPosition.x = sin(currentFrame) * 1.5;
-        //lightPosition.z = cos(currentFrame) * 1.5;
+       // std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> dirLight = {
+       //     { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
+       //     { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
+       //     { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
+       //     { "direction", { ShaderProgram::PropertyTypes::Vec3, sunLightDirection } },
+       // };
+
+       // std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> spotLight = {
+       //     { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
+       //     { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
+       //     { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
+       //     { "cutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(12.5f)) } },
+       //     { "outerCutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(17.5f)) } },
+       //     { "position", { ShaderProgram::PropertyTypes::Vec3, camera->getPosition() } },
+       //     { "direction", { ShaderProgram::PropertyTypes::Vec3, camera->getFront() } },
+       //     { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
+       //     { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
+       //     { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
+       // };
+
+       // std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> pointLight = {
+       //     { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.0f, 0.0f, 0.0f) } },
+       //     { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
+       //     { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
+       //     { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
+       //     { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
+       //     { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
+       // };
+
+       // std::vector<std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>>> pointLights;
+
+       // for (auto& pos : lightPositions) {
+       //     pointLight["position"] = { ShaderProgram::PropertyTypes::Vec3, pos };
+       //     pointLights.push_back(pointLight);
+       //     pointLight.erase("position");
+       // }
 
 
-        p_lightShaderProgram->bind();
+
+       //p_shaderProgram->setObject("dirLight", dirLight);
+       //p_shaderProgram->setObject("spotLight", spotLight);
+       //p_shaderProgram->setObjects("pointLights", pointLights);
+
+       //auto transformMatrix = toyCube->update(containerScale, containerTranslate, containerRotate);
+
+       //Renderer::draw(*(toyCube->getVertexArray()));
+
+       // for (unsigned int i = 0; i < 10; i++)
+       // {
+       //     float angle = 20.0f * i;
+       //     auto transformMatrix = toyCube->update(containerScale, containerPositions[i], angle);
+       //     p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
+       //     p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
+       //     Renderer::draw(*(toyCube->getVertexArray()));
+       // }
+
+
+       // //Draw light cube
+       // //lightPosition.x = sin(currentFrame) * 1.5;
+       // //lightPosition.z = cos(currentFrame) * 1.5;
+
+
+       //p_lightShaderProgram->bind();
 
      
 
 
-        for (unsigned int i = 0; i < 4; i++)
-        {
-            auto transformMatrix = lightCube->update(lightScale, lightPositions[i], lightRotate);
-            p_lightShaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
-            p_lightShaderProgram->setMatrix4("transformMatrix", transformMatrix);
-            Renderer::draw(*(toyCube->getVertexArray()));
-        }
+       //for (unsigned int i = 0; i < 4; i++)
+       // {
+       //     auto transformMatrix = lightCube->update(lightScale, lightPositions[i], lightRotate);
+       //     p_lightShaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
+       //     p_lightShaderProgram->setMatrix4("transformMatrix", transformMatrix);
+       //     Renderer::draw(*(toyCube->getVertexArray()));
+       // }
 
 
         //GUI

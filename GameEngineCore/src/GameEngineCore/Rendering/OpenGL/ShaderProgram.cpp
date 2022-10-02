@@ -97,6 +97,7 @@ namespace GameEngine {
 
 	}
 
+
 	ShaderProgram::~ShaderProgram()
 	{
 		glDeleteProgram(m_id);
@@ -202,6 +203,17 @@ namespace GameEngine {
 
 	unsigned int ShaderProgram::get() {
 		return m_id;
+	}
+
+
+	ShaderProgram::ShaderProgram(const ShaderProgram& shaderProgram) {
+		m_id = shaderProgram.m_id;
+		m_isCompiled = shaderProgram.m_isCompiled;
+	}
+	ShaderProgram& ShaderProgram::operator=(const ShaderProgram& shaderProgram) {
+		m_id = shaderProgram.m_id;
+		m_isCompiled = shaderProgram.m_isCompiled;
+		return *this;
 	}
 
 	//move

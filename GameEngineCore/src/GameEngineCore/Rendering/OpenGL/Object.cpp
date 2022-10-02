@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-namespace GameEngine {
+namespace GameEngine {    
 
     Object::Object(
         BufferLayout layout, 

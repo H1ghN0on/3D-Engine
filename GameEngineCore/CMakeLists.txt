@@ -20,6 +20,8 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Rendering/OpenGL/Renderer.hpp
 	src/GameEngineCore/Rendering/OpenGL/CameraObject.hpp
 	src/GameEngineCore/Rendering/OpenGL/Object.hpp
+	src/GameEngineCore/Rendering/OpenGL/Mesh.hpp
+	src/GameEngineCore/Rendering/OpenGL/Model.hpp
 )
 
 #переменные для всех исходных кодов (cpp)
@@ -35,6 +37,8 @@ set(ENGINE_PRIVATE_SOURCES
 	src/GameEngineCore/Rendering/OpenGL/Renderer.cpp
 	src/GameEngineCore/Rendering/OpenGL/CameraObject.cpp
 	src/GameEngineCore/Rendering/OpenGL/Object.cpp
+	src/GameEngineCore/Rendering/OpenGL/Mesh.cpp
+	src/GameEngineCore/Rendering/OpenGL/Model.cpp
 )
 
 #компилируем статическую библиотеку для проекта
@@ -81,6 +85,9 @@ target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glm)
 add_subdirectory(../external/soil ${CMAKE_CURRENT_BINARY_DIR}/soil)
 target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE soil)
 
+#assimp
+add_subdirectory(../external/assimp ${CMAKE_CURRENT_BINARY_DIR}/assimp)
+target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE assimp)
 
 
 set(IMGUI_INCLUDES 
