@@ -27,6 +27,12 @@ namespace GameEngine {
         }
     }
 
+    Object::Object(
+        const char* modelPath
+    ) {
+        model = std::make_unique<Model>(modelPath);
+    }
+
     glm::mat4 Object::scale(glm::vec3 scalation) {
         return glm::mat4(
             scalation[0], 0, 0, 0,

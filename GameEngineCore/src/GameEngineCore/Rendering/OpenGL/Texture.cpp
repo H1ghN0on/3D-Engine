@@ -1,8 +1,9 @@
 #include <glad/glad.h>
 #include <glm/vec4.hpp>
+#include <SOIL/SOIL.h>
+
 #include "Texture.hpp"
 #include "GameEngineCore/Log.hpp"
-#include <SOIL/SOIL.h>
 
 namespace GameEngine {
 	
@@ -25,10 +26,12 @@ namespace GameEngine {
 		}
 	}
 
-	Texture::Texture(const char* fileLocation, WrappingMode wrappingMode, MipmapFilterMode mipmapFilterMode, float const(&borderColor)[4]) {
-		unsigned char* image = SOIL_load_image(fileLocation, &m_width, &m_height, 0, SOIL_LOAD_RGB);
+	Texture::Texture(std::string _fileLocation, Type _type, WrappingMode wrappingMode, MipmapFilterMode mipmapFilterMode, float const(&borderColor)[4])
+	: type(_type)
+	, fileLocation(_fileLocation) {
+		unsigned char* image = SOIL_load_image(_fileLocation.c_str(), &m_width, &m_height, 0, SOIL_LOAD_RGB);
 		if (!image) {
-			LOG_CRITICAL("Image load failed: {0}", SOIL_last_result());
+			LOG_CRITICAL("Image load failed: {0} {1}", _fileLocation, SOIL_last_result());
 			return;
 		}
 		glGenTextures(1, &m_id);

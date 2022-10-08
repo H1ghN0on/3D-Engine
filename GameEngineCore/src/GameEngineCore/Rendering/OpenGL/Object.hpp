@@ -5,6 +5,7 @@
 
 #include <memory>
 
+#include <GameEngineCore/Rendering/OpenGL/Model.hpp>
 #include <GameEngineCore/Rendering/OpenGL/VertexArray.hpp>
 #include <GameEngineCore/Rendering/OpenGL/VertexBuffer.hpp>
 #include <GameEngineCore/Rendering/OpenGL/IndexBuffer.hpp>
@@ -15,8 +16,10 @@ namespace GameEngine {
 	class Object {
 	public:
         //Не прокидывается как GLfloat или GLuint
+        
         Object(BufferLayout layout, float* vertices, size_t verticesSize, unsigned int* indices = nullptr, unsigned int indicesCount = 0);
-        Object::Object(BufferLayout layout, float* vertices, size_t verticesSize);
+        
+        Object(const char* modelPath);
 
         glm::mat4 translate(glm::vec3 position);
         glm::mat4 rotate(float rotation);
@@ -28,13 +31,10 @@ namespace GameEngine {
 
 	private:
 
+        std::unique_ptr<Model> model = nullptr;
         std::shared_ptr<VertexArray> vertexArray = nullptr;
         std::unique_ptr<VertexBuffer> vertexBuffer = nullptr;
         std::unique_ptr<IndexBuffer> indexBuffer = nullptr;
-
-
-
-    
 
 	};
 

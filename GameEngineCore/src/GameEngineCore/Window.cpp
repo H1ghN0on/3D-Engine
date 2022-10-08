@@ -298,18 +298,21 @@ namespace GameEngine {
 
         containerTexture = std::make_unique<Texture>(
             containerTextureLocation,
+            Texture::Type::Diffusal,
             Texture::WrappingMode::Repeat,
             Texture::MipmapFilterMode::LinearLinear
          );
 
         containerBorderTexture = std::make_unique<Texture>(
             containerBorderTextureLocation,
+            Texture::Type::Diffusal,
             Texture::WrappingMode::Repeat,
             Texture::MipmapFilterMode::LinearLinear
             );
 
         matrixTexture = std::make_unique<Texture>(
             matrixTextureLocation,
+            Texture::Type::Diffusal,
             Texture::WrappingMode::Edge,
             Texture::MipmapFilterMode::LinearLinear
         );

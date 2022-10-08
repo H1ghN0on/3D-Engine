@@ -1,13 +1,15 @@
 #pragma once
 
 #include "ShaderProgram.hpp"
+#include "Mesh.hpp"
+#include "Texture.hpp"
+
 
 #include <vector>
-#include "Mesh.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "Texture.hpp"
+
 
 
 namespace GameEngine {
@@ -15,10 +17,18 @@ namespace GameEngine {
     {
     public:
         /*  Методы   */
-        Model(char* path)
-        {
+        Model(const char* path) {
             loadModel(path);
         }
+
+        Model(
+            BufferLayout layout,
+            float* vertices,
+            size_t verticesSize,
+            unsigned int* indices,
+            unsigned int indicesCount
+        );
+
         void draw(ShaderProgram shader);
     private:
         /*  Данные модели  */
@@ -28,7 +38,7 @@ namespace GameEngine {
         void loadModel(std::string path);
         void processNode(aiNode* node, const aiScene* scene);
         Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-        std::vector<ObjectTexture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType typeName);
-        std::vector<ObjectTexture> textures_loaded;
+        std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, Texture::Type typeName);
+        std::vector<Texture> textures_loaded;
     };
 }

@@ -1,7 +1,7 @@
 #include "Mesh.hpp"
 #include "GameEngineCore/Log.hpp"
 namespace GameEngine {
-    Mesh::Mesh(BufferLayout _layout, std::vector<GLfloat> _vertices, std::vector<unsigned int> _indices, std::vector<ObjectTexture> _textures)
+    Mesh::Mesh(BufferLayout _layout, std::vector<GLfloat> _vertices, std::vector<unsigned int> _indices, std::vector<Texture> _textures)
         : vertices(_vertices)
         , indices(_indices)
         , textures(_textures)
@@ -30,14 +30,14 @@ namespace GameEngine {
             std::string textureName = "";
             glActiveTexture(GL_TEXTURE0 + i); // активируем текстурный блок, до привязки
 
-            switch (textures[i].type) {
-            case TextureType::Diffusal: {
+            switch (textures[i].getType()) {
+            case Texture::Type::Diffusal: {
                 textureName = "texture_diffuse" + std::to_string(diffuseNr);
                 diffuseNr++;
 
                 break;
             }
-            case TextureType::Specular: {
+            case Texture::Type::Specular: {
                 textureName = "texture_specular" + std::to_string(specularNr);
                 specularNr++;
                 break;
@@ -45,7 +45,7 @@ namespace GameEngine {
             }
 
             shader.setFloat(("material." + textureName).c_str(), i);
-            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+            glBindTexture(GL_TEXTURE_2D, textures[i].getId());
 
             glActiveTexture(GL_TEXTURE0);
         }

@@ -214,6 +214,9 @@ namespace GameEngine {
 		m_id = shaderProgram.m_id;
 		m_isCompiled = shaderProgram.m_isCompiled;
 		return *this;
+
+
+
 	}
 
 	//move
