@@ -3,10 +3,75 @@
 
 
 namespace GameEngine {
-    void Model::draw(ShaderProgram shader)
+    void Model::draw(std::shared_ptr<ShaderProgram> shader)
     {
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].draw(shader);
+    }
+
+    Model::Model(
+        std::vector<GLfloat> vertices,
+        std::vector<unsigned int> indices,
+        std::vector<Texture> textures,
+        bool hasNormals
+    ) {
+        if (textures.size()) {
+            if (hasNormals) {
+                meshes.push_back(
+                    Mesh(
+                        BufferLayout{
+                           ShaderDataType::Float3,
+                           ShaderDataType::Float3,
+                           ShaderDataType::Float2,
+                        },
+                        vertices,
+                        indices,
+                        textures
+                        )
+                );
+            }
+            else {
+                meshes.push_back(
+                    Mesh(
+                        BufferLayout{
+                            ShaderDataType::Float3,
+                            ShaderDataType::Float2,
+                        },
+                        vertices,
+                        indices,
+                        textures
+                        )
+                );
+            }
+        } 
+        else 
+        {
+            if (hasNormals) {
+                meshes.push_back(
+                    Mesh(
+                        BufferLayout{
+                           ShaderDataType::Float3,
+                           ShaderDataType::Float3,
+                        },
+                        vertices,
+                        indices,
+                        textures
+                     )
+                );
+            }
+            else {
+                meshes.push_back(
+                    Mesh(
+                        BufferLayout{
+                            ShaderDataType::Float3,
+                        },
+                        vertices,
+                        indices,
+                        textures
+                    )
+                );
+            }
+        }        
     }
 
     void Model::loadModel(std::string path) {

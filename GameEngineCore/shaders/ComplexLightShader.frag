@@ -48,10 +48,12 @@ struct SpotLight {
     float quadratic;
 };
 
-#define NR_POINT_LIGHTS 4
+#define MAX_LIGHTS 128
 
+uniform bool withFlashlight;
+uniform int pointLightsNumber;
 uniform DirLight dirLight;
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform PointLight pointLights[MAX_LIGHTS];
 uniform SpotLight spotLight;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
@@ -142,10 +144,11 @@ void main() {
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
 
     // фаза 2: Точечные источники
-    for(int i = 0; i < NR_POINT_LIGHTS; i++) result += CalcPointLight(pointLights[i], norm, viewDir, FragPos);    
+    for(int i = 0; i < pointLightsNumber; i++) result += CalcPointLight(pointLights[i], norm, viewDir, FragPos);    
 
     // фаза 3: фонарик
-    result += CalcSpotLight(spotLight, norm, viewDir, FragPos);
+    if(withFlashlight)
+        result += CalcSpotLight(spotLight, norm, viewDir, FragPos);
 
     color = vec4(result, 1.0f);
 

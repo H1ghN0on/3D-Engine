@@ -16,20 +16,21 @@ namespace GameEngine {
     class Model
     {
     public:
+
         /*  Методы   */
         Model(const char* path) {
             loadModel(path);
         }
 
+
         Model(
-            BufferLayout layout,
-            float* vertices,
-            size_t verticesSize,
-            unsigned int* indices,
-            unsigned int indicesCount
+            std::vector<GLfloat> vertices,
+            std::vector<unsigned int> indices,
+            std::vector<Texture> textures,
+            bool hasNormals
         );
 
-        void draw(ShaderProgram shader);
+        void draw(std::shared_ptr<ShaderProgram> shader);
     private:
         /*  Данные модели  */
         std::vector<Mesh> meshes;

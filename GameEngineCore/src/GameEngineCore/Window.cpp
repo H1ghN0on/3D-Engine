@@ -82,11 +82,13 @@ namespace GameEngine {
 
     std::unique_ptr<CameraObject> camera = nullptr;
     std::unique_ptr<Object> lightCube = nullptr;
+    std::unique_ptr<Object> shogunRaiden = nullptr;
+    std::unique_ptr<Object> paimon = nullptr;
     std::unique_ptr<Object> toyCube = nullptr;
-    std::unique_ptr<ShaderProgram> p_shaderProgram = nullptr;
-    std::unique_ptr<ShaderProgram> p_lightShaderProgram = nullptr;
-    std::unique_ptr<ShaderProgram> p_modelShaderProgram = nullptr;
-
+    std::shared_ptr<ShaderProgram> complexLightShader = nullptr;
+    std::shared_ptr<ShaderProgram> simpleShader = nullptr;
+    std::shared_ptr<ShaderProgram> p_modelShaderProgram = nullptr;
+    
     std::unique_ptr<Texture> containerTexture = nullptr;
     std::unique_ptr<Texture> containerBorderTexture = nullptr;
     std::unique_ptr<Texture> matrixTexture = nullptr;
@@ -123,7 +125,8 @@ namespace GameEngine {
 
     Model* ourModel = nullptr;
 
-    GLfloat lightCubeVertices[24] = {
+
+    std::vector<GLfloat> lightCubeVertices = {
             -1.0, -1.0,  -1.0,    
             1.0, -1.0,  -1.0,       
             1.0,  1.0,  -1.0,      
@@ -178,7 +181,7 @@ namespace GameEngine {
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
 
-    GLuint indices[36] = {
+    std::vector<GLuint> indices = {
             0,2,1,
             0,3,2,
 
@@ -296,51 +299,71 @@ namespace GameEngine {
             ShaderDataType::Float2,
         };
 
-        containerTexture = std::make_unique<Texture>(
-            containerTextureLocation,
-            Texture::Type::Diffusal,
-            Texture::WrappingMode::Repeat,
-            Texture::MipmapFilterMode::LinearLinear
-         );
+        //containerTexture = std::make_unique<Texture>(
+        //    containerTextureLocation,
+        //    Texture::Type::Diffusal,
+        //    Texture::WrappingMode::Repeat,
+        //    Texture::MipmapFilterMode::LinearLinear
+        // );
 
-        containerBorderTexture = std::make_unique<Texture>(
-            containerBorderTextureLocation,
-            Texture::Type::Diffusal,
-            Texture::WrappingMode::Repeat,
-            Texture::MipmapFilterMode::LinearLinear
-            );
+        //containerBorderTexture = std::make_unique<Texture>(
+        //    containerBorderTextureLocation,
+        //    Texture::Type::Diffusal,
+        //    Texture::WrappingMode::Repeat,
+        //    Texture::MipmapFilterMode::LinearLinear
+        //    );
 
-        matrixTexture = std::make_unique<Texture>(
-            matrixTextureLocation,
-            Texture::Type::Diffusal,
-            Texture::WrappingMode::Edge,
-            Texture::MipmapFilterMode::LinearLinear
-        );
+        //matrixTexture = std::make_unique<Texture>(
+        //    matrixTextureLocation,
+        //    Texture::Type::Diffusal,
+        //    Texture::WrappingMode::Edge,
+        //    Texture::MipmapFilterMode::LinearLinear
+        //);
 
 
         ourModel = new Model("../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx");
 
-        //Cubes
-        toyCube = std::make_unique<Object>(threeElement, cubeVertices, sizeof(cubeVertices), nullptr, 36);
-        lightCube = std::make_unique<Object>(oneElement, lightCubeVertices, sizeof(lightCubeVertices), indices, 36);
-      
+        shogunRaiden = std::make_unique<Object>(
+            "../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
+            glm::vec3(0.f, 0.f, 0.f),
+            glm::vec3(0.8f, 0.8f, 0.8f),
+            0.f
+        );
+
+
+        paimon = std::make_unique<Object>(
+            "../../GameEngineCore/assets/models/paimon/paimon.obj",
+            glm::vec3(1.f, 1.f, 0.f),
+            glm::vec3(0.1f, 0.1f, 0.1f),
+            0.f
+        );
+
+
+        lightCube = std::make_unique<Object>(lightCubeVertices, indices, std::vector<Texture>(), false, 
+            glm::vec3(1.f, 1.f, 1.f),
+            glm::vec3(0.3f, 0.3f, 0.3f),
+            0.f
+        );
+        
 
         //Create Shader Program
-        p_shaderProgram = std::make_unique<ShaderProgram>("ContainerShader.vs", "ContainerShader.frag");
+        complexLightShader = std::make_shared<ShaderProgram>("ComplexLightShader.vs", "ComplexLightShader.frag");
 
-        if (!p_shaderProgram->isCompiled())
+        if (!complexLightShader->isCompiled())
+        {
+            return false;
+        }
+        simpleShader = std::make_shared<ShaderProgram>("SimpleShader.vs", "SimpleShader.frag");
+        if (!simpleShader->isCompiled())
         {
             return false;
         }
 
-        p_lightShaderProgram = std::make_unique<ShaderProgram>("LightingShader.vs", "LightingShader.frag");
+        p_modelShaderProgram = std::make_shared<ShaderProgram>("ModelLoadingShader.vs", "ModelLoadingShader.frag");
 
-        p_modelShaderProgram = std::make_unique<ShaderProgram>("ModelLoadingShader.vs", "ModelLoadingShader.frag");
-
-        if (!p_lightShaderProgram->isCompiled())
-        {
-            return false;
-        }
+        paimon->setShader(complexLightShader);
+        shogunRaiden->setShader(complexLightShader);
+        lightCube->setShader(simpleShader);
 
         Renderer::enableDepth();
     
@@ -373,16 +396,8 @@ namespace GameEngine {
 
         //Renderer::clear();
         Renderer::clear(BitfieldMask::All);
-
-        p_modelShaderProgram->bind();
-
-        glm::mat4 viewAndProjectionMatrix = camera->update();
-        p_modelShaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
-        glm::mat4 model(1.f);
-
-        p_modelShaderProgram->setMatrix4("transformMatrix", model);
-
-        ourModel->draw(*p_modelShaderProgram);
+       
+  
 
 
        // // bind diffuse map
@@ -406,89 +421,65 @@ namespace GameEngine {
        //p_shaderProgram->setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
        //glm::vec3 material = { 2.0f, 1.f, 32.f };
+        complexLightShader->bind();
+        complexLightShader->setInt("material.diffuse", 0);
+        complexLightShader->setInt("material.specular", 1);
+
+        complexLightShader->setFloat("material.shininess", 32.f);
 
 
-       //p_shaderProgram->setInt("material.diffuse", 0);
-       //p_shaderProgram->setInt("material.specular", 1);
+        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> dirLight = {
+            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.03f, 0.03f, 0.03f) } },
+            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
+            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
+            { "direction", { ShaderProgram::PropertyTypes::Vec3, sunLightDirection } },
+        };
 
-       //p_shaderProgram->setFloat("material.shininess", 32.f);
+        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> spotLight = {
+            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
+            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
+            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
+            { "cutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(12.5f)) } },
+            { "outerCutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(17.5f)) } },
+            { "position", { ShaderProgram::PropertyTypes::Vec3, camera->getPosition() } },
+            { "direction", { ShaderProgram::PropertyTypes::Vec3, camera->getFront() } },
+            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
+            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
+            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
+        };
 
+        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> pointLight = {
+            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.0f, 0.0f, 0.0f) } },
+            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
+            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
+            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
+            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
+            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
+        };
 
-       // std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> dirLight = {
-       //     { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
-       //     { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
-       //     { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
-       //     { "direction", { ShaderProgram::PropertyTypes::Vec3, sunLightDirection } },
-       // };
+       std::vector<std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>>> pointLights;
 
-       // std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> spotLight = {
-       //     { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
-       //     { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
-       //     { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
-       //     { "cutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(12.5f)) } },
-       //     { "outerCutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(17.5f)) } },
-       //     { "position", { ShaderProgram::PropertyTypes::Vec3, camera->getPosition() } },
-       //     { "direction", { ShaderProgram::PropertyTypes::Vec3, camera->getFront() } },
-       //     { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
-       //     { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
-       //     { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
-       // };
+  
+       pointLight["position"] = { ShaderProgram::PropertyTypes::Vec3, lightCube->getPosition()};
+       pointLights.push_back(pointLight);
+       pointLight.erase("position");
 
-       // std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> pointLight = {
-       //     { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.0f, 0.0f, 0.0f) } },
-       //     { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
-       //     { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
-       //     { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
-       //     { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
-       //     { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
-       // };
+  
+        complexLightShader->setObject("dirLight", dirLight);
+       //complexLightShader->setObject("spotLight", spotLight);
+        complexLightShader->setInt("withFlashLight", false);
+        complexLightShader->setObjects("pointLights", pointLights);
+        complexLightShader->setInt("pointLightsNumber", 1);
 
-       // std::vector<std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>>> pointLights;
+       glm::mat4 viewAndProjectionMatrix = camera->update();
 
-       // for (auto& pos : lightPositions) {
-       //     pointLight["position"] = { ShaderProgram::PropertyTypes::Vec3, pos };
-       //     pointLights.push_back(pointLight);
-       //     pointLight.erase("position");
-       // }
-
-
-
-       //p_shaderProgram->setObject("dirLight", dirLight);
-       //p_shaderProgram->setObject("spotLight", spotLight);
-       //p_shaderProgram->setObjects("pointLights", pointLights);
-
-       //auto transformMatrix = toyCube->update(containerScale, containerTranslate, containerRotate);
-
-       //Renderer::draw(*(toyCube->getVertexArray()));
-
-       // for (unsigned int i = 0; i < 10; i++)
-       // {
-       //     float angle = 20.0f * i;
-       //     auto transformMatrix = toyCube->update(containerScale, containerPositions[i], angle);
-       //     p_shaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
-       //     p_shaderProgram->setMatrix4("transformMatrix", transformMatrix);
-       //     Renderer::draw(*(toyCube->getVertexArray()));
-       // }
-
-
-       // //Draw light cube
-       // //lightPosition.x = sin(currentFrame) * 1.5;
-       // //lightPosition.z = cos(currentFrame) * 1.5;
-
-
-       //p_lightShaderProgram->bind();
-
-     
-
-
-       //for (unsigned int i = 0; i < 4; i++)
-       // {
-       //     auto transformMatrix = lightCube->update(lightScale, lightPositions[i], lightRotate);
-       //     p_lightShaderProgram->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
-       //     p_lightShaderProgram->setMatrix4("transformMatrix", transformMatrix);
-       //     Renderer::draw(*(toyCube->getVertexArray()));
-       // }
-
+ 
+       paimon->draw(viewAndProjectionMatrix);
+       shogunRaiden->draw(viewAndProjectionMatrix);
+       
+        //проблема тут
+        lightCube->draw(viewAndProjectionMatrix);
+   
 
         //GUI
         /*ImGuiIO& io = ImGui::GetIO();

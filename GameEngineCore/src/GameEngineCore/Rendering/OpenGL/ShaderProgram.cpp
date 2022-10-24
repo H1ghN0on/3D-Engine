@@ -138,6 +138,7 @@ namespace GameEngine {
 		glUniform1i(glGetUniformLocation(m_id, name), value);
 	}
 
+
 	void ShaderProgram::setObject(
 		const char* name, 
 		std::map<char*, std::pair<PropertyTypes, std::any>> properties

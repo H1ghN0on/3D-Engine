@@ -21,7 +21,7 @@ namespace GameEngine {
         }
     }
 
-    void Mesh::draw(ShaderProgram shader) {
+    void Mesh::draw(std::shared_ptr<ShaderProgram> shader) {
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
 
@@ -42,15 +42,15 @@ namespace GameEngine {
                 specularNr++;
                 break;
             }
-            }
+        }
 
-            shader.setFloat(("material." + textureName).c_str(), i);
+            shader -> setFloat(("material." + textureName).c_str(), i);
             glBindTexture(GL_TEXTURE_2D, textures[i].getId());
 
             glActiveTexture(GL_TEXTURE0);
         }
-            vertexArray->bind();
-            Renderer::draw(*vertexArray);
+        vertexArray->bind();
+        Renderer::draw(*vertexArray);
 
     }
 }

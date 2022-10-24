@@ -22,7 +22,7 @@ namespace GameEngine {
         std::vector<Texture> textures;
 
         Mesh(BufferLayout layout, std::vector<GLfloat> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-        void draw(ShaderProgram shader);
+        void draw(std::shared_ptr<ShaderProgram> shader);
     private:
         BufferLayout layout;
         std::shared_ptr<VertexArray> vertexArray = nullptr;
