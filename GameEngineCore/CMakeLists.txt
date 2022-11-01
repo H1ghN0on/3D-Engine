@@ -22,6 +22,8 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Rendering/OpenGL/Object.hpp
 	src/GameEngineCore/Rendering/OpenGL/Mesh.hpp
 	src/GameEngineCore/Rendering/OpenGL/Model.hpp
+	src/GameEngineCore/Rendering/OpenGL/AssimpGLMHelpers.hpp
+	src/GameEngineCore/Rendering/OpenGL/Vertex.hpp
 )
 
 #переменные для всех исходных кодов (cpp)

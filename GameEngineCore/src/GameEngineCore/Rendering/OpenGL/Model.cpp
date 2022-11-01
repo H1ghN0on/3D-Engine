@@ -1,77 +1,37 @@
 #include "Model.hpp"
 #include "GameEngineCore/Log.hpp";
 
+#include <iostream>
+#include "AssimpGLMHelpers.hpp"
+
 
 namespace GameEngine {
     void Model::draw(std::shared_ptr<ShaderProgram> shader)
     {
+    
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].draw(shader);
     }
 
     Model::Model(
-        std::vector<GLfloat> vertices,
+        std::vector<Vertex> vertices,
         std::vector<unsigned int> indices,
-        std::vector<Texture> textures,
-        bool hasNormals
+        std::vector<Texture> textures
+      
     ) {
-        if (textures.size()) {
-            if (hasNormals) {
-                meshes.push_back(
-                    Mesh(
-                        BufferLayout{
-                           ShaderDataType::Float3,
-                           ShaderDataType::Float3,
-                           ShaderDataType::Float2,
-                        },
-                        vertices,
-                        indices,
-                        textures
-                        )
-                );
-            }
-            else {
-                meshes.push_back(
-                    Mesh(
-                        BufferLayout{
-                            ShaderDataType::Float3,
-                            ShaderDataType::Float2,
-                        },
-                        vertices,
-                        indices,
-                        textures
-                        )
-                );
-            }
-        } 
-        else 
-        {
-            if (hasNormals) {
-                meshes.push_back(
-                    Mesh(
-                        BufferLayout{
-                           ShaderDataType::Float3,
-                           ShaderDataType::Float3,
-                        },
-                        vertices,
-                        indices,
-                        textures
-                     )
-                );
-            }
-            else {
-                meshes.push_back(
-                    Mesh(
-                        BufferLayout{
-                            ShaderDataType::Float3,
-                        },
-                        vertices,
-                        indices,
-                        textures
-                    )
-                );
-            }
-        }        
+       
+        meshes.push_back(
+            Mesh(
+                BufferLayout{
+                   ShaderDataType::Float3,
+                   ShaderDataType::Float3,
+                   ShaderDataType::Float2,
+                },
+                vertices,
+                indices,
+                textures
+            )
+        );
     }
 
     void Model::loadModel(std::string path) {
@@ -107,27 +67,33 @@ namespace GameEngine {
 
     Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     {
-        std::vector<GLfloat> vertices;
+        std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
         std::vector<Texture> textures;
 
+
+
         for (unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
-            vertices.push_back(mesh->mVertices[i].x);
-            vertices.push_back(mesh->mVertices[i].y);
-            vertices.push_back(mesh->mVertices[i].z);
+            glm::vec3 position;
+            glm::vec3 normal;
+            glm::vec2 texture;
+
+            position = AssimpGLMHelpers::GetGLMVec(mesh->mVertices[i]);
             if (mesh->HasNormals()) {
-                vertices.push_back(mesh->mNormals[i].x);
-                vertices.push_back(mesh->mNormals[i].y);
-                vertices.push_back(mesh->mNormals[i].z);
+                normal = AssimpGLMHelpers::GetGLMVec(mesh->mNormals[i]);
             } 
             if (mesh->mTextureCoords[0]) { 
-                vertices.push_back(mesh->mTextureCoords[0][i].x);
-                vertices.push_back(mesh->mTextureCoords[0][i].y);
+                texture.x = mesh->mTextureCoords[0][i].x;
+                texture.y = mesh->mTextureCoords[0][i].y;
             } else {
-                vertices.push_back(0.0f);
-                vertices.push_back(0.0f);
+                texture = glm::vec2(0.f, 0.f);
             }
+            vertices.push_back(Vertex(
+                position,
+                normal,
+                texture
+            ));
         }
 
         for (unsigned int i = 0; i < mesh->mNumFaces; i++)

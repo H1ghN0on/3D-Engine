@@ -12,16 +12,18 @@
 #include "VertexArray.hpp"
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
-#include <assimp/types.h>
+#include "Vertex.hpp"
 
 namespace GameEngine {
+ 
+
 	class Mesh {
     public:
-        std::vector<GLfloat> vertices;
+        std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
         std::vector<Texture> textures;
 
-        Mesh(BufferLayout layout, std::vector<GLfloat> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+        Mesh(BufferLayout layout, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
         void draw(std::shared_ptr<ShaderProgram> shader);
     private:
         BufferLayout layout;

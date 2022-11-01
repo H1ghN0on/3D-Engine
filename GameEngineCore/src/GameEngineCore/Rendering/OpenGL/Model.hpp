@@ -13,6 +13,9 @@
 
 
 namespace GameEngine {
+
+   
+
     class Model
     {
     public:
@@ -24,10 +27,9 @@ namespace GameEngine {
 
 
         Model(
-            std::vector<GLfloat> vertices,
+            std::vector<Vertex> vertices,
             std::vector<unsigned int> indices,
-            std::vector<Texture> textures,
-            bool hasNormals
+            std::vector<Texture> textures
         );
 
         void draw(std::shared_ptr<ShaderProgram> shader);

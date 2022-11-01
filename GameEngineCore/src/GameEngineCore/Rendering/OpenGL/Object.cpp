@@ -10,11 +10,10 @@
 
 namespace GameEngine {    
 
-    Object::Object(
-        std::vector<GLfloat> vertices,
+   Object::Object(
+        std::vector<Vertex> vertices,
         std::vector<unsigned int> indices,
         std::vector<Texture> textures,
-        bool hasNormals,
         glm::vec3 _position,
         glm::vec3 _scalation,
         float _rotation
@@ -24,7 +23,7 @@ namespace GameEngine {
     , rotation(_rotation) 
     {
 
-        model = std::make_unique<Model>(vertices, indices, textures, hasNormals);
+        model = std::make_unique<Model>(vertices, indices, textures);
     }
 
     Object::Object(

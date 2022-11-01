@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "Vertex.hpp"
 
 namespace GameEngine {
 
@@ -26,9 +27,9 @@ namespace GameEngine {
 
 	//Generate the layout of array attributes
 	class BufferLayout {
-	public: 
+	public:
 		BufferLayout(std::initializer_list<BufferElement> elements)
-			: m_elements(elements) 
+			: m_elements(elements)
 		{
 			size_t offset = 0;
 			m_stride = 0;
@@ -60,13 +61,13 @@ namespace GameEngine {
 			Stream
 		};
 
-		VertexBuffer(
-			unsigned int verticesCount,
-			const void* data, 
-			size_t size, 
-			BufferLayout bufferLayout, 
+		VertexBuffer::VertexBuffer(
+			std::vector<Vertex> vertices,
+			BufferLayout bufferLayout,
 			const EUsage usage = VertexBuffer::EUsage::Static
 		);
+
+
 		~VertexBuffer();
 
 		VertexBuffer(const VertexBuffer&) = delete;
@@ -76,7 +77,7 @@ namespace GameEngine {
 
 		void bind() const;
 		static void unbind();
-		unsigned int getVerticesCount() const { return verticesCount;  }
+		unsigned int getVerticesCount() const { return verticesCount; }
 		const BufferLayout& getLayout() const { return m_bufferLayout; }
 
 	private:

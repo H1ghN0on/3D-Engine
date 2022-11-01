@@ -18,10 +18,9 @@ namespace GameEngine {
         //Не прокидывается как GLfloat или GLuint
         
         Object(
-            std::vector<GLfloat> vertices,
+            std::vector<Vertex> vertices,
             std::vector<unsigned int> indices,
             std::vector<Texture> textures,
-            bool hasNormals,
             glm::vec3 _position,
             glm::vec3 _scalation,
             float _rotation

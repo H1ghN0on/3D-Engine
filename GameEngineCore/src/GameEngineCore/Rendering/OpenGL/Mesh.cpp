@@ -1,7 +1,11 @@
 #include "Mesh.hpp"
 #include "GameEngineCore/Log.hpp"
+
+#include <iostream>
+
+
 namespace GameEngine {
-    Mesh::Mesh(BufferLayout _layout, std::vector<GLfloat> _vertices, std::vector<unsigned int> _indices, std::vector<Texture> _textures)
+    Mesh::Mesh(BufferLayout _layout, std::vector<Vertex> _vertices, std::vector<unsigned int> _indices, std::vector<Texture> _textures)
         : vertices(_vertices)
         , indices(_indices)
         , textures(_textures)
@@ -13,7 +17,7 @@ namespace GameEngine {
 
     void Mesh::setupMesh() {
         vertexArray = std::make_shared<VertexArray>();
-        vertexBuffer = std::make_unique<VertexBuffer>(indices.size(), std::data(vertices), vertices.size() * sizeof(GLfloat), layout);
+        vertexBuffer = std::make_unique<VertexBuffer>(vertices, layout);
         vertexArray->addVertexBuffer(*vertexBuffer);
         if (indices.size() != 0) {
             indexBuffer = std::make_unique<IndexBuffer>(std::data(indices), indices.size());
@@ -24,7 +28,7 @@ namespace GameEngine {
     void Mesh::draw(std::shared_ptr<ShaderProgram> shader) {
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
-
+ 
         for (unsigned int i = 0; i < textures.size(); i++)
         {
             std::string textureName = "";
