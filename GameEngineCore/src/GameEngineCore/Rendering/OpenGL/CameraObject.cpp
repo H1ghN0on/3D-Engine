@@ -48,7 +48,10 @@ namespace GameEngine {
 				break;
 			}
 			case Direction::Down: {
-				position -= up * trueSpeed;
+				if (position.y > 1) {
+					position -= up * trueSpeed;
+				}
+				
 				break;
 			}
 		}
@@ -75,7 +78,7 @@ namespace GameEngine {
 			rotation[0] = -90.f;
 
 		front.x = cos(glm::radians(rotation[0])) * cos(glm::radians(rotation[1]));
-		front.y = sin(glm::radians(rotation[0]));
+		//front.y = sin(glm::radians(rotation[0]));
 		front.z = cos(glm::radians(rotation[0])) * sin(glm::radians(rotation[1]));
 		front = glm::normalize(front);
 

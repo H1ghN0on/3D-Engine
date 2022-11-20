@@ -9,6 +9,7 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 
 #include <chrono>
+#include <tuple>
 #include <math.h>
 #include "GameEngineCore/Window.hpp"
 #include "GameEngineCore/Log.hpp"
@@ -23,12 +24,13 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <GameEngineCore/Rendering/OpenGL/Model.hpp>
+#include <GameEngineCore/Rendering/OpenGL/Terrain.hpp>
 
 
 namespace GameEngine {
 
 
-
+    typedef std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> shader_property;
 
     float deltaTime = 0.0f;	// время между текущим и последним кадрами
     float lastFrame = 0.0f; // время последнего кадра
@@ -77,6 +79,7 @@ namespace GameEngine {
     const char* containerTextureLocation = "../../GameEngineCore/assets/container.png";
     const char* containerBorderTextureLocation = "../../GameEngineCore/assets/containerBorder.png";
     const char* matrixTextureLocation = "../../GameEngineCore/assets/matrix.jpg";
+    const char* terrainTextureLocation = "../../GameEngineCore/assets/ground.jpg";
 
     //in - enter attributes
     //out - output attributes
@@ -89,13 +92,16 @@ namespace GameEngine {
     std::unique_ptr<Object> paimon = nullptr;
     std::unique_ptr<Object> toyCube = nullptr;
     std::shared_ptr<ShaderProgram> complexLightShader = nullptr;
+    std::shared_ptr<ShaderProgram> terrainShader = nullptr;
     std::shared_ptr<ShaderProgram> simpleShader = nullptr;
     std::shared_ptr<ShaderProgram> activeVerticesShader = nullptr;
     std::shared_ptr<ShaderProgram> p_modelShaderProgram = nullptr;
-    
+    std::unique_ptr<Terrain> terrain = nullptr;
+    std::unique_ptr<Terrain> terrain2 = nullptr;
     std::unique_ptr<Texture> containerTexture = nullptr;
     std::unique_ptr<Texture> containerBorderTexture = nullptr;
     std::unique_ptr<Texture> matrixTexture = nullptr;
+    std::unique_ptr<Texture> terrainTexture = nullptr;
 
 	Window::Window(const unsigned int width, const unsigned int height, std::string title):
         m_data({width, height, std::move(title)})
@@ -220,6 +226,9 @@ namespace GameEngine {
 
 	int Window::init() {
 
+
+
+
         LOG_INFO("Creating window '{0}', {1}x{2}", m_data.title, m_data.width, m_data.height);
 
         glfwSetErrorCallback([](int code, const char* description) {
@@ -314,7 +323,7 @@ namespace GameEngine {
 
 
         camera = std::make_unique<CameraObject>(
-                glm::vec3(0.f, 0.f, -3.0f),
+                glm::vec3(50.f, 1.f, 47.0f),
                 glm::vec3(0.f, 0.f, 0.f),
                 Camera::ProjectionType::Perspective
         );
@@ -355,6 +364,13 @@ namespace GameEngine {
         //    Texture::MipmapFilterMode::LinearLinear
         //);
 
+        terrainTexture = std::make_unique<Texture>(
+            terrainTextureLocation,
+            Texture::Type::Diffusal,
+            Texture::WrappingMode::Repeat,
+            Texture::MipmapFilterMode::LinearLinear
+        );
+
 
         ourModel = new Model("../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx");
         //  "../../GameEngineCore/assets/models/raiden/Raiden.pmx",
@@ -362,25 +378,26 @@ namespace GameEngine {
        
         shogunRaiden = std::make_unique<Object>(
             "../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
-            glm::vec3(0.f, 0.f, 0.f),
+            glm::vec3(50.f, 0.f, 50.f),
             glm::vec3(0.8f, 0.8f, 0.8f),
             0.f
         );
-       
+
 
         paimon = std::make_unique<Object>(
             "../../GameEngineCore/assets/models/paimon/paimon.obj",
-            glm::vec3(1.f, 1.f, 0.f),
+            glm::vec3(51.f, 1.f, 50.f),
             glm::vec3(0.1f, 0.1f, 0.1f),
             0.f
         );
     
 
         lightCube = std::make_unique<Object>(lightCubeVertices, indices, std::vector<Texture>(),
-            glm::vec3(1.f, 1.f, 1.f),
+            glm::vec3(51.f, 1.f, 51.f),
             glm::vec3(0.3f, 0.3f, 0.3f),
             0.f
         );
+        
         
 
         //Create Shader Program
@@ -390,6 +407,14 @@ namespace GameEngine {
         {
             return false;
         }
+
+        terrainShader = std::make_shared<ShaderProgram>("TerrainShader.vs", "TerrainShader.frag");
+
+        if (!complexLightShader->isCompiled())
+        {
+            return false;
+        }
+
         simpleShader = std::make_shared<ShaderProgram>("SimpleShader.vs", "SimpleShader.frag");
         if (!simpleShader->isCompiled())
         {
@@ -409,7 +434,13 @@ namespace GameEngine {
         shogunRaiden->setShader(complexLightShader);
 
         lightCube->setShader(simpleShader);
-  
+
+        terrain = std::make_unique<Terrain>(0, 0, *terrainTexture);
+        terrain2 = std::make_unique<Terrain>(1, 0, *terrainTexture);
+
+        terrain->setShader(terrainShader);
+        terrain2->setShader(terrainShader);
+
         Renderer::enableDepth();
     
         return 0;
@@ -421,6 +452,52 @@ namespace GameEngine {
         }
         glfwDestroyWindow(m_pWindow);
         glfwTerminate();
+    }
+
+
+    std::tuple<shader_property, shader_property, std::vector<shader_property>> updateLightingShader(
+        glm::vec3 dirLightDirection,
+        glm::vec3 spotLightPosition,
+        glm::vec3 spotLightDirection,
+        std::vector<glm::vec3> pointLightPositions
+    ) {
+        shader_property dirLight = {
+            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.03f, 0.03f, 0.03f) } },
+            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
+            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
+            { "direction", { ShaderProgram::PropertyTypes::Vec3, sunLightDirection } },
+        };
+
+        shader_property spotLight = {
+            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
+            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
+            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
+            { "cutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(12.5f)) } },
+            { "outerCutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(17.5f)) } },
+            { "position", { ShaderProgram::PropertyTypes::Vec3, camera->getPosition() } },
+            { "direction", { ShaderProgram::PropertyTypes::Vec3, camera->getFront() } },
+            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
+            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
+            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
+        };
+
+        shader_property pointLight = {
+            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.0f, 0.0f, 0.0f) } },
+            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
+            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
+            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
+            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
+            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
+        };
+
+        std::vector<shader_property> pointLights;
+
+        for (const auto position : pointLightPositions) {
+            pointLight["position"] = { ShaderProgram::PropertyTypes::Vec3, position };
+            pointLights.push_back(pointLight);
+            pointLight.erase("position");
+        }
+        return std::make_tuple(dirLight, spotLight, pointLights);
     }
 
     void Window::on_update() {
@@ -441,90 +518,46 @@ namespace GameEngine {
 
         //Renderer::clear();
         Renderer::clear(BitfieldMask::All);
-       
-  
-
-
-       // // bind diffuse map
-       // glActiveTexture(GL_TEXTURE0);
-       // containerTexture->bind();
-       // // bind specular map
-       // glActiveTexture(GL_TEXTURE1);
-       // containerBorderTexture->bind();
-       // glActiveTexture(GL_TEXTURE2);
-       // matrixTexture->bind();
-       // glm::vec3 camPos = camera->getPosition();
-       // glm::mat4 viewAndProjectionMatrix = camera->update();
-       // //Draw camera
-       // glm::vec3 lightAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-       // glm::vec3 lightDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-       // glm::vec3 lightSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
-
-     
-       //p_shaderProgram->setVec3("viewPos", camPos);
-       //p_shaderProgram->setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-       //p_shaderProgram->setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
-
-       //glm::vec3 material = { 2.0f, 1.f, 32.f };
-        complexLightShader->bind();
-        complexLightShader->setInt("material.diffuse", 0);
-        complexLightShader->setInt("material.specular", 1);
-
-        complexLightShader->setFloat("material.shininess", 32.f);
-
         
-        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> dirLight = {
-            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.03f, 0.03f, 0.03f) } },
-            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
-            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
-            { "direction", { ShaderProgram::PropertyTypes::Vec3, sunLightDirection } },
-        };
+        std::apply([](shader_property dirLight, shader_property spotLight, std::vector<shader_property> pointLights) {
+            complexLightShader->bind();
+            complexLightShader->setInt("material.diffuse", 0);
+            complexLightShader->setInt("material.specular", 1);
 
-        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> spotLight = {
-            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
-            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
-            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
-            { "cutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(12.5f)) } },
-            { "outerCutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(17.5f)) } },
-            { "position", { ShaderProgram::PropertyTypes::Vec3, camera->getPosition() } },
-            { "direction", { ShaderProgram::PropertyTypes::Vec3, camera->getFront() } },
-            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
-            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
-            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
-        };
+            complexLightShader->setFloat("material.shininess", 32.f);
+            complexLightShader->setObject("dirLight", dirLight);
+            //complexLightShader->setObject("spotLight", spotLight);
+            complexLightShader->setInt("withFlashLight", false);
+            complexLightShader->setObjects("pointLights", pointLights);
+            complexLightShader->setInt("pointLightsNumber", 1);
 
-        std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> pointLight = {
-            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.0f, 0.0f, 0.0f) } },
-            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
-            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
-            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
-            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
-            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
-        };
+            terrainShader->bind();
+            terrainShader->setInt("material.diffuse", 0);
+            terrainShader->setInt("material.specular", 1);
+            terrainShader->setFloat("material.shininess", 32.f);
+            terrainShader->setObject("dirLight", dirLight);
+            //terrainShader->setObject("spotLight", spotLight);
+            terrainShader->setInt("withFlashLight", false);
+            terrainShader->setObjects("pointLights", pointLights);
+            terrainShader->setInt("pointLightsNumber", 1);
 
-       std::vector<std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>>> pointLights;
-
-       //lightCube->getPosition()
-       pointLight["position"] = { ShaderProgram::PropertyTypes::Vec3, lightCube->getPosition()};
-       pointLights.push_back(pointLight);
-       pointLight.erase("position");
-
+        }, updateLightingShader(
+            sunLightDirection,
+            camera->getPosition(),
+            camera->getFront(),
+            std::vector<glm::vec3>({ lightCube->getPosition() })
+        ));
   
-        complexLightShader->setObject("dirLight", dirLight);
-       //complexLightShader->setObject("spotLight", spotLight);
-        complexLightShader->setInt("withFlashLight", false);
-        complexLightShader->setObjects("pointLights", pointLights);
-        complexLightShader->setInt("pointLightsNumber", 1);
+        
 
-       glm::mat4 viewAndProjectionMatrix = camera->update();
-       viewprojection = camera->update();
+        glm::mat4 viewAndProjectionMatrix = camera->update();
        
-       paimon->draw(viewAndProjectionMatrix, true);
+        paimon->draw(viewAndProjectionMatrix);
+        shogunRaiden->draw(viewAndProjectionMatrix);
+        lightCube->draw(viewAndProjectionMatrix);
+        terrain->draw(viewAndProjectionMatrix);
+        terrain2->draw(viewAndProjectionMatrix);
 
-      
-       shogunRaiden->draw(viewAndProjectionMatrix, true);
-       
-       lightCube->draw(viewAndProjectionMatrix, true);
 
         //GUI
         /*ImGuiIO& io = ImGui::GetIO();

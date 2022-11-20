@@ -50,7 +50,7 @@ namespace GameEngine {
 
 		GLFWwindow* m_pWindow;
 		WindowData m_data;
-		float m_backgroundColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		float m_backgroundColor[4] = { 0.53, 0.81f, 0.92f, 0.0f };
 
 
 	};

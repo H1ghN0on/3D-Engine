@@ -83,7 +83,7 @@ namespace GameEngine {
 
 
 
-    void Object::draw(glm::mat4 viewAndProjectionMatrix, bool points) {
+    void Object::draw(glm::mat4 viewAndProjectionMatrix) {
       
     
 

@@ -8,7 +8,7 @@
 namespace GameEngine {
     struct Vertex {
 
-        Vertex(glm::vec3 _position, glm::vec3 _normal, glm::vec2 _texture, glm::vec3 _color)
+        Vertex(glm::vec3 _position, glm::vec3 _normal, glm::vec2 _texture, glm::vec3 _color = glm::vec3(1.0f, 1.0f, 1.0f))
             : position(_position)
             , normal(_normal)
             , texture(_texture)

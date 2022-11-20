@@ -9,7 +9,6 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "BoneInfo.hpp"
 #include "Vertex.hpp"
 
 

@@ -49,7 +49,7 @@ namespace GameEngine {
 		else {
 			float r = 0.1f;
 			float t = 0.1f;
-			float f = 10;
+			float f = 50;
 			float n = 0.1f;
 			m_projectionMatrix = glm::mat4(n / r, 0, 0, 0,
 				0, n / t, 0, 0,

@@ -31,7 +31,6 @@ namespace GameEngine {
         glm::mat4 update();
 
         void setShader(std::shared_ptr<ShaderProgram> shader);
-        void setAdditionalShader(std::shared_ptr<ShaderProgram> shader);
 
         std::shared_ptr<VertexArray> getVertexArray();
         
@@ -52,7 +51,7 @@ namespace GameEngine {
             return position;
         }
 
-        void draw(glm::mat4 viewAndProjectionMatrix, bool points = false);
+        void draw(glm::mat4 viewAndProjectionMatrix);
     
 	private:
 
