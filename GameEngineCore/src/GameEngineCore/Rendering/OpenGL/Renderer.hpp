@@ -14,6 +14,7 @@ namespace GameEngine {
 		static bool init(GLFWwindow* pWindow);
 
 		static void draw(const VertexArray& vertexArray);
+
 		static void setClearColor(const float r, const float g, const float b, const float a);
 		static void clear(BitfieldMask mask);
 		static void setViewport(

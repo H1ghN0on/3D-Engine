@@ -101,9 +101,8 @@ namespace GameEngine {
 
    
     
-    VertexBuffer::VertexBuffer(std::vector<Vertex> vertices, BufferLayout bufferLayout, const EUsage usage)
-        : m_bufferLayout(std::move(bufferLayout))
-        , verticesCount(vertices.size())
+    VertexBuffer::VertexBuffer(std::vector<Vertex> vertices, const EUsage usage)
+        : verticesCount(vertices.size())
     {
    
         //generate new buffer
@@ -141,4 +140,9 @@ namespace GameEngine {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
+
+    void VertexBuffer::updateBuffer(std::vector<Vertex> vertices, const EUsage usage) {
+        glBindBuffer(GL_ARRAY_BUFFER, m_id);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), &vertices[0]);
+    }
 }

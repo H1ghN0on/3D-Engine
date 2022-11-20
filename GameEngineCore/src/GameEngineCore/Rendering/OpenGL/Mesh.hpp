@@ -23,13 +23,16 @@ namespace GameEngine {
         std::vector<unsigned int> indices;
         std::vector<Texture> textures;
 
-        Mesh(BufferLayout layout, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-        void draw(std::shared_ptr<ShaderProgram> shader);
+        std::vector<Vertex>& getVertices() { return vertices; }
+
+        void Mesh::updateMesh();
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+   
+        void draw(std::shared_ptr<ShaderProgram> shader, bool points = false);
     private:
-        BufferLayout layout;
         std::shared_ptr<VertexArray> vertexArray = nullptr;
-        std::unique_ptr<VertexBuffer> vertexBuffer = nullptr;
-        std::unique_ptr<IndexBuffer> indexBuffer = nullptr;
+        std::shared_ptr<VertexBuffer> vertexBuffer = nullptr;
+        std::shared_ptr<IndexBuffer> indexBuffer = nullptr;
  
         void setupMesh();
 	};

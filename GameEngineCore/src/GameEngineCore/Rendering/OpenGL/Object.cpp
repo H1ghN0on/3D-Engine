@@ -36,6 +36,8 @@ namespace GameEngine {
     , scalation(_scalation)
     , rotation(_rotation)
     {
+
+
         model = std::make_unique<Model>(modelPath);
     }
 
@@ -79,16 +81,28 @@ namespace GameEngine {
         shader = _shader;
     }
 
-    void Object::draw(glm::mat4 viewAndProjectionMatrix) {
+
+
+    void Object::draw(glm::mat4 viewAndProjectionMatrix, bool points) {
+      
+    
+
         shader->bind();
         shader->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
         shader->setMatrix4("transformMatrix", update());
-   
         model->draw(shader);
+
+        
+    
     }
 
     std::shared_ptr<VertexArray> Object::getVertexArray() {
         return vertexArray;
     }
+
+
+
+
+ 
 
 }

@@ -5,11 +5,10 @@
 
 
 namespace GameEngine {
-    Mesh::Mesh(BufferLayout _layout, std::vector<Vertex> _vertices, std::vector<unsigned int> _indices, std::vector<Texture> _textures)
+    Mesh::Mesh(std::vector<Vertex> _vertices, std::vector<unsigned int> _indices, std::vector<Texture> _textures)
         : vertices(_vertices)
         , indices(_indices)
         , textures(_textures)
-        , layout(_layout)
     {
         setupMesh();
     }
@@ -17,15 +16,20 @@ namespace GameEngine {
 
     void Mesh::setupMesh() {
         vertexArray = std::make_shared<VertexArray>();
-        vertexBuffer = std::make_unique<VertexBuffer>(vertices, layout);
+        vertexBuffer = std::make_shared<VertexBuffer>(vertices);
         vertexArray->addVertexBuffer(*vertexBuffer);
         if (indices.size() != 0) {
-            indexBuffer = std::make_unique<IndexBuffer>(std::data(indices), indices.size());
+            indexBuffer = std::make_shared<IndexBuffer>(std::data(indices), indices.size());
             vertexArray->setIndexBuffer(*indexBuffer);
         }
     }
 
-    void Mesh::draw(std::shared_ptr<ShaderProgram> shader) {
+    void Mesh::updateMesh() {
+
+        vertexBuffer->updateBuffer(vertices);
+    }
+
+    void Mesh::draw(std::shared_ptr<ShaderProgram> shader, bool points) {
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
  
@@ -54,7 +58,12 @@ namespace GameEngine {
             glActiveTexture(GL_TEXTURE0);
         }
         vertexArray->bind();
+        
+ 
         Renderer::draw(*vertexArray);
-
+        
     }
+
+  
 }
+

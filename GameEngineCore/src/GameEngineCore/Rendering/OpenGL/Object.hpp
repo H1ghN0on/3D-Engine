@@ -31,6 +31,7 @@ namespace GameEngine {
         glm::mat4 update();
 
         void setShader(std::shared_ptr<ShaderProgram> shader);
+        void setAdditionalShader(std::shared_ptr<ShaderProgram> shader);
 
         std::shared_ptr<VertexArray> getVertexArray();
         
@@ -44,11 +45,15 @@ namespace GameEngine {
             scalation = _scalation;
         }
 
+        Model& getModel() { return *model; }
+       
+
         glm::vec3 getPosition() {
             return position;
         }
 
-        void draw(glm::mat4 viewAndProjectionMatrix);
+        void draw(glm::mat4 viewAndProjectionMatrix, bool points = false);
+    
 	private:
 
         glm::mat4 translate();
@@ -64,7 +69,7 @@ namespace GameEngine {
         std::shared_ptr<VertexArray> vertexArray = nullptr;
         std::unique_ptr<VertexBuffer> vertexBuffer = nullptr;
         std::unique_ptr<IndexBuffer> indexBuffer = nullptr;
-
+        
 	};
 
 }

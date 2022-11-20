@@ -5,13 +5,20 @@
 #include "AssimpGLMHelpers.hpp"
 
 
+
+
 namespace GameEngine {
-    void Model::draw(std::shared_ptr<ShaderProgram> shader)
+
+
+
+    void Model::draw(std::shared_ptr<ShaderProgram> shader, bool points)
     {
     
         for (unsigned int i = 0; i < meshes.size(); i++)
-            meshes[i].draw(shader);
+            meshes[i].draw(shader, points);
     }
+
+
 
     Model::Model(
         std::vector<Vertex> vertices,
@@ -22,11 +29,6 @@ namespace GameEngine {
        
         meshes.push_back(
             Mesh(
-                BufferLayout{
-                   ShaderDataType::Float3,
-                   ShaderDataType::Float3,
-                   ShaderDataType::Float2,
-                },
                 vertices,
                 indices,
                 textures
@@ -75,8 +77,12 @@ namespace GameEngine {
 
         for (unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
+            if (scene->mAnimations) {
+                std::cout << scene->mAnimations[0]->mName.C_Str() << std::endl;
+            }
+            
             glm::vec3 position;
-            glm::vec3 normal;
+            glm::vec3 normal(0.0f, 0.0f, 0.0f);
             glm::vec2 texture;
 
             position = AssimpGLMHelpers::GetGLMVec(mesh->mVertices[i]);
@@ -89,12 +95,11 @@ namespace GameEngine {
             } else {
                 texture = glm::vec2(0.f, 0.f);
             }
-            vertices.push_back(Vertex(
-                position,
-                normal,
-                texture
-            ));
+            glm::vec3 color = { 1.0f, 0.0f, 0.0f };
+            Vertex vertex(position, normal, texture, color);
+            vertices.push_back(vertex);
         }
+
 
         for (unsigned int i = 0; i < mesh->mNumFaces; i++)
         {
@@ -118,11 +123,6 @@ namespace GameEngine {
         }
 
         return Mesh(
-            BufferLayout{ 
-                ShaderDataType::Float3,
-                ShaderDataType::Float3,
-                ShaderDataType::Float2
-            },
             vertices, 
             indices,
             textures

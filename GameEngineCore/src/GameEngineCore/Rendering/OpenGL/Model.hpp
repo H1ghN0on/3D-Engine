@@ -9,7 +9,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
+#include "BoneInfo.hpp"
+#include "Vertex.hpp"
 
 
 namespace GameEngine {
@@ -32,7 +33,10 @@ namespace GameEngine {
             std::vector<Texture> textures
         );
 
-        void draw(std::shared_ptr<ShaderProgram> shader);
+        void draw(std::shared_ptr<ShaderProgram> shader, bool points = false);
+
+        std::vector<Mesh>& getMeshes() { return meshes;  }
+
     private:
         /*  Данные модели  */
         std::vector<Mesh> meshes;
@@ -43,5 +47,8 @@ namespace GameEngine {
         Mesh processMesh(aiMesh* mesh, const aiScene* scene);
         std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, Texture::Type typeName);
         std::vector<Texture> textures_loaded;
+
+
+
     };
 }

@@ -29,14 +29,18 @@ namespace GameEngine {
             //ренедер при рисовании не по индексам
             glDrawArrays(GL_TRIANGLES, 0, vertexArray.getVerticesCount());
         }
+
+       
         glDrawElements(
             GL_TRIANGLES, 
             static_cast<GLsizei>(vertexArray.getIndicesCount()), 
             GL_UNSIGNED_INT, 
             nullptr
         );
+
         vertexArray.unbind();
     }
+
 
 
     void Renderer::setClearColor(const float r, const float g, const float b, const float a) {

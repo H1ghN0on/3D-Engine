@@ -24,6 +24,9 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Rendering/OpenGL/Model.hpp
 	src/GameEngineCore/Rendering/OpenGL/AssimpGLMHelpers.hpp
 	src/GameEngineCore/Rendering/OpenGL/Vertex.hpp
+	src/GameEngineCore/Rendering/OpenGL/BoneInfo.hpp
+	src/GameEngineCore/Rendering/OpenGL/Bone.hpp
+	src/GameEngineCore/Rendering/OpenGL/Animator.hpp
 )
 
 #переменные для всех исходных кодов (cpp)
@@ -41,6 +44,8 @@ set(ENGINE_PRIVATE_SOURCES
 	src/GameEngineCore/Rendering/OpenGL/Object.cpp
 	src/GameEngineCore/Rendering/OpenGL/Mesh.cpp
 	src/GameEngineCore/Rendering/OpenGL/Model.cpp
+	src/GameEngineCore/Rendering/OpenGL/Bone.cpp
+	src/GameEngineCore/Rendering/OpenGL/Animator.hpp
 )
 
 #компилируем статическую библиотеку для проекта

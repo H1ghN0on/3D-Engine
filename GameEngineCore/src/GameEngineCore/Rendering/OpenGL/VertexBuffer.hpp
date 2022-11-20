@@ -63,7 +63,6 @@ namespace GameEngine {
 
 		VertexBuffer::VertexBuffer(
 			std::vector<Vertex> vertices,
-			BufferLayout bufferLayout,
 			const EUsage usage = VertexBuffer::EUsage::Static
 		);
 
@@ -80,9 +79,16 @@ namespace GameEngine {
 		unsigned int getVerticesCount() const { return verticesCount; }
 		const BufferLayout& getLayout() const { return m_bufferLayout; }
 
+		void updateBuffer(std::vector<Vertex> vertices, const EUsage usage = VertexBuffer::EUsage::Static);
+
 	private:
 		unsigned int m_id = 0;
-		BufferLayout m_bufferLayout;
+		BufferLayout m_bufferLayout = {
+				ShaderDataType::Float3,
+				ShaderDataType::Float3,
+				ShaderDataType::Float2,
+				ShaderDataType::Float3,
+		};
 		unsigned int verticesCount;
 	};
 }
