@@ -24,12 +24,12 @@ namespace GameEngine {
 		switch(dir) {
 
 			case Direction::Forward: {
-				position += trueSpeed * front;
+				position += trueSpeed * glm::vec3(front.x, 0.f, front.z);
 				break;
 			}
 
 			case Direction::Back: {
-				position -= trueSpeed * front;
+				position -= trueSpeed * glm::vec3(front.x, 0.f, front.z);
 				break;
 			}
 
@@ -78,7 +78,7 @@ namespace GameEngine {
 			rotation[0] = -90.f;
 
 		front.x = cos(glm::radians(rotation[0])) * cos(glm::radians(rotation[1]));
-		//front.y = sin(glm::radians(rotation[0]));
+		front.y = sin(glm::radians(rotation[0]));
 		front.z = cos(glm::radians(rotation[0])) * sin(glm::radians(rotation[1]));
 		front = glm::normalize(front);
 

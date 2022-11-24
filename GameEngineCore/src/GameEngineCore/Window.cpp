@@ -80,6 +80,7 @@ namespace GameEngine {
     const char* containerBorderTextureLocation = "../../GameEngineCore/assets/containerBorder.png";
     const char* matrixTextureLocation = "../../GameEngineCore/assets/matrix.jpg";
     const char* terrainTextureLocation = "../../GameEngineCore/assets/ground.jpg";
+    const char* heightMapLocation = "../../GameEngineCore/assets/heightMap.png";
 
     //in - enter attributes
     //out - output attributes
@@ -435,8 +436,8 @@ namespace GameEngine {
 
         lightCube->setShader(simpleShader);
 
-        terrain = std::make_unique<Terrain>(0, 0, *terrainTexture);
-        terrain2 = std::make_unique<Terrain>(1, 0, *terrainTexture);
+        terrain = std::make_unique<Terrain>(0, 0, *terrainTexture, heightMapLocation);
+        terrain2 = std::make_unique<Terrain>(1, 0, *terrainTexture, heightMapLocation);
 
         terrain->setShader(terrainShader);
         terrain2->setShader(terrainShader);
