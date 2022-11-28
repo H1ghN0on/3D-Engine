@@ -7,6 +7,7 @@ namespace GameEngine {
 
 	std::map<std::string, Object*> ObjectManager::objects = std::map<std::string, Object*>();
 	std::map<std::string, Terrain*> ObjectManager::terrains = std::map<std::string, Terrain*>();
+	CameraObject* ObjectManager::camera = nullptr;
 
 	unsigned int ObjectManager::addObject(std::string name, Object* obj) {
 		if (isObjectExists(name)) {
@@ -43,6 +44,15 @@ namespace GameEngine {
 			return 1;
 		}
 		terrains.insert(std::make_pair(name, obj));
+		return 0;
+	}
+
+
+	unsigned int ObjectManager::addCamera(CameraObject* _camera) {
+		if (camera != nullptr) {
+			delete camera;
+		}
+		camera = _camera;
 		return 0;
 	}
 

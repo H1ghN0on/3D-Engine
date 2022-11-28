@@ -27,9 +27,10 @@ namespace GameEngine {
 		static unsigned int init();
 		static std::shared_ptr<ShaderProgram> get(ShaderType type);
 		static void setMaterial(ShaderMaterial);
-		static void setLightInfo(glm::vec3 dirLightDirection,
-			glm::vec3 spotLightPosition,
-			glm::vec3 spotLightDirection,
+		static void setLightInfo(
+			std::vector<glm::vec3> dirLightDirection,
+			//glm::vec3 spotLightPosition,
+			//glm::vec3 spotLightDirection,
 			std::vector<glm::vec3> pointLightPositions
 		);
 

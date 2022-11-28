@@ -9,6 +9,7 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 
 #include <chrono>
+#include <GameEngineCore/Scene.hpp>
 #include <tuple>
 #include <math.h>
 #include "GameEngineCore/Window.hpp"
@@ -31,8 +32,6 @@
 namespace GameEngine {
 
 
-    
-    void renderScene();
     float deltaTime = 0.0f;	// время между текущим и последним кадрами
     float lastFrame = 0.0f; // время последнего кадра
     float lastX = 400, lastY = 300;
@@ -88,12 +87,8 @@ namespace GameEngine {
     //uniform - global shader program variable
 ;
 
-    std::unique_ptr<CameraObject> camera = nullptr;
+    CameraObject* camera = nullptr;
     std::unique_ptr<Object> toyCube = nullptr;
-
-    Object* paimon = nullptr;
-    Object* shogunRaiden = nullptr;
-    Object* lightCube = nullptr;
 
     Terrain* terrain = nullptr;
     Terrain* terrain2 = nullptr;
@@ -119,17 +114,17 @@ namespace GameEngine {
 
     void handleKeyPress(GLFWwindow* window) {
 
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera->translate(CameraObject::Direction::Forward, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraObject::Direction::Forward, deltaTime);
  
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera->translate(CameraObject::Direction::Back, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraObject::Direction::Back, deltaTime);
 
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera->translate(CameraObject::Direction::Left, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraObject::Direction::Left, deltaTime);
 
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera->translate(CameraObject::Direction::Right, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraObject::Direction::Right, deltaTime);
 
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) camera->translate(CameraObject::Direction::Up, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraObject::Direction::Up, deltaTime);
 
-        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) camera->translate(CameraObject::Direction::Down, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraObject::Direction::Down, deltaTime);
             
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
             cursorEnabled = false;
@@ -284,7 +279,7 @@ namespace GameEngine {
         glfwSetCursorPosCallback(window,
             [](GLFWwindow* pWindow, double x, double y) {
                 if (!cursorEnabled) {
-                    camera->rotate(x, y);
+                    ObjectManager::getCamera()->rotate(x, y);
                 }
              
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
@@ -301,59 +296,43 @@ namespace GameEngine {
         }
 
             
-        camera = std::make_unique<CameraObject>(
-                glm::vec3(50.0f, 10.0f, 55.0f),
-                glm::vec3(0.f, 0.f, 0.f),
-                Camera::ProjectionType::Perspective
-        );
 
-        terrainTexture = std::make_unique<Texture>(
-            terrainTextureLocation,
-            Texture::Type::Diffusal,
-            Texture::WrappingMode::Repeat,
-            Texture::MipmapFilterMode::LinearLinear
-        );
 
-        shogunRaiden = new Object (
+        
+    
+        Scene::addTerrain("Terrain1", 0, 0, terrainTextureLocation, heightMapLocation);
+        Scene::addTerrain("Terrain2", 1, 0, terrainTextureLocation, heightMapLocation);
+        Scene::addObject("Raiden", 
             "../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
             glm::vec3(50.f, 3.f, 50.f),
             glm::vec3(0.8f, 0.8f, 0.8f),
-            0.f
+            0.f,
+            ShaderType::LIGHTING_TEXTURE
         );
-
-
-        paimon = new Object (
+        Scene::addObject("Paimon", 
             "../../GameEngineCore/assets/models/paimon/paimon.obj",
             glm::vec3(51.f, 4.f, 50.f),
             glm::vec3(0.1f, 0.1f, 0.1f),
-            0.f
+            0.f,
+            ShaderType::LIGHTING_TEXTURE
         );
-    
-
-        lightCube = new Object(lightCubeVertices, indices, std::vector<Texture>(),
+        Scene::addObject("LightCube", 
+            lightCubeVertices, indices, std::vector<Texture>(),
             glm::vec3(51.f, 4.f, 51.f),
             glm::vec3(0.3f, 0.3f, 0.3f),
-            0.f
+            0.f,
+            ShaderType::SIMPLE
         );
 
-        terrain = new Terrain(0, 0, *terrainTexture, heightMapLocation);
-        terrain2 = new Terrain(1, 0, *terrainTexture, heightMapLocation);
+        Scene::addCamera(
+            glm::vec3(50.0f, 10.0f, 55.0f),
+            glm::vec3(0.f, 0.f, 0.f),
+            Camera::ProjectionType::Perspective
+        );
+      
 
-
-
-        ObjectManager::addObject("Raiden", shogunRaiden);
-        ObjectManager::addObject("Paimon", paimon);
-        ObjectManager::addObject("LightCube", lightCube);
-        ObjectManager::addTerrain("Terrain1", terrain);
-        ObjectManager::addTerrain("Terrain2", terrain2);
-        
-        
-        ObjectManager::getObject("Paimon")->setShader(ShaderManager::get(ShaderType::LIGHTING_TEXTURE));
-        ObjectManager::getObject("Raiden")->setShader(ShaderManager::get(ShaderType::LIGHTING_TEXTURE));
-        ObjectManager::getObject("LightCube")->setShader(ShaderManager::get(ShaderType::SIMPLE));
-        ObjectManager::getTerrain("Terrain1")->setShader(ShaderManager::get(ShaderType::TERRAIN));
-        ObjectManager::getTerrain("Terrain2")->setShader(ShaderManager::get(ShaderType::TERRAIN));
-
+        Scene::addLight(LightType::DIRECTION, glm::vec3(0.0, 0.0, 0.0), sunLightDirection);
+        Scene::addLight(LightType::POINT, ObjectManager::getObject("LightCube")->getPosition());
 
         Renderer::enableDepth();
     
@@ -389,7 +368,7 @@ namespace GameEngine {
         //Renderer::clear();
         Renderer::clear(BitfieldMask::All);
   
-        renderScene();
+        Scene::render();
        
         //GUI
         /*ImGuiIO& io = ImGui::GetIO();
@@ -417,26 +396,6 @@ namespace GameEngine {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-    }
-
-
-    void renderScene() {
-        ShaderManager::setLightInfo(sunLightDirection,
-            camera->getPosition(),
-            camera->getFront(),
-            std::vector<glm::vec3>({ ObjectManager::getObject("LightCube")->getPosition() })
-        );
-
-        ShaderManager::setViewAndProjectionMatrix(camera->update());
-
-
-        for (auto& [key, object] : ObjectManager::getObjects()) {
-            object->draw();
-        }
-
-        for (auto& [key, terrain] : ObjectManager::getTerrains()) {
-            terrain->draw();
-        }
     }
 
 }

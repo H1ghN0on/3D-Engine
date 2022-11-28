@@ -14,6 +14,8 @@ int main() {
 	auto myApp = std::make_unique<MyApp>();
 	int returnCode = myApp->start(1024, 768, "Shinzo wo Sasageyo!");
 	
+
+
 	return returnCode;
 	
 }

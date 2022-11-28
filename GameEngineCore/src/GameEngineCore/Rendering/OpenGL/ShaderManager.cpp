@@ -67,30 +67,31 @@ namespace GameEngine {
         }
     }
 
-    void ShaderManager::setLightInfo(glm::vec3 dirLightDirection,
-        glm::vec3 spotLightPosition,
-        glm::vec3 spotLightDirection,
+    void ShaderManager::setLightInfo(
+        std::vector<glm::vec3> dirLightDirection,
+        //glm::vec3 spotLightPosition,
+        //glm::vec3 spotLightDirection,
         std::vector<glm::vec3> pointLightPositions
     ) {
         shader_property dirLight = {
             { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.03f, 0.03f, 0.03f) } },
             { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
             { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
-            { "direction", { ShaderProgram::PropertyTypes::Vec3, dirLightDirection } },
+            { "direction", { ShaderProgram::PropertyTypes::Vec3, dirLightDirection[0]}},
         };
 
-        shader_property spotLight = {
-            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
-            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
-            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
-            { "cutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(12.5f)) } },
-            { "outerCutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(17.5f)) } },
-            { "position", { ShaderProgram::PropertyTypes::Vec3, spotLightPosition } },
-            { "direction", { ShaderProgram::PropertyTypes::Vec3, spotLightDirection } },
-            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
-            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
-            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
-        };
+        //shader_property spotLight = {
+        //    { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
+        //    { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
+        //    { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
+        //    { "cutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(12.5f)) } },
+        //    { "outerCutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(17.5f)) } },
+        //    { "position", { ShaderProgram::PropertyTypes::Vec3, spotLightPosition } },
+        //    { "direction", { ShaderProgram::PropertyTypes::Vec3, spotLightDirection } },
+        //    { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
+        //    { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
+        //    { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
+        //};
 
         shader_property pointLight = {
             { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.0f, 0.0f, 0.0f) } },
