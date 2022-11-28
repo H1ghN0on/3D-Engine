@@ -25,6 +25,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Rendering/OpenGL/AssimpGLMHelpers.hpp
 	src/GameEngineCore/Rendering/OpenGL/Vertex.hpp
 	src/GameEngineCore/Rendering/OpenGL/Terrain.hpp
+	src/GameEngineCore/Rendering/OpenGL/ObjectManager.hpp
 )
 
 #переменные для всех исходных кодов (cpp)
@@ -43,6 +44,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/GameEngineCore/Rendering/OpenGL/Mesh.cpp
 	src/GameEngineCore/Rendering/OpenGL/Model.cpp
 	src/GameEngineCore/Rendering/OpenGL/Terrain.cpp
+	src/GameEngineCore/Rendering/OpenGL/ObjectManager.cpp
 )
 
 #компилируем статическую библиотеку для проекта

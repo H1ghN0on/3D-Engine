@@ -25,6 +25,7 @@
 #include <iostream>
 #include <GameEngineCore/Rendering/OpenGL/Model.hpp>
 #include <GameEngineCore/Rendering/OpenGL/Terrain.hpp>
+#include <GameEngineCore/Rendering/OpenGL/ObjectManager.hpp>
 
 
 namespace GameEngine {
@@ -88,17 +89,20 @@ namespace GameEngine {
 ;
 
     std::unique_ptr<CameraObject> camera = nullptr;
-    std::unique_ptr<Object> lightCube = nullptr;
-    std::unique_ptr<Object> shogunRaiden = nullptr;
-    std::unique_ptr<Object> paimon = nullptr;
     std::unique_ptr<Object> toyCube = nullptr;
     std::shared_ptr<ShaderProgram> complexLightShader = nullptr;
     std::shared_ptr<ShaderProgram> terrainShader = nullptr;
     std::shared_ptr<ShaderProgram> simpleShader = nullptr;
     std::shared_ptr<ShaderProgram> activeVerticesShader = nullptr;
     std::shared_ptr<ShaderProgram> p_modelShaderProgram = nullptr;
-    std::unique_ptr<Terrain> terrain = nullptr;
-    std::unique_ptr<Terrain> terrain2 = nullptr;
+    std::shared_ptr<ShaderProgram> depthMapShader = nullptr;
+    std::shared_ptr<ShaderProgram> debugDepthQuadShader = nullptr;
+    Object* paimon = nullptr;
+    Object* shogunRaiden = nullptr;
+    Object* lightCube = nullptr;
+
+    Terrain* terrain = nullptr;
+    Terrain* terrain2 = nullptr;
     std::unique_ptr<Texture> containerTexture = nullptr;
     std::unique_ptr<Texture> containerBorderTexture = nullptr;
     std::unique_ptr<Texture> matrixTexture = nullptr;
@@ -324,7 +328,7 @@ namespace GameEngine {
 
 
         camera = std::make_unique<CameraObject>(
-                glm::vec3(50.f, 1.f, 47.0f),
+                glm::vec3(50.0f, 10.0f, 55.0f),
                 glm::vec3(0.f, 0.f, 0.f),
                 Camera::ProjectionType::Perspective
         );
@@ -377,32 +381,43 @@ namespace GameEngine {
         //  "../../GameEngineCore/assets/models/raiden/Raiden.pmx",
         //"../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
        
-        shogunRaiden = std::make_unique<Object>(
+        shogunRaiden = new Object (
             "../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
-            glm::vec3(50.f, 0.f, 50.f),
+            glm::vec3(50.f, 3.f, 50.f),
             glm::vec3(0.8f, 0.8f, 0.8f),
             0.f
         );
 
 
-        paimon = std::make_unique<Object>(
+        paimon = new Object (
             "../../GameEngineCore/assets/models/paimon/paimon.obj",
-            glm::vec3(51.f, 1.f, 50.f),
+            glm::vec3(51.f, 4.f, 50.f),
             glm::vec3(0.1f, 0.1f, 0.1f),
             0.f
         );
     
 
-        lightCube = std::make_unique<Object>(lightCubeVertices, indices, std::vector<Texture>(),
-            glm::vec3(51.f, 1.f, 51.f),
+        lightCube = new Object(lightCubeVertices, indices, std::vector<Texture>(),
+            glm::vec3(51.f, 4.f, 51.f),
             glm::vec3(0.3f, 0.3f, 0.3f),
             0.f
         );
+
+        terrain = new Terrain(0, 0, *terrainTexture, heightMapLocation);
+        terrain2 = new Terrain(1, 0, *terrainTexture, heightMapLocation);
+
+
+
+        objectManager->addObject("Raiden", shogunRaiden);
+        objectManager->addObject("Paimon", paimon);
+        objectManager->addObject("LightCube", lightCube);
+        objectManager->addTerrain("Terrain1", terrain);
+        objectManager->addTerrain("Terrain2", terrain2);
         
         
 
         //Create Shader Program
-        complexLightShader = std::make_shared<ShaderProgram>("ComplexLightShader.vs", "ComplexLightShader.frag");
+        complexLightShader = std::make_shared<ShaderProgram>("ShadowShader.vs", "ShadowShader.frag");
 
         if (!complexLightShader->isCompiled())
         {
@@ -411,7 +426,7 @@ namespace GameEngine {
 
         terrainShader = std::make_shared<ShaderProgram>("TerrainShader.vs", "TerrainShader.frag");
 
-        if (!complexLightShader->isCompiled())
+        if (!terrainShader->isCompiled())
         {
             return false;
         }
@@ -430,20 +445,30 @@ namespace GameEngine {
             return false;
         }
 
-        paimon->setShader(complexLightShader);
+        depthMapShader = std::make_shared<ShaderProgram>("SimpleDepthShader.vs", "SimpleDepthShader.frag");
+        if (!depthMapShader->isCompiled())
+        {
+            return false;
+        }
 
-        shogunRaiden->setShader(complexLightShader);
+        debugDepthQuadShader = std::make_shared<ShaderProgram>("DepthQuadDebug.vs", "DepthQuadDebug.frag");
+        if (!debugDepthQuadShader->isCompiled())
+        {
+            return false;
+        }
 
-        lightCube->setShader(simpleShader);
 
-        terrain = std::make_unique<Terrain>(0, 0, *terrainTexture, heightMapLocation);
-        terrain2 = std::make_unique<Terrain>(1, 0, *terrainTexture, heightMapLocation);
+      
+        objectManager->getObject("Paimon")->setShader(complexLightShader);
+        objectManager->getObject("Raiden")->setShader(complexLightShader);
+        objectManager->getObject("LightCube")->setShader(simpleShader);
+        objectManager->getTerrain("Terrain1")->setShader(terrainShader);
+        objectManager->getTerrain("Terrain2")->setShader(terrainShader);
 
-        terrain->setShader(terrainShader);
-        terrain2->setShader(terrainShader);
 
         Renderer::enableDepth();
     
+
         return 0;
 
 	}
@@ -519,7 +544,9 @@ namespace GameEngine {
 
         //Renderer::clear();
         Renderer::clear(BitfieldMask::All);
-        
+     
+
+
         std::apply([](shader_property dirLight, shader_property spotLight, std::vector<shader_property> pointLights) {
             complexLightShader->bind();
             complexLightShader->setInt("material.diffuse", 0);
@@ -546,18 +573,36 @@ namespace GameEngine {
             sunLightDirection,
             camera->getPosition(),
             camera->getFront(),
-            std::vector<glm::vec3>({ lightCube->getPosition() })
+            std::vector<glm::vec3>({ objectManager->getObject("LightCube")->getPosition()})
         ));
   
-        
+
+
 
         glm::mat4 viewAndProjectionMatrix = camera->update();
-       
-        paimon->draw(viewAndProjectionMatrix);
-        shogunRaiden->draw(viewAndProjectionMatrix);
-        lightCube->draw(viewAndProjectionMatrix);
-        terrain->draw(viewAndProjectionMatrix);
-        terrain2->draw(viewAndProjectionMatrix);
+
+        
+        simpleShader->bind();
+        simpleShader->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
+
+        terrainShader->bind();
+        terrainShader->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
+
+
+        complexLightShader->bind();
+        complexLightShader->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
+
+      
+        
+
+        for (auto& [key, object] : ObjectManager::getInstance()->getObjects()) {
+            object->draw(viewAndProjectionMatrix);
+        }
+
+        for (auto& [key, terrain] : ObjectManager::getInstance()->getTerrains()) {
+            terrain->draw(viewAndProjectionMatrix);
+        }
+
 
 
         //GUI

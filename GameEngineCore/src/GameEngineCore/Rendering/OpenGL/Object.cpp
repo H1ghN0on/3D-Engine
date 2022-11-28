@@ -88,7 +88,7 @@ namespace GameEngine {
     
 
         shader->bind();
-        shader->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
+        //shader->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
         shader->setMatrix4("transformMatrix", update());
         model->draw(shader);
 

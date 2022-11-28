@@ -14,6 +14,7 @@ uniform Material material;
 in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
+
 uniform vec3 viewPos;
 
 struct DirLight {
@@ -137,12 +138,13 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {
 void main() {
 
     //УЧЕСТЬ МАТРИЦУ НОРМАЛЕЙ
+
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
     // фаза 1: Направленный источник освещения
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
 
-    // фаза 2: Точечные источники
+    //фаза 2: Точечные источники
     for(int i = 0; i < pointLightsNumber; i++) result += CalcPointLight(pointLights[i], norm, viewDir, FragPos);    
 
     // фаза 3: фонарик

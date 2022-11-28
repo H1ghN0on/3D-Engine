@@ -4,8 +4,9 @@
 
 #include <string>
 #include <functional>
-
+#include "GameEngineCore/Rendering/OpenGL/Terrain.hpp"
 #include <GLFW/glfw3.h>
+#include "GameEngineCore/Rendering/OpenGL/ObjectManager.hpp"
 
 class GLFWwindow;
 
@@ -52,7 +53,14 @@ namespace GameEngine {
 		WindowData m_data;
 		float m_backgroundColor[4] = { 0.53, 0.81f, 0.92f, 0.0f };
 
+		std::vector<Terrain> terrains;
 
+		std::map<const char*, ShaderProgram> shaders;
+
+		std::shared_ptr<ObjectManager> objectManager = ObjectManager::getInstance();
+
+		unsigned int depthMapFBO;
+		unsigned int depthMap;
 	};
 }
 
