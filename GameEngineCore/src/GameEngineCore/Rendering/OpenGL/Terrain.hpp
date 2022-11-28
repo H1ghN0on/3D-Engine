@@ -21,7 +21,7 @@ namespace GameEngine {
 
 		std::unique_ptr<Model> generateTerrain(Texture texture, const char* heightMapLocation);
 
-		void draw(glm::mat4 viewAndProjectionMatrix);
+		void draw();
 
 		void setShader(std::shared_ptr<ShaderProgram> shader) {
 			this->shader = shader;

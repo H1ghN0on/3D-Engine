@@ -51,7 +51,7 @@ namespace GameEngine {
             return position;
         }
 
-        void draw(glm::mat4 viewAndProjectionMatrix);
+        void draw();
     
 	private:
 

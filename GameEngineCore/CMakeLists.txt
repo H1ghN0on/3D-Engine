@@ -6,6 +6,7 @@ set(ENGINE_PROJECT_NAME GameEngineCore)
 set(ENGINE_PUBLIC_INCLUDES 
 	includes/GameEngineCore/Application.hpp
 	includes/GameEngineCore/Log.hpp
+	includes/GameEngineCore/Scene.hpp
 	includes/GameEngineCore/Event.hpp
 )
 
@@ -18,14 +19,15 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Rendering/OpenGL/Camera.hpp
 	src/GameEngineCore/Rendering/OpenGL/Texture.hpp
 	src/GameEngineCore/Rendering/OpenGL/Renderer.hpp
-	src/GameEngineCore/Rendering/OpenGL/CameraObject.hpp
-	src/GameEngineCore/Rendering/OpenGL/Object.hpp
 	src/GameEngineCore/Rendering/OpenGL/Mesh.hpp
 	src/GameEngineCore/Rendering/OpenGL/Model.hpp
 	src/GameEngineCore/Rendering/OpenGL/AssimpGLMHelpers.hpp
 	src/GameEngineCore/Rendering/OpenGL/Vertex.hpp
 	src/GameEngineCore/Rendering/OpenGL/Terrain.hpp
 	src/GameEngineCore/Rendering/OpenGL/ObjectManager.hpp
+	src/GameEngineCore/Rendering/OpenGL/ShaderManager.hpp
+	src/GameEngineCore/Rendering/OpenGL/CameraObject.hpp
+	src/GameEngineCore/Rendering/OpenGL/Object.hpp
 )
 
 #переменные для всех исходных кодов (cpp)
@@ -45,6 +47,8 @@ set(ENGINE_PRIVATE_SOURCES
 	src/GameEngineCore/Rendering/OpenGL/Model.cpp
 	src/GameEngineCore/Rendering/OpenGL/Terrain.cpp
 	src/GameEngineCore/Rendering/OpenGL/ObjectManager.cpp
+	src/GameEngineCore/Rendering/OpenGL/ShaderManager.cpp
+	src/GameEngineCore/Rendering/OpenGL/Scene.cpp
 )
 
 #компилируем статическую библиотеку для проекта

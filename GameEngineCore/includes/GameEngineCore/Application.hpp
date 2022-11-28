@@ -20,6 +20,7 @@ namespace GameEngine {
 		virtual void on_update() {}
 		
 	private:
+
 		bool m_isWindowClosed;
 		std::unique_ptr<class Window> m_pWindow = nullptr;
 		EventDispatcher m_eventDispatcher;

@@ -38,7 +38,7 @@ namespace GameEngine {
             }
         );
 
-        m_pWindow->set_event_callback(
+        m_pWindow->setEventCallback(
             [&](BaseEvent& event) {
                 m_eventDispatcher.dispatch(event);
             }

@@ -4,9 +4,7 @@
 #include <GameEngineCore/Application.hpp>
 
 class MyApp : public GameEngine::Application {
-	virtual void on_update() override {
-
-	}
+	
 
 
 };

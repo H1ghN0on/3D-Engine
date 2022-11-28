@@ -10,39 +10,32 @@ namespace GameEngine {
 	
 	class ObjectManager {
 	private:
-
-		ObjectManager() {};
 		
 		static std::map<std::string, Object*> objects;
 		static std::map<std::string, Terrain*> terrains;
 	public:
 
-		static std::shared_ptr<ObjectManager> getInstance() {
-			static std::shared_ptr<ObjectManager> s{ new ObjectManager };
-			return s;
-		}
-
 		ObjectManager(const ObjectManager&) = delete;
 		ObjectManager& operator=(ObjectManager&) = delete;
 
 		
-		unsigned int addObject(std::string name, Object* obj);
-		unsigned int removeObject(std::string name);
-		bool isObjectExists(std::string name);
+		static unsigned int addObject(std::string name, Object* obj);
+		static unsigned int removeObject(std::string name);
+		static bool isObjectExists(std::string name);
 
-		Object* getObject(std::string name);
+		static Object* getObject(std::string name);
 
 
-		Terrain* getTerrain(std::string name);
-		unsigned int addTerrain(std::string name, Terrain* obj);
-		unsigned int removeTerrain(std::string name);
-		bool isTerrainExists(std::string name);
+		static Terrain* getTerrain(std::string name);
+		static unsigned int addTerrain(std::string name, Terrain* obj);
+		static unsigned int removeTerrain(std::string name);
+		static bool isTerrainExists(std::string name);
 
-		std::map<std::string, Object*> getObjects() const {
+		static std::map<std::string, Object*> getObjects() {
 			return objects;
 		}
 
-		std::map<std::string, Terrain*> getTerrains() const {
+		static std::map<std::string, Terrain*> getTerrains() {
 			return terrains;
 		}
 	};

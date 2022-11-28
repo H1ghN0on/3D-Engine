@@ -26,13 +26,13 @@
 #include <GameEngineCore/Rendering/OpenGL/Model.hpp>
 #include <GameEngineCore/Rendering/OpenGL/Terrain.hpp>
 #include <GameEngineCore/Rendering/OpenGL/ObjectManager.hpp>
-
+#include <GameEngineCore/Rendering/OpenGL/ShaderManager.hpp>
 
 namespace GameEngine {
 
 
-    typedef std::map<char*, std::pair<ShaderProgram::PropertyTypes, std::any>> shader_property;
-
+    
+    void renderScene();
     float deltaTime = 0.0f;	// время между текущим и последним кадрами
     float lastFrame = 0.0f; // время последнего кадра
     float lastX = 400, lastY = 300;
@@ -90,13 +90,7 @@ namespace GameEngine {
 
     std::unique_ptr<CameraObject> camera = nullptr;
     std::unique_ptr<Object> toyCube = nullptr;
-    std::shared_ptr<ShaderProgram> complexLightShader = nullptr;
-    std::shared_ptr<ShaderProgram> terrainShader = nullptr;
-    std::shared_ptr<ShaderProgram> simpleShader = nullptr;
-    std::shared_ptr<ShaderProgram> activeVerticesShader = nullptr;
-    std::shared_ptr<ShaderProgram> p_modelShaderProgram = nullptr;
-    std::shared_ptr<ShaderProgram> depthMapShader = nullptr;
-    std::shared_ptr<ShaderProgram> debugDepthQuadShader = nullptr;
+
     Object* paimon = nullptr;
     Object* shogunRaiden = nullptr;
     Object* lightCube = nullptr;
@@ -109,14 +103,14 @@ namespace GameEngine {
     std::unique_ptr<Texture> terrainTexture = nullptr;
 
 	Window::Window(const unsigned int width, const unsigned int height, std::string title):
-        m_data({width, height, std::move(title)})
+        data({width, height, std::move(title)})
     {
 		int resultCode = init();
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplOpenGL3_Init();
-        ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
 
 	}
 	Window::~Window() {
@@ -231,10 +225,7 @@ namespace GameEngine {
 
 	int Window::init() {
 
-
-
-
-        LOG_INFO("Creating window '{0}', {1}x{2}", m_data.title, m_data.width, m_data.height);
+        LOG_INFO("Creating window '{0}', {1}x{2}", data.title, data.width, data.height);
 
         glfwSetErrorCallback([](int code, const char* description) {
                 LOG_CRITICAL("GLFW error: {0}", description);
@@ -246,31 +237,29 @@ namespace GameEngine {
             return -1;
         }
 
-        m_pWindow = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, nullptr);
-        if (!m_pWindow)
+        window = glfwCreateWindow(data.width, data.height, data.title.c_str(), nullptr, nullptr);
+        if (!window)
         {
             LOG_CRITICAL("Failed to initialize window");
             return -2;
         }
 
-        glfwSetFramebufferSizeCallback(m_pWindow,
+        glfwSetFramebufferSizeCallback(window,
             [](GLFWwindow* pWindow, int width, int height) {
                 Renderer::setViewport(width, height);
             }
         );
 
-      
-
-        //link window properties to personal WindowData structure
-        glfwSetWindowUserPointer(m_pWindow, &m_data);
+        glfwSetWindowUserPointer(window, &data);
         
-        if (!Renderer::init(m_pWindow)) {
+        if (!Renderer::init(window)) {
             LOG_CRITICAL("Failed to initialize OpenGL renderer");
             return -3;
         };
 
+
         //trigger window resize
-        glfwSetWindowSizeCallback(m_pWindow,
+        glfwSetWindowSizeCallback(window,
             [](GLFWwindow* pWindow, int width, int height) {
                 //getting the reference of personal WindowData structure
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
@@ -283,7 +272,7 @@ namespace GameEngine {
             }
         );
 
-        glfwSetWindowCloseCallback(m_pWindow,
+        glfwSetWindowCloseCallback(window,
             [](GLFWwindow* pWindow) {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
                 WindowCloseEvent event;
@@ -292,82 +281,31 @@ namespace GameEngine {
             }
         );
 
-        glfwSetCursorPosCallback(m_pWindow,
+        glfwSetCursorPosCallback(window,
             [](GLFWwindow* pWindow, double x, double y) {
                 if (!cursorEnabled) {
                     camera->rotate(x, y);
                 }
-               
-
+             
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
                 data.mouseX = x;
                 data.mouseY = y;
-
                 MouseMovedEvent event(x, y);
-
                 data.eventCallbackFn(event);
             }
         );
 
-        glfwSetMouseButtonCallback(m_pWindow,
-            [](GLFWwindow* pWindow, int button, int action, int mods) {
-                if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-                {
-                    double xpos, ypos;
-                  
-                    glfwGetCursorPos(pWindow, &xpos, &ypos);
+        if (ShaderManager::init() != 0) {
+            LOG_CRITICAL("Failed to initialize shaders");
+            return -4;
+        }
 
-                 
-                    
-                    
-
-                }
-            }
-        );
             
-
-
         camera = std::make_unique<CameraObject>(
                 glm::vec3(50.0f, 10.0f, 55.0f),
                 glm::vec3(0.f, 0.f, 0.f),
                 Camera::ProjectionType::Perspective
         );
-
-        BufferLayout oneElement{
-            ShaderDataType::Float3,
-        };
-
-        BufferLayout twoElement{
-            ShaderDataType::Float3,
-            ShaderDataType::Float3,
-        };
-
-        BufferLayout threeElement{
-            ShaderDataType::Float3,
-            ShaderDataType::Float3,
-            ShaderDataType::Float2,
-        };
-
-        //containerTexture = std::make_unique<Texture>(
-        //    containerTextureLocation,
-        //    Texture::Type::Diffusal,
-        //    Texture::WrappingMode::Repeat,
-        //    Texture::MipmapFilterMode::LinearLinear
-        // );
-
-        //containerBorderTexture = std::make_unique<Texture>(
-        //    containerBorderTextureLocation,
-        //    Texture::Type::Diffusal,
-        //    Texture::WrappingMode::Repeat,
-        //    Texture::MipmapFilterMode::LinearLinear
-        //    );
-
-        //matrixTexture = std::make_unique<Texture>(
-        //    matrixTextureLocation,
-        //    Texture::Type::Diffusal,
-        //    Texture::WrappingMode::Edge,
-        //    Texture::MipmapFilterMode::LinearLinear
-        //);
 
         terrainTexture = std::make_unique<Texture>(
             terrainTextureLocation,
@@ -376,11 +314,6 @@ namespace GameEngine {
             Texture::MipmapFilterMode::LinearLinear
         );
 
-
-        ourModel = new Model("../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx");
-        //  "../../GameEngineCore/assets/models/raiden/Raiden.pmx",
-        //"../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
-       
         shogunRaiden = new Object (
             "../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
             glm::vec3(50.f, 3.f, 50.f),
@@ -408,62 +341,18 @@ namespace GameEngine {
 
 
 
-        objectManager->addObject("Raiden", shogunRaiden);
-        objectManager->addObject("Paimon", paimon);
-        objectManager->addObject("LightCube", lightCube);
-        objectManager->addTerrain("Terrain1", terrain);
-        objectManager->addTerrain("Terrain2", terrain2);
+        ObjectManager::addObject("Raiden", shogunRaiden);
+        ObjectManager::addObject("Paimon", paimon);
+        ObjectManager::addObject("LightCube", lightCube);
+        ObjectManager::addTerrain("Terrain1", terrain);
+        ObjectManager::addTerrain("Terrain2", terrain2);
         
         
-
-        //Create Shader Program
-        complexLightShader = std::make_shared<ShaderProgram>("ShadowShader.vs", "ShadowShader.frag");
-
-        if (!complexLightShader->isCompiled())
-        {
-            return false;
-        }
-
-        terrainShader = std::make_shared<ShaderProgram>("TerrainShader.vs", "TerrainShader.frag");
-
-        if (!terrainShader->isCompiled())
-        {
-            return false;
-        }
-
-        simpleShader = std::make_shared<ShaderProgram>("SimpleShader.vs", "SimpleShader.frag");
-        if (!simpleShader->isCompiled())
-        {
-            return false;
-        }
-       
-        p_modelShaderProgram = std::make_shared<ShaderProgram>("ModelLoadingShader.vs", "ModelLoadingShader.frag");
-
-        activeVerticesShader = std::make_shared<ShaderProgram>("ActiveVerticesShader.vs", "ActiveVerticesShader.frag");
-        if (!activeVerticesShader->isCompiled())
-        {
-            return false;
-        }
-
-        depthMapShader = std::make_shared<ShaderProgram>("SimpleDepthShader.vs", "SimpleDepthShader.frag");
-        if (!depthMapShader->isCompiled())
-        {
-            return false;
-        }
-
-        debugDepthQuadShader = std::make_shared<ShaderProgram>("DepthQuadDebug.vs", "DepthQuadDebug.frag");
-        if (!debugDepthQuadShader->isCompiled())
-        {
-            return false;
-        }
-
-
-      
-        objectManager->getObject("Paimon")->setShader(complexLightShader);
-        objectManager->getObject("Raiden")->setShader(complexLightShader);
-        objectManager->getObject("LightCube")->setShader(simpleShader);
-        objectManager->getTerrain("Terrain1")->setShader(terrainShader);
-        objectManager->getTerrain("Terrain2")->setShader(terrainShader);
+        ObjectManager::getObject("Paimon")->setShader(ShaderManager::get(ShaderType::LIGHTING_TEXTURE));
+        ObjectManager::getObject("Raiden")->setShader(ShaderManager::get(ShaderType::LIGHTING_TEXTURE));
+        ObjectManager::getObject("LightCube")->setShader(ShaderManager::get(ShaderType::SIMPLE));
+        ObjectManager::getTerrain("Terrain1")->setShader(ShaderManager::get(ShaderType::TERRAIN));
+        ObjectManager::getTerrain("Terrain2")->setShader(ShaderManager::get(ShaderType::TERRAIN));
 
 
         Renderer::enableDepth();
@@ -476,55 +365,10 @@ namespace GameEngine {
         if (ImGui::GetCurrentContext()) {
             ImGui::DestroyContext();
         }
-        glfwDestroyWindow(m_pWindow);
+        glfwDestroyWindow(window);
         glfwTerminate();
     }
 
-
-    std::tuple<shader_property, shader_property, std::vector<shader_property>> updateLightingShader(
-        glm::vec3 dirLightDirection,
-        glm::vec3 spotLightPosition,
-        glm::vec3 spotLightDirection,
-        std::vector<glm::vec3> pointLightPositions
-    ) {
-        shader_property dirLight = {
-            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.03f, 0.03f, 0.03f) } },
-            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
-            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
-            { "direction", { ShaderProgram::PropertyTypes::Vec3, sunLightDirection } },
-        };
-
-        shader_property spotLight = {
-            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.05f, 0.05f, 0.05f) } },
-            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.4f, 0.4f, 0.4f) } },
-            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.5, 0.5f, 0.5f) } },
-            { "cutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(12.5f)) } },
-            { "outerCutOff", { ShaderProgram::PropertyTypes::Float, glm::cos(glm::radians(17.5f)) } },
-            { "position", { ShaderProgram::PropertyTypes::Vec3, camera->getPosition() } },
-            { "direction", { ShaderProgram::PropertyTypes::Vec3, camera->getFront() } },
-            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
-            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
-            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
-        };
-
-        shader_property pointLight = {
-            { "ambient", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(0.0f, 0.0f, 0.0f) } },
-            { "diffuse", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
-            { "specular", { ShaderProgram::PropertyTypes::Vec3, glm::vec3(1.0f, 1.0f, 1.0f) } },
-            { "constant", { ShaderProgram::PropertyTypes::Float, 1.0f } },
-            { "linear", { ShaderProgram::PropertyTypes::Float, 0.09f } },
-            { "quadratic", { ShaderProgram::PropertyTypes::Float, 0.032f } },
-        };
-
-        std::vector<shader_property> pointLights;
-
-        for (const auto position : pointLightPositions) {
-            pointLight["position"] = { ShaderProgram::PropertyTypes::Vec3, position };
-            pointLights.push_back(pointLight);
-            pointLight.erase("position");
-        }
-        return std::make_tuple(dirLight, spotLight, pointLights);
-    }
 
     void Window::on_update() {
 
@@ -533,78 +377,20 @@ namespace GameEngine {
         lastFrame = currentFrame;
 
 
-        handleKeyPress(m_pWindow);
+        handleKeyPress(window);
 
         Renderer::setClearColor(
-            m_backgroundColor[0],
-            m_backgroundColor[1],
-            m_backgroundColor[2],
-            m_backgroundColor[3]
+            bgColor[0],
+            bgColor[1],
+            bgColor[2],
+            bgColor[3]
         );
 
         //Renderer::clear();
         Renderer::clear(BitfieldMask::All);
-     
-
-
-        std::apply([](shader_property dirLight, shader_property spotLight, std::vector<shader_property> pointLights) {
-            complexLightShader->bind();
-            complexLightShader->setInt("material.diffuse", 0);
-            complexLightShader->setInt("material.specular", 1);
-
-            complexLightShader->setFloat("material.shininess", 32.f);
-            complexLightShader->setObject("dirLight", dirLight);
-            //complexLightShader->setObject("spotLight", spotLight);
-            complexLightShader->setInt("withFlashLight", false);
-            complexLightShader->setObjects("pointLights", pointLights);
-            complexLightShader->setInt("pointLightsNumber", 1);
-
-            terrainShader->bind();
-            terrainShader->setInt("material.diffuse", 0);
-            terrainShader->setInt("material.specular", 1);
-            terrainShader->setFloat("material.shininess", 32.f);
-            terrainShader->setObject("dirLight", dirLight);
-            //terrainShader->setObject("spotLight", spotLight);
-            terrainShader->setInt("withFlashLight", false);
-            terrainShader->setObjects("pointLights", pointLights);
-            terrainShader->setInt("pointLightsNumber", 1);
-
-        }, updateLightingShader(
-            sunLightDirection,
-            camera->getPosition(),
-            camera->getFront(),
-            std::vector<glm::vec3>({ objectManager->getObject("LightCube")->getPosition()})
-        ));
   
-
-
-
-        glm::mat4 viewAndProjectionMatrix = camera->update();
-
-        
-        simpleShader->bind();
-        simpleShader->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
-
-        terrainShader->bind();
-        terrainShader->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
-
-
-        complexLightShader->bind();
-        complexLightShader->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
-
-      
-        
-
-        for (auto& [key, object] : ObjectManager::getInstance()->getObjects()) {
-            object->draw(viewAndProjectionMatrix);
-        }
-
-        for (auto& [key, terrain] : ObjectManager::getInstance()->getTerrains()) {
-            terrain->draw(viewAndProjectionMatrix);
-        }
-
-
-
+        renderScene();
+       
         //GUI
         /*ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize.x = static_cast<float>(get_width());
@@ -629,9 +415,28 @@ namespace GameEngine {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
 
-        glfwSwapBuffers(m_pWindow);
+        glfwSwapBuffers(window);
         glfwPollEvents();
-
     }
-   
+
+
+    void renderScene() {
+        ShaderManager::setLightInfo(sunLightDirection,
+            camera->getPosition(),
+            camera->getFront(),
+            std::vector<glm::vec3>({ ObjectManager::getObject("LightCube")->getPosition() })
+        );
+
+        ShaderManager::setViewAndProjectionMatrix(camera->update());
+
+
+        for (auto& [key, object] : ObjectManager::getObjects()) {
+            object->draw();
+        }
+
+        for (auto& [key, terrain] : ObjectManager::getTerrains()) {
+            terrain->draw();
+        }
+    }
+
 }

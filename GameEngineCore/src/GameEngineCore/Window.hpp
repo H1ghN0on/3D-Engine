@@ -13,9 +13,8 @@ class GLFWwindow;
 namespace GameEngine {
 	class Window {
 	public:
-		//using <==> typedef (resize callback function type)
-		using EventCallbackFn = std::function<void(BaseEvent&)>;
 
+		using EventCallbackFn = std::function<void(BaseEvent&)>;
 
 		Window(const unsigned int width, const unsigned int height, std::string title);
 		~Window();
@@ -27,15 +26,14 @@ namespace GameEngine {
 
 		void on_update();
 
-		unsigned int get_width() const { return m_data.width; }
-		unsigned int get_height() const { return m_data.height; }
+		unsigned int getWidth() const { return data.width; }
+		unsigned int getHeight() const { return data.height; }
 
 		//set callback from Application, it will be called, when the specific event (f.e. window resize) was triggered
-		void set_event_callback(const EventCallbackFn& cb) {
-			m_data.eventCallbackFn = cb;
+		void setEventCallback(const EventCallbackFn& cb) {
+			data.eventCallbackFn = cb;
 		}
 	private:
-		//personal WindowData for the window
 		struct WindowData {
 			unsigned int width;
 			unsigned int height;
@@ -48,19 +46,10 @@ namespace GameEngine {
 
 		int init();
 		void shutdown();
+		GLFWwindow* window;
+		WindowData data;
+		float bgColor[4] = { 0.53, 0.81f, 0.92f, 0.0f };
 
-		GLFWwindow* m_pWindow;
-		WindowData m_data;
-		float m_backgroundColor[4] = { 0.53, 0.81f, 0.92f, 0.0f };
-
-		std::vector<Terrain> terrains;
-
-		std::map<const char*, ShaderProgram> shaders;
-
-		std::shared_ptr<ObjectManager> objectManager = ObjectManager::getInstance();
-
-		unsigned int depthMapFBO;
-		unsigned int depthMap;
 	};
 }
 

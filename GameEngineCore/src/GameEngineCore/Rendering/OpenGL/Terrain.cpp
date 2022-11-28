@@ -9,9 +9,8 @@ namespace GameEngine {
 		model = generateTerrain(texture, heightMapLocation);
 	}
 
-	void Terrain::draw(glm::mat4 viewAndProjectionMatrix) {
+	void Terrain::draw() {
 		shader->bind();
-		//shader->setMatrix4("viewAndProjectionMatrix", viewAndProjectionMatrix);
 		shader->setMatrix4("transformMatrix", glm::mat4(1.f));
 		model->draw(shader);
 		
