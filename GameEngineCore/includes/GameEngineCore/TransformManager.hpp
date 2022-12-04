@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <GameEngineCore/ObjectManager.hpp>
+#include <GameEngineCore/Window.hpp>
 
 namespace GameEngine {
 
@@ -31,11 +33,14 @@ namespace GameEngine {
 		static void updateDirection(TransformDirection name) { dir = name; }
 
 		static void transform();
+
+		
 	private:
 		static std::string activeObjectName;
 		static TransformAxis axis;
 		static TransformDirection dir;
 		static TransformType type;
 
+		static glm::vec3 calcTransformVec(float speed);
 	};
 }

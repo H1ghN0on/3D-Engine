@@ -23,10 +23,10 @@ namespace GameEngine {
             std::vector<Texture> textures,
             glm::vec3 _position,
             glm::vec3 _scalation,
-            float _rotation
+            glm::vec3 _rotation
         );
         
-        Object(const char* modelPath, glm::vec3 _position, glm::vec3 _scalation, float _rotation);
+        Object(const char* modelPath, glm::vec3 _position, glm::vec3 _scalation, glm::vec3 _rotation);
 
         glm::mat4 update();
 
@@ -37,7 +37,7 @@ namespace GameEngine {
         void setPosition(glm::vec3 _position) {
             position = _position;
         }
-        void setRotation(float _rotation) {
+        void setRotation(glm::vec3 _rotation) {
             rotation = _rotation;
         }
         void setScalation(glm::vec3 _scalation) {
@@ -55,9 +55,9 @@ namespace GameEngine {
             return scalation;
         }
 
-        /*glm::vec3 getPosition() {
-            return position;
-        }*/
+        glm::vec3 getRotation() {
+            return rotation;
+        }
 
         void draw();
     
@@ -69,13 +69,15 @@ namespace GameEngine {
 
         glm::vec3 scalation;
         glm::vec3 position;
-        float rotation;
+        glm::vec3 rotation;
 
         std::shared_ptr<ShaderProgram> shader = nullptr;
         std::unique_ptr<Model> model = nullptr;
         std::shared_ptr<VertexArray> vertexArray = nullptr;
         std::unique_ptr<VertexBuffer> vertexBuffer = nullptr;
         std::unique_ptr<IndexBuffer> indexBuffer = nullptr;
+
+      
         
 	};
 

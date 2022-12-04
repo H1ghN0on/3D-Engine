@@ -16,7 +16,7 @@ namespace GameEngine {
         std::vector<Texture> textures,
         glm::vec3 _position,
         glm::vec3 _scalation,
-        float _rotation
+        glm::vec3 _rotation
     ) 
     : position(_position)
     , scalation(_scalation)
@@ -30,7 +30,7 @@ namespace GameEngine {
         const char* modelPath,
         glm::vec3 _position,
         glm::vec3 _scalation,
-        float _rotation
+        glm::vec3 _rotation
     )
     : position(_position)
     , scalation(_scalation)
@@ -61,14 +61,33 @@ namespace GameEngine {
     }
 
     glm::mat4 Object::rotate() {
-        float radiansRotate = glm::radians(rotation);
+        float radiansRotateX = glm::radians(rotation.x);
+        float radiansRotateY = glm::radians(rotation.y);
+        float radiansRotateZ = glm::radians(rotation.z);
        
-        return glm::mat4 (
-            cos(radiansRotate), sin(radiansRotate), 0, 0,
-            -sin(radiansRotate), cos(radiansRotate), 0, 0,
+        glm::mat4 rotateZ = glm::mat4 (
+            cos(radiansRotateZ), sin(radiansRotateZ), 0, 0,
+            -sin(radiansRotateZ), cos(radiansRotateZ), 0, 0,
             0, 0, 1, 0,
             0, 0, 0, 1
         );
+
+        glm::mat4 rotateY = glm::mat4(
+            cos(radiansRotateY), 0, sin(radiansRotateY), 0,
+            0, 1, 0, 0,
+            -sin(radiansRotateY), 0, cos(radiansRotateY), 0,
+            0, 0, 0, 1
+        );
+
+        glm::mat4 rotateX = glm::mat4(
+            1, 0, 0, 0,
+            0, cos(radiansRotateX), -sin(radiansRotateX), 0,
+            0, sin(radiansRotateX), cos(radiansRotateX), 0,
+            0, 0, 0, 1
+        );
+
+        return rotateZ * rotateY * rotateX;
+
     }
 
     glm::mat4 Object::update() {

@@ -60,14 +60,14 @@ class MyApp : public GameEngine::Application {
             "../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
             glm::vec3(50.f, 3.f, 50.f),
             glm::vec3(0.8f, 0.8f, 0.8f),
-            0.f,
+            glm::vec3(0.0f, 0.0f, 0.0f),
             GameEngine::ShaderType::LIGHTING_TEXTURE
         );
         GameEngine::Scene::addObject("Paimon",
             "../../GameEngineCore/assets/models/paimon/paimon.obj",
             glm::vec3(51.f, 4.f, 50.f),
             glm::vec3(0.1f, 0.1f, 0.1f),
-            0.f,
+            glm::vec3(0.0f, 0.0f, 0.0f),
             GameEngine::ShaderType::LIGHTING_TEXTURE
         );
         GameEngine::Scene::addObject("LightCube",
@@ -76,7 +76,7 @@ class MyApp : public GameEngine::Application {
             std::vector<const char*>(),
             glm::vec3(51.f, 4.f, 51.f),
             glm::vec3(0.3f, 0.3f, 0.3f),
-            0.f,
+            glm::vec3(0.0f, 0.0f, 0.0f),
             GameEngine::ShaderType::SIMPLE
         );
 

@@ -7,7 +7,7 @@ namespace GameEngine {
 	std::vector<glm::vec3> Scene::dirLights = std::vector<glm::vec3>();
 	std::vector<glm::vec3> Scene::pointLights = std::vector<glm::vec3>();
 
-	void Scene::addObject(std::string name, std::string modelPath, glm::vec3 position, glm::vec3 scalation, float rotation, ShaderType shader) {
+	void Scene::addObject(std::string name, std::string modelPath, glm::vec3 position, glm::vec3 scalation, glm::vec3 rotation, ShaderType shader) {
 		Object* obj = new Object(modelPath.c_str(), position, scalation, rotation);
 		ObjectManager::addObject(name, obj);
 		ObjectManager::getObject(name)->setShader(ShaderManager::get(shader));
@@ -20,7 +20,7 @@ namespace GameEngine {
 		std::vector<const char*> textureLocations,
 		glm::vec3 position,
 		glm::vec3 scalation,
-		float rotation,
+		glm::vec3 rotation,
 		ShaderType shader
 	) {
 		std::vector<Texture> textures = std::vector<Texture>();

@@ -19,7 +19,7 @@ namespace GameEngine {
 	static class Scene {
 	public:
 
-		static void addObject(std::string name, std::string modelPath, glm::vec3 position, glm::vec3 scalation, float rotation, ShaderType shader);
+		static void addObject(std::string name, std::string modelPath, glm::vec3 position, glm::vec3 scalation, glm::vec3 rotation, ShaderType shader);
 
 		static void addObject(
 			std::string name, 
@@ -28,7 +28,7 @@ namespace GameEngine {
 			std::vector<const char*> textures,
 			glm::vec3 position, 
 			glm::vec3 scalation, 
-			float rotation,
+			glm::vec3 rotation,
 			ShaderType shader
 		);
 		static void removeObject(std::string name);
