@@ -39,12 +39,18 @@ namespace GameEngine {
         
         switch (type) {
         case TransformType::Move: {
-            auto pos = ObjectManager::getObject(TransformManager::getActiveObjectName())->getPosition();
+            
+            Object* obj = ObjectManager::getObject(TransformManager::getActiveObjectName());
+
+            auto pos = obj->getPosition();
             const float speed = 2.5f;
             float trueSpeed = speed * Window::getDeltaTime();
 
-            ObjectManager::getObject(TransformManager::getActiveObjectName())->setPosition(pos + calcTransformVec(trueSpeed));
+            obj->setPosition(pos + calcTransformVec(trueSpeed));
 
+            if (obj->getLightIndex() != -1) {
+                Scene::setPointLight(obj->getLightIndex(), pos + calcTransformVec(trueSpeed));
+            }
             break;
         }
         case TransformType::Rotate: {

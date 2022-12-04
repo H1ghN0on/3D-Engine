@@ -59,6 +59,14 @@ namespace GameEngine {
             return rotation;
         }
 
+        void setLightIndex(short value) {
+            lightIndex = value;
+        }
+
+        short getLightIndex() {
+            return lightIndex;
+        }
+
         void draw();
     
 	private:
@@ -70,6 +78,8 @@ namespace GameEngine {
         glm::vec3 scalation;
         glm::vec3 position;
         glm::vec3 rotation;
+        
+        short lightIndex = -1;
 
         std::shared_ptr<ShaderProgram> shader = nullptr;
         std::unique_ptr<Model> model = nullptr;

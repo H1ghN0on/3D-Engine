@@ -3,6 +3,7 @@
 #include <string>
 #include <GameEngineCore/ObjectManager.hpp>
 #include <GameEngineCore/Window.hpp>
+#include <GameEngineCore/Scene.hpp>
 
 namespace GameEngine {
 

@@ -40,9 +40,13 @@ namespace GameEngine {
 
 		//void getObject(std::string name);
 
-		static void addLight(LightType type, glm::vec3 position, glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f));
+		static void addLight(LightType type, glm::vec3 position, glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f), const char* objectName = nullptr);
 		static void render();
 
+		static std::vector<glm::vec3> getPointLights() { return pointLights; }
+		static void setPointLight(short index, glm::vec3 value) { 
+			pointLights[index] = value;
+		}
 		
 
 	private:

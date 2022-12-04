@@ -43,7 +43,7 @@ namespace GameEngine {
 		ObjectManager::removeObject(name);
 	}
 
-	void Scene::addLight(LightType type, glm::vec3 position, glm::vec3 direction) {
+	void Scene::addLight(LightType type, glm::vec3 position, glm::vec3 direction, const char* objectName) {
 		switch (type) {
 			case LightType::DIRECTION: {
 				dirLights.push_back(direction);
@@ -51,6 +51,9 @@ namespace GameEngine {
 			}
 			case LightType::POINT: {
 				pointLights.push_back(position);
+				if (objectName) {
+					ObjectManager::getObject(objectName)->setLightIndex(pointLights.size() - 1);
+				}
 				break;
 			}
 			case LightType::SPOT: {

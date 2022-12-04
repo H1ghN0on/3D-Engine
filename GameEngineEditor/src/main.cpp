@@ -88,7 +88,7 @@ class MyApp : public GameEngine::Application {
 
 
         GameEngine::Scene::addLight(GameEngine::LightType::DIRECTION, glm::vec3(0.0, 0.0, 0.0), sunLightDirection);
-        GameEngine::Scene::addLight(GameEngine::LightType::POINT, GameEngine::ObjectManager::getObject("LightCube")->getPosition());
+        GameEngine::Scene::addLight(GameEngine::LightType::POINT, GameEngine::ObjectManager::getObject("LightCube")->getPosition(), glm::vec3(), "LightCube");
 	
     
         GameEngine::InterfaceManager::addCombo(
