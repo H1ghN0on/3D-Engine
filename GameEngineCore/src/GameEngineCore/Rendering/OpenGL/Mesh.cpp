@@ -35,6 +35,7 @@ namespace GameEngine {
  
         for (unsigned int i = 0; i < textures.size(); i++)
         {
+
             std::string textureName = "";
             glActiveTexture(GL_TEXTURE0 + i); // активируем текстурный блок, до привязки
 

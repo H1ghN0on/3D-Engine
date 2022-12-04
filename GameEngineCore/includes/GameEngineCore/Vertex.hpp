@@ -3,8 +3,6 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 
-#define MAX_BONE_INFLUENCE 4
-
 namespace GameEngine {
     struct Vertex {
 
@@ -22,4 +20,14 @@ namespace GameEngine {
         glm::vec3 color;
 
     };
+
+    template<typename T>
+    glm::vec3 toVec3(T x, T y, T z) {
+        return glm::vec3(x, y, z);
+    }
+
+    template<typename T>
+    glm::vec2 toVec2(T x, T y) {
+        return glm::vec2(x, y);
+    }
 }

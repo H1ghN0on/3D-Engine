@@ -12,7 +12,7 @@
 #include "VertexArray.hpp"
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
-#include "Vertex.hpp"
+
 
 namespace GameEngine {
  

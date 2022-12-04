@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "Vertex.hpp"
+#include <GameEngineCore/Vertex.hpp>
 
 namespace GameEngine {
 

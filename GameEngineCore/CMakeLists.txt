@@ -8,11 +8,15 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/GameEngineCore/Log.hpp
 	includes/GameEngineCore/Scene.hpp
 	includes/GameEngineCore/Event.hpp
+	includes/GameEngineCore/ObjectManager.hpp
+	includes/GameEngineCore/ShaderManager.hpp
+	includes/GameEngineCore/Enums.hpp
+	includes/GameEngineCore/Vertex.hpp
+	includes/GameEngineCore/Vectors.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Window.hpp
-	src/GameEngineCore/Rendering/OpenGL/ShaderProgram.hpp
 	src/GameEngineCore/Rendering/OpenGL/VertexBuffer.hpp
 	src/GameEngineCore/Rendering/OpenGL/VertexArray.hpp
 	src/GameEngineCore/Rendering/OpenGL/IndexBuffer.hpp
@@ -22,12 +26,10 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Rendering/OpenGL/Mesh.hpp
 	src/GameEngineCore/Rendering/OpenGL/Model.hpp
 	src/GameEngineCore/Rendering/OpenGL/AssimpGLMHelpers.hpp
-	src/GameEngineCore/Rendering/OpenGL/Vertex.hpp
 	src/GameEngineCore/Rendering/OpenGL/Terrain.hpp
-	src/GameEngineCore/Rendering/OpenGL/ObjectManager.hpp
-	src/GameEngineCore/Rendering/OpenGL/ShaderManager.hpp
 	src/GameEngineCore/Rendering/OpenGL/CameraObject.hpp
 	src/GameEngineCore/Rendering/OpenGL/Object.hpp
+	src/GameEngineCore/Rendering/OpenGL/ShaderProgram.hpp
 )
 
 #переменные для всех исходных кодов (cpp)
@@ -68,7 +70,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 
 #линкуем все, что находится внутри папки incldues
 target_include_directories(${ENGINE_PROJECT_NAME} PUBLIC includes)
-target_include_directories(${ENGINE_PROJECT_NAME} PRIVATE src)
+target_include_directories(${ENGINE_PROJECT_NAME} PUBLIC src)
 
 #указываем нужный компилятор
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_17)
@@ -77,27 +79,28 @@ target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_17)
 add_subdirectory(../external/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
 
 #линкуем glfw к таргету, при этом glfw будет использоваться ТОЛЬКО внутри ядра
-target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glfw)
+target_link_libraries(${ENGINE_PROJECT_NAME} PUBLIC glfw)
 
 #spdlog
 add_subdirectory(../external/spdlog ${CMAKE_CURRENT_BINARY_DIR}/spdlog)
-target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE spdlog)
+target_link_libraries(${ENGINE_PROJECT_NAME} PUBLIC spdlog)
 
 #glad
 add_subdirectory(../external/glad ${CMAKE_CURRENT_BINARY_DIR}/glad)
-target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glad)
+target_link_libraries(${ENGINE_PROJECT_NAME} PUBLIC glad)
 
 #glm
 add_subdirectory(../external/glm ${CMAKE_CURRENT_BINARY_DIR}/glm)
-target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glm)
+target_link_libraries(${ENGINE_PROJECT_NAME} PUBLIC glm)
+
 
 #soil
 add_subdirectory(../external/soil ${CMAKE_CURRENT_BINARY_DIR}/soil)
-target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE soil)
+target_link_libraries(${ENGINE_PROJECT_NAME} PUBLIC soil)
 
 #assimp
 add_subdirectory(../external/assimp ${CMAKE_CURRENT_BINARY_DIR}/assimp)
-target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE assimp)
+target_link_libraries(${ENGINE_PROJECT_NAME} PUBLIC assimp)
 
 
 set(IMGUI_INCLUDES 

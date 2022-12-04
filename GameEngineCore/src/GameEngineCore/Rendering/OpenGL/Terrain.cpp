@@ -13,7 +13,6 @@ namespace GameEngine {
 		shader->bind();
 		shader->setMatrix4("transformMatrix", glm::mat4(1.f));
 		model->draw(shader);
-		
 	}
 
 	std::unique_ptr<Model> Terrain::generateTerrain(Texture texture, const char* heightMapLocation) {
@@ -22,11 +21,13 @@ namespace GameEngine {
 		int width = 0;
 		int height = 0;
 		int channel;
-		unsigned char* heightMap = SOIL_load_image(heightMapLocation, &width, &height, 0, SOIL_LOAD_RGB);
-		if (!heightMap) {
-			/*LOG_CRITICAL("Image load failed: {0} {1}", _fileLocation, SOIL_last_result());*/
-			return nullptr;
+
+		if (!heightMapLocation) {
+			heightMapLocation = "";
+			height = 128;
 		}
+		unsigned char* heightMap = SOIL_load_image(heightMapLocation, &width, &height, 0, SOIL_LOAD_RGB);
+		 
 		const int VERTICES_COUNT = height;
 
 		for (int i = 0; i < VERTICES_COUNT; i++) {
@@ -68,27 +69,33 @@ namespace GameEngine {
 	}
 
 	float Terrain::getHeight(int x, int y, unsigned char* heightMap, int heightMapHeight) {
-		if (x < 0 || x >= heightMapHeight || y < 0 || y >= heightMapHeight) {
-			return 0;
-		}
-			
-		unsigned char* pixel = heightMap + (y * heightMapHeight + x) * 3;
-		unsigned char height = pixel[0];
+		if (heightMap) {
+			if (x < 0 || x >= heightMapHeight || y < 0 || y >= heightMapHeight) {
+				return 0;
+			}
 
-		return (int)height * HEIGHT_SCALE - HEIGHT_SHIFT;
+			unsigned char* pixel = heightMap + (y * heightMapHeight + x) * 3;
+			unsigned char height = pixel[0];
+
+			return (int)height * HEIGHT_SCALE - HEIGHT_SHIFT;
+		}
+		return 0;
 	}
 
 	glm::vec3 Terrain::calculateNormal(int x, int y, unsigned char* heightMap, int heightMapHeight) {
-		unsigned char* pixel = heightMap + (y * heightMapHeight + x) * 3;
-		unsigned char height = pixel[0];
-		float heightL = getHeight(x - 1, y, heightMap, heightMapHeight);
-		float heightR = getHeight(x + 1, y, heightMap, heightMapHeight);
-		float heightD = getHeight(x, y - 1, heightMap, heightMapHeight);
-		float heightU = getHeight(x, y + 1, heightMap, heightMapHeight);
-		glm::vec3 normal = glm::normalize(glm::vec3(heightL - heightR, 2.f, heightD - heightU ));
+		if (heightMap) {
+			unsigned char* pixel = heightMap + (y * heightMapHeight + x) * 3;
+			unsigned char height = pixel[0];
+			float heightL = getHeight(x - 1, y, heightMap, heightMapHeight);
+			float heightR = getHeight(x + 1, y, heightMap, heightMapHeight);
+			float heightD = getHeight(x, y - 1, heightMap, heightMapHeight);
+			float heightU = getHeight(x, y + 1, heightMap, heightMapHeight);
+			glm::vec3 normal = glm::normalize(glm::vec3(heightL - heightR, 2.f, heightD - heightU));
 
-		return normal;
-
+			return normal;
+		}
+		
+		return { 0.0f, 1.0f, 0.0f };
 
 	}
 }

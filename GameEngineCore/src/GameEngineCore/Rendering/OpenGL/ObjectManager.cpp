@@ -1,4 +1,4 @@
-#include "ObjectManager.hpp"
+#include <GameEngineCore/ObjectManager.hpp>
 #include <stdexcept>
 
 #include <iostream>

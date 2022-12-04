@@ -17,7 +17,9 @@ namespace GameEngine {
 
 		virtual int start(unsigned int window_width, unsigned int window_height, const char* title);
 
-		virtual void on_update() {}
+		virtual void initScene() {}
+
+		virtual void update() {}
 		
 	private:
 

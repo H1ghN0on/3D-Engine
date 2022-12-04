@@ -1,11 +1,12 @@
 #include <GameEngineCore/Scene.hpp>
-#include "ObjectManager.hpp"
-#include "ShaderManager.hpp"
+#include <GameEngineCore/ObjectManager.hpp>
+#include <GameEngineCore/ShaderManager.hpp>
 
 namespace GameEngine {
 
 	std::vector<glm::vec3> Scene::dirLights = std::vector<glm::vec3>();
 	std::vector<glm::vec3> Scene::pointLights = std::vector<glm::vec3>();
+	std::string Scene::activeObjectName = "";
 
 	void Scene::addObject(std::string name, std::string modelPath, glm::vec3 position, glm::vec3 scalation, float rotation, ShaderType shader) {
 		Object* obj = new Object(modelPath.c_str(), position, scalation, rotation);
@@ -17,12 +18,23 @@ namespace GameEngine {
 		std::string name,
 		std::vector<Vertex> vertices,
 		std::vector<unsigned int> indices,
-		std::vector<Texture> textures,
+		std::vector<const char*> textureLocations,
 		glm::vec3 position,
 		glm::vec3 scalation,
 		float rotation,
 		ShaderType shader
 	) {
+		std::vector<Texture> textures = std::vector<Texture>();
+		for (auto& textureLocation : textureLocations) {
+			textures.push_back(Texture(
+				textureLocation,
+				Texture::Type::Diffusal,
+				Texture::WrappingMode::Repeat,
+				Texture::MipmapFilterMode::LinearLinear
+			));
+		}
+
+
 		Object* obj = new Object(vertices, indices, textures, position, scalation, rotation);
 		ObjectManager::addObject(name, obj);
 		ObjectManager::getObject(name)->setShader(ShaderManager::get(shader));
@@ -65,7 +77,7 @@ namespace GameEngine {
 		ObjectManager::removeTerrain(name);
 	}
 
-	void Scene::addCamera(glm::vec3 position, glm::vec3 rotation, Camera::ProjectionType type) {
+	void Scene::addCamera(glm::vec3 position, glm::vec3 rotation, ProjectionType type) {
 		CameraObject* camera = new CameraObject(position, rotation, type);
 		ObjectManager::addCamera(camera);
 	}

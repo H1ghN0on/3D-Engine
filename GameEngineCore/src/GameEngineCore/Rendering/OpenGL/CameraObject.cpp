@@ -19,35 +19,35 @@ namespace GameEngine {
 		updateProjectionMatrix(type);
 	}
 
-	void CameraObject::translate(Direction dir, float deltaTime) {
+	void CameraObject::translate(CameraDirection dir, float deltaTime) {
 		float trueSpeed = speed * deltaTime;
 		switch(dir) {
 
-			case Direction::Forward: {
+			case CameraDirection::Forward: {
 				position += trueSpeed * glm::vec3(front.x, 0.f, front.z);
 				break;
 			}
 
-			case Direction::Back: {
+			case CameraDirection::Back: {
 				position -= trueSpeed * glm::vec3(front.x, 0.f, front.z);
 				break;
 			}
 
-			case Direction::Left: {
+			case CameraDirection::Left: {
 				position -= glm::normalize(glm::cross(front, up)) * trueSpeed;
 				break;
 			}
 
-			case Direction::Right: {
+			case CameraDirection::Right: {
 				position += glm::normalize(glm::cross(front, up)) * trueSpeed;
 				break;
 			}
 
-			case Direction::Up: {
+			case CameraDirection::Up: {
 				position += up * trueSpeed;
 				break;
 			}
-			case Direction::Down: {
+			case CameraDirection::Down: {
 				if (position.y > 1) {
 					position -= up * trueSpeed;
 				}

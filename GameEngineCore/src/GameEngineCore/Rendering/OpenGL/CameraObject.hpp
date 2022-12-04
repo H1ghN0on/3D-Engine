@@ -10,9 +10,7 @@ namespace GameEngine {
 	class CameraObject: public Camera {
 	public:
 
-		enum class Direction {
-			Up, Down, Left, Right, Forward, Back
-		};
+		
 
 		CameraObject() = default;
 		CameraObject(
@@ -22,7 +20,7 @@ namespace GameEngine {
 			glm::vec3 _front = { 0.f, 0.f, -1.f }
 		);
 
-		void translate(Direction dir, float deltaTime);
+		void translate(CameraDirection dir, float deltaTime);
 		void rotate(float x, float y);
 		glm::mat4 update();
 		void setType(ProjectionType type);

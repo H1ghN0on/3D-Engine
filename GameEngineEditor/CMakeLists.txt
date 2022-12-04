@@ -10,6 +10,7 @@ add_executable(${EDITOR_PROJECT_NAME}
 #линкуем ядро к editor (когда будем менять ядро, то будет меняться и editor)
 target_link_libraries(${EDITOR_PROJECT_NAME} GameEngineCore)
 
+
 #указываем нужный компилятор
 target_compile_features(${EDITOR_PROJECT_NAME} PUBLIC cxx_std_17)
 

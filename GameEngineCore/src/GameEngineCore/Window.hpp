@@ -4,9 +4,8 @@
 
 #include <string>
 #include <functional>
-#include "GameEngineCore/Rendering/OpenGL/Terrain.hpp"
+
 #include <GLFW/glfw3.h>
-#include "GameEngineCore/Rendering/OpenGL/ObjectManager.hpp"
 
 class GLFWwindow;
 
@@ -33,6 +32,10 @@ namespace GameEngine {
 		void setEventCallback(const EventCallbackFn& cb) {
 			data.eventCallbackFn = cb;
 		}
+
+		static float getDeltaTime() { return deltaTime; }
+		static float getLastFrame() { return lastFrame; }
+
 	private:
 		struct WindowData {
 			unsigned int width;
@@ -44,11 +47,19 @@ namespace GameEngine {
 			EventCallbackFn eventCallbackFn;
 		};
 
-		int init();
-		void shutdown();
 		GLFWwindow* window;
 		WindowData data;
+
+		static void updateDeltaTime();
+
+		static float deltaTime;
+		static float lastFrame;
+
+		int init();
+		void shutdown();
+	
 		float bgColor[4] = { 0.53, 0.81f, 0.92f, 0.0f };
+
 
 	};
 }

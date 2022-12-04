@@ -1,17 +1,19 @@
 #pragma once
 
+
+#include <GameEngineCore/Enums.hpp>
+
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
 namespace GameEngine {
 
+	
+
 	class Camera {
 	public:
 
-		enum class ProjectionType {
-			Perspective,
-			Orthographic
-		};
+		
 
 		glm::mat4 getViewMatrix() const { return m_viewMatrix; }
 		glm::mat4 getProjectionMatrix() const { return m_projectionMatrix; }

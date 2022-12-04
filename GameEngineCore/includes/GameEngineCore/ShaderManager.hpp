@@ -3,7 +3,8 @@
 #include <map>
 #include <string>
 #include <memory>
-#include "ShaderProgram.hpp";
+
+#include <GameEngineCore/Rendering/OpenGL/ShaderProgram.hpp>
 
 namespace GameEngine {
 

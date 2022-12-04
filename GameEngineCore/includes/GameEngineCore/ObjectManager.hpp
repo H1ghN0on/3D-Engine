@@ -2,9 +2,9 @@
 
 #include <map>
 
-#include "Object.hpp"
-#include "Terrain.hpp"
-#include "CameraObject.hpp"
+#include <GameEngineCore/Rendering/OpenGL/Object.hpp>
+#include <GameEngineCore/Rendering/OpenGL/Terrain.hpp>
+#include <GameEngineCore/Rendering/OpenGL/CameraObject.hpp>
 
 namespace GameEngine {
 	

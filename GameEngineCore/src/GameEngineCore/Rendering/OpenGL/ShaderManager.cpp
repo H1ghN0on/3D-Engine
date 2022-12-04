@@ -1,4 +1,4 @@
-#include "ShaderManager.hpp"
+#include <GameEngineCore/ShaderManager.hpp>
 #include <glm/trigonometric.hpp>
 
 namespace GameEngine {

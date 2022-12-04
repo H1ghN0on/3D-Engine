@@ -44,10 +44,12 @@ namespace GameEngine {
             }
         );
 
+        this -> initScene();
+
         while (!m_isWindowClosed) {
 
             m_pWindow->on_update();
-            this -> on_update();
+            this -> update();
         }
 
         return 0;
