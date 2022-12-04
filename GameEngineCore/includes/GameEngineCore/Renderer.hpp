@@ -11,6 +11,7 @@ namespace GameEngine {
 		Color, Depth, All
 	};
 
+
 	
 
 	class Renderer {
@@ -34,6 +35,14 @@ namespace GameEngine {
 		static const char* getVersionStr();
 
 		static DrawType drawType;
+
+		static void enableCullFace(bool status);
+		static void setCullFaceSide(bool front);
+		static void setPolygonMode(CullType front, CullType back);
+
+		static bool cullFaceEnabled;
+		static int polygonModeFront;
+		static int polygonModeBack;
 
 		static void setDrawType(DrawType _drawType) {
 			drawType = _drawType;

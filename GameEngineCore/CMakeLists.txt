@@ -15,6 +15,7 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/GameEngineCore/Vectors.hpp
 	includes/GameEngineCore/InterfaceManager.hpp
 	includes/GameEngineCore/TransformManager.hpp
+	includes/GameEngineCore/Renderer.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES
@@ -24,7 +25,6 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/GameEngineCore/Rendering/OpenGL/IndexBuffer.hpp
 	src/GameEngineCore/Rendering/OpenGL/Camera.hpp
 	src/GameEngineCore/Rendering/OpenGL/Texture.hpp
-	src/GameEngineCore/Rendering/OpenGL/Renderer.hpp
 	src/GameEngineCore/Rendering/OpenGL/Mesh.hpp
 	src/GameEngineCore/Rendering/OpenGL/Model.hpp
 	src/GameEngineCore/Rendering/OpenGL/AssimpGLMHelpers.hpp

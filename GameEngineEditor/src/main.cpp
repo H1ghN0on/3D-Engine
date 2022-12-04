@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <random>
 
 #include <GameEngineCore/Application.hpp>
 #include <GameEngineCore/Scene.hpp>
@@ -9,6 +10,8 @@
 #include <GameEngineCore/Vertex.hpp>
 #include <GameEngineCore/InterfaceManager.hpp>
 #include <GameEngineCore/TransformManager.hpp>
+#include <GameEngineCore/Renderer.hpp>
+#include <map>
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -47,6 +50,20 @@ std::vector<unsigned int> indices = {
     };
 
 
+void addFigure(std::vector<GameEngine::Vertex> _vertices, std::vector<unsigned int> _indices, GameEngine::DrawType drawType = GameEngine::DrawType::Triangles) {
+    GameEngine::Scene::addObject(
+        "NRectangle",
+        _vertices,
+        _indices,
+        std::vector<const char*>(),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        GameEngine::ShaderType::SIMPLE,
+        drawType
+    );
+}
+
 const char* terrainTextureLocation = "../../GameEngineCore/assets/ground.jpg";
 const char* heightMapLocation = "../../GameEngineCore/assets/heightMap.png";
 
@@ -54,7 +71,7 @@ glm::vec3 sunLightDirection = { -0.2f, -1.0f, -0.3f };
 
 class MyApp : public GameEngine::Application {
 	
-	void initScene() override {
+    void initScene() override {
         //Курсовая 
 
        /* GameEngine::Scene::addTerrain("Terrain1", 0, 0, terrainTextureLocation, nullptr);
@@ -74,7 +91,7 @@ class MyApp : public GameEngine::Application {
             GameEngine::ShaderType::LIGHTING_TEXTURE
         );
         GameEngine::Scene::addObject("LightCube",
-            lightCubeVertices, 
+            lightCubeVertices,
             indices,
             std::vector<const char*>(),
             glm::vec3(51.f, 4.f, 51.f),
@@ -92,8 +109,8 @@ class MyApp : public GameEngine::Application {
 
         GameEngine::Scene::addLight(GameEngine::LightType::DIRECTION, glm::vec3(0.0, 0.0, 0.0), sunLightDirection);
         GameEngine::Scene::addLight(GameEngine::LightType::POINT, GameEngine::ObjectManager::getObject("LightCube")->getPosition(), glm::vec3(), "LightCube");
-	
-    
+
+
         GameEngine::InterfaceManager::addCombo(
             "ActiveObject",
             GameEngine::ObjectManager::getObjectNames(),
@@ -119,7 +136,7 @@ class MyApp : public GameEngine::Application {
 
                 if (name == "Scale") {
                     GameEngine::TransformManager::updateType(GameEngine::TransformType::Scale);
-                } 
+                }
             }
         );
 
@@ -143,10 +160,7 @@ class MyApp : public GameEngine::Application {
             }
         );*/
 
-
-
-
-        //lab2
+      
 
         GameEngine::Scene::addCamera(
             glm::vec3(0.0f, 0.0f, 0.0f),
@@ -166,19 +180,106 @@ class MyApp : public GameEngine::Application {
             GameEngine::Vertex vertex = GameEngine::Vertex(glm::vec3(x, y, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
             rectangleVertices.push_back(vertex);
         }
-    
-        GameEngine::Scene::addObject(
-            "NRectangle",
-            rectangleVertices,
-            std::vector<unsigned int>(),
-            std::vector<const char*>(),
-            glm::vec3(0.0f, 0.0f, 0.0f),
-            glm::vec3(1.0f, 1.0f, 1.0f),
-            glm::vec3(0.0f, 0.0f, 0.0f),
-            GameEngine::ShaderType::SIMPLE,
-            GameEngine::DrawType::TrianglesFan
+
+        addFigure(rectangleVertices, std::vector<unsigned int>(), GameEngine::DrawType::TrianglesFan);
+
+        
+        GameEngine::InterfaceManager::addCombo(
+            "Task 1",
+            std::vector<std::string>({ "1", "2", "3" }),
+            std::string("Task 1"),
+            [rectangleVertices](std::string name) {
+                GameEngine::Renderer::enableCullFace(false);
+                if (name == "1") {
+
+                    GameEngine::Scene::removeObject("NRectangle");
+
+                    addFigure(rectangleVertices, std::vector<unsigned int>(), GameEngine::DrawType::TrianglesFan);
+
+                }
+                if (name == "2") {
+                    GameEngine::Scene::removeObject("NRectangle");
+                    addFigure(rectangleVertices, std::vector<unsigned int>(), GameEngine::DrawType::Lines);
+                }
+                if (name == "3") {
+                    GameEngine::Scene::removeObject("NRectangle");
+                    addFigure(rectangleVertices, std::vector<unsigned int>(), GameEngine::DrawType::Points);
+                }
+            }
         );
 
+
+        GameEngine::InterfaceManager::addCombo(
+            "Task 2",
+            std::vector<std::string>({ "Triangle", "Trapezium", "Quadrangle", "Parallelogram", "Rectangle", "Deltoid", "Rhombus"}),
+            std::string("Task"),
+            [rectangleVertices](std::string name) {
+                GameEngine::Renderer::enableCullFace(false);
+                GameEngine::Scene::removeObject("NRectangle");
+                std::map<std::string, std::vector<unsigned int>> indices = {
+                   std::pair<std::string, std::vector<unsigned int>>("Triangle", {3, 5, 7}),
+                   std::pair<std::string, std::vector<unsigned int>>("Trapezium", { 0, 1, 4, 1, 3, 4}),
+                   std::pair<std::string, std::vector<unsigned int>>("Quadrangle", {1, 3, 5, 1, 5, 7}),
+                   std::pair<std::string, std::vector<unsigned int>>("Parallelogram", {3, 4, 7, 3, 7, 0}),
+                   std::pair<std::string, std::vector<unsigned int>>("Rectangle", {1, 3, 5, 1, 5, 7}),
+                   std::pair<std::string, std::vector<unsigned int>>("Deltoid", {1, 2, 6, 2, 3, 6}),
+                   std::pair<std::string, std::vector<unsigned int>>("Rhombus", {0, 2, 4, 0, 4, 6}),
+                };
+
+                addFigure(rectangleVertices, indices[name]);
+            }
+        );
+
+        GameEngine::InterfaceManager::addCombo(
+            "Task 3",
+            std::vector<std::string>({ "1", "2", "3"}),
+            std::string("Task"),
+            [](std::string name) {
+                if (name == "1") {
+                    GameEngine::Renderer::enableCullFace(true);
+                    GameEngine::Renderer::setPolygonMode(GameEngine::CullType::Point, GameEngine::CullType::Fill);
+                }
+
+                if (name == "2") {
+                    GameEngine::Renderer::enableCullFace(true);
+                    GameEngine::Renderer::setPolygonMode(GameEngine::CullType::Fill, GameEngine::CullType::Line);
+                }
+
+                if (name == "3") {
+                    GameEngine::Renderer::enableCullFace(true);
+                    GameEngine::Renderer::setPolygonMode(GameEngine::CullType::Line, GameEngine::CullType::Line);
+                }
+                
+            }
+        );
+
+
+        GameEngine::InterfaceManager::addCombo(
+            "Task 4",
+            std::vector<std::string>({ "Task 4" }),
+            std::string("Task"),
+            [](std::string name) {
+                GameEngine::Renderer::enableCullFace(false);
+                GameEngine::Scene::removeObject("NRectangle");
+                std::default_random_engine generator;
+                std::uniform_real_distribution<GLfloat> pointRandom(-1.f, 1.f);
+                std::uniform_real_distribution<GLfloat> colorRandom(0.f, 1.f);
+                const int N = 300;
+                std::vector<GameEngine::Vertex> vertices;
+                for (int i = 0; i < N; i++) {
+                    GameEngine::Vertex vertex = GameEngine::Vertex(
+                        glm::vec3(pointRandom(generator), pointRandom(generator), 0.0f),
+                        glm::vec3(0.0f, 0.0f, 0.0f),
+                        glm::vec2(0.0f, 0.0f),
+                        glm::vec3(colorRandom(generator), colorRandom(generator), colorRandom(generator))
+                    );
+                    vertices.push_back(vertex);
+                }
+                  
+
+                addFigure(vertices, std::vector<unsigned int>(), GameEngine::DrawType::Points);
+            }
+        );
 
     }
 

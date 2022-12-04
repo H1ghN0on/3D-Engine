@@ -9,7 +9,7 @@
 #include <GameEngineCore/Rendering/OpenGL/VertexArray.hpp>
 #include <GameEngineCore/Rendering/OpenGL/VertexBuffer.hpp>
 #include <GameEngineCore/Rendering/OpenGL/IndexBuffer.hpp>
-
+#include <GameEngineCore/Enums.hpp>
 
 namespace GameEngine {
 

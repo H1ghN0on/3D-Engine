@@ -22,7 +22,7 @@
 #include "GameEngineCore/Rendering/OpenGL/CameraObject.hpp"
 #include "GameEngineCore/Rendering/OpenGL/Object.hpp"
 #include "GameEngineCore/Rendering/OpenGL/Texture.hpp"
-#include "GameEngineCore/Rendering/OpenGL/Renderer.hpp"
+#include <GameEngineCore/Renderer.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <GameEngineCore/InterfaceManager.hpp>

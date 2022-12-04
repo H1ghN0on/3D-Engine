@@ -6,7 +6,7 @@
 #include <memory>
 #include "glad/glad.h"
 #include <string>
-#include "Renderer.hpp"
+#include <GameEngineCore/Renderer.hpp>
 #include "ShaderProgram.hpp";
 #include "Texture.hpp"
 #include "VertexArray.hpp"
