@@ -26,7 +26,7 @@ namespace GameEngine {
 		static bool isObjectExists(std::string name);
 
 		static Object* getObject(std::string name);
-
+		static std::vector<std::string> getObjectNames();
 
 		static Terrain* getTerrain(std::string name);
 		static unsigned int addTerrain(std::string name, Terrain* obj);

@@ -7,6 +7,7 @@
 #include <GameEngineCore/ShaderManager.hpp>
 #include <GameEngineCore/Enums.hpp>
 #include <GameEngineCore/Vertex.hpp>
+#include <GameEngineCore/InterfaceManager.hpp>
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -87,7 +88,27 @@ class MyApp : public GameEngine::Application {
 
         GameEngine::Scene::addLight(GameEngine::LightType::DIRECTION, glm::vec3(0.0, 0.0, 0.0), sunLightDirection);
         GameEngine::Scene::addLight(GameEngine::LightType::POINT, GameEngine::ObjectManager::getObject("LightCube")->getPosition());
-	}
+	
+    
+        GameEngine::InterfaceManager::addCombo(
+            "ActiveObject",
+            GameEngine::ObjectManager::getObjectNames(),
+            GameEngine::ObjectManager::getObjectNames()[0],
+            [](std::string name) {
+                GameEngine::Scene::updateActiveObjectName(name);
+            }
+        );
+
+        GameEngine::InterfaceManager::addCombo(
+            "Transform",
+            std::vector<std::string>({ "Move", "Rotate", "Scale" }),
+            std::string("Move"),
+            [](std::string name) {
+                GameEngine::Scene::updateActiveTransform(name);
+            }
+        );
+
+    }
 
     void update() override {
         

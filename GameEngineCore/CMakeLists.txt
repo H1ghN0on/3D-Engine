@@ -13,6 +13,7 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/GameEngineCore/Enums.hpp
 	includes/GameEngineCore/Vertex.hpp
 	includes/GameEngineCore/Vectors.hpp
+	includes/GameEngineCore/InterfaceManager.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES
@@ -36,6 +37,7 @@ set(ENGINE_PRIVATE_INCLUDES
 set(ENGINE_PRIVATE_SOURCES 
 	src/GameEngineCore/Application.cpp
 	src/GameEngineCore/Window.cpp
+	src/GameEngineCore/InterfaceManager.cpp
 	src/GameEngineCore/Rendering/OpenGL/ShaderProgram.cpp
 	src/GameEngineCore/Rendering/OpenGL/VertexBuffer.cpp
 	src/GameEngineCore/Rendering/OpenGL/VertexArray.cpp
@@ -128,4 +130,4 @@ target_include_directories(ImGui PUBLIC ../external/imgui)
 
 target_link_libraries(ImGui PRIVATE glad glfw)
 
-target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE ImGui)
+target_link_libraries(${ENGINE_PROJECT_NAME} PUBLIC ImGui)

@@ -7,6 +7,7 @@ namespace GameEngine {
 	std::vector<glm::vec3> Scene::dirLights = std::vector<glm::vec3>();
 	std::vector<glm::vec3> Scene::pointLights = std::vector<glm::vec3>();
 	std::string Scene::activeObjectName = "";
+	std::string Scene::activeTransform = "";
 
 	void Scene::addObject(std::string name, std::string modelPath, glm::vec3 position, glm::vec3 scalation, float rotation, ShaderType shader) {
 		Object* obj = new Object(modelPath.c_str(), position, scalation, rotation);

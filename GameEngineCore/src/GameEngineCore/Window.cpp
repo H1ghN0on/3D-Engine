@@ -8,6 +8,7 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
+
 #include <chrono>
 #include <GameEngineCore/Scene.hpp>
 #include <tuple>
@@ -24,6 +25,7 @@
 #include "GameEngineCore/Rendering/OpenGL/Renderer.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <GameEngineCore/InterfaceManager.hpp>
 #include <GameEngineCore/Rendering/OpenGL/Model.hpp>
 #include <GameEngineCore/Rendering/OpenGL/Terrain.hpp>
 #include <GameEngineCore/ObjectManager.hpp>
@@ -48,11 +50,6 @@ namespace GameEngine {
     {
 		int resultCode = init();
 
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGui_ImplOpenGL3_Init();
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
-
 	}
 	Window::~Window() {
 		shutdown();
@@ -60,17 +57,17 @@ namespace GameEngine {
 
     void handleKeyPress(GLFWwindow* window) {
 
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Forward, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Forward, Window::getDeltaTime());
  
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Back, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Back, Window::getDeltaTime());
 
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Left, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Left, Window::getDeltaTime());
 
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Right, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Right, Window::getDeltaTime());
 
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Up, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Up, Window::getDeltaTime());
 
-        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Down, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Down, Window::getDeltaTime());
             
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
             cursorEnabled = false;
@@ -82,6 +79,44 @@ namespace GameEngine {
             
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         };
+
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+            std::string transform = Scene::getActiveTransform();
+            const float speed = 2.5f;
+            const float trueSpeed = speed * Window::getDeltaTime();
+            if (transform == "Move") {
+                auto pos = ObjectManager::getObject(Scene::getActiveObjectName())->getPosition();
+                ObjectManager::getObject(Scene::getActiveObjectName())->setPosition(glm::vec3(pos.x, pos.y*(-trueSpeed), pos.z));
+            }
+
+            if (transform == "Rotate") {
+
+            }
+
+            if (transform == "Scale") {
+
+            }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+            if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+                std::string transform = Scene::getActiveTransform();
+                const float speed = 2.5f;
+                const float trueSpeed = speed * Window::getDeltaTime();
+                if (transform == "Move") {
+                    auto pos = ObjectManager::getObject(Scene::getActiveObjectName())->getPosition();
+                    ObjectManager::getObject(Scene::getActiveObjectName())->setPosition(glm::vec3(pos.x, pos.y * (trueSpeed), pos.z));
+                }
+
+                if (transform == "Rotate") {
+
+                }
+
+                if (transform == "Scale") {
+
+                }
+            }
+        }
     }
     
     
@@ -162,7 +197,9 @@ namespace GameEngine {
             LOG_CRITICAL("Failed to initialize shaders");
             return -4;
         }
-                             
+
+        InterfaceManager::init(window);
+
         Renderer::enableDepth();
         return 0;
 
@@ -200,41 +237,7 @@ namespace GameEngine {
   
         Scene::render();
        
-        //GUI
-        ImGuiIO& io = ImGui::GetIO();
-        io.DisplaySize.x = static_cast<float>(getWidth());
-        io.DisplaySize.y = static_cast<float>(getHeight());
-
-        //ImGui_ImplOpenGL3_NewFrame();
-        //ImGui_ImplGlfw_NewFrame();
-
-        //ImGui::NewFrame();
-
-
-        //ImGui::Begin("Objects transform");
-
-        //static const char* current_item = "Choose";
-
-        //if (ImGui::BeginCombo("##combo", current_item)) // The second parameter is the label previewed before opening the combo.
-        //{
-        //    for (auto object : ObjectManager::getObjects()) {
-        //        bool is_selected = Scene::getActiveObjectName();
-        //        //bool is_selected = (current_item == object[n]); // You can store your selection however you want, outside or inside your objects
-        //        if (ImGui::Selectable(object.first.c_str(), is_selected)) {
-        //            current_item = object.first.c_str();
-        //                /*if (is_selected)
-        //                    ImGui::SetItemDefaultFocus();*/
-        //        }
-        //    }
-        //   
-        //    ImGui::EndCombo();
-        //}
-
-        //ImGui::End();
-
-
-        //ImGui::Render();
-        //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        InterfaceManager::render(getWidth(), getHeight());
 
         glfwSwapBuffers(window);
         glfwPollEvents();

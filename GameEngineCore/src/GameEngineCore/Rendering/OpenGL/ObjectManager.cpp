@@ -1,7 +1,6 @@
 #include <GameEngineCore/ObjectManager.hpp>
 #include <stdexcept>
 
-#include <iostream>
 
 namespace GameEngine {
 
@@ -77,6 +76,12 @@ namespace GameEngine {
 		return nullptr;
 	}
 
-
+	std::vector<std::string> ObjectManager::getObjectNames() {
+		std::vector<std::string> keys = std::vector<std::string>();
+		for (auto object : objects) {
+			keys.push_back(object.first);
+		}
+		return keys;
+	}
 
 }

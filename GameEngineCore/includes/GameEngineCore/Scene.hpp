@@ -45,9 +45,14 @@ namespace GameEngine {
 
 		static std::string getActiveObjectName() { return activeObjectName; }
 		static void updateActiveObjectName(std::string name) { activeObjectName = name; }
+
+		static std::string getActiveTransform() { return activeTransform; }
+		static void updateActiveTransform(std::string name) { activeTransform = name; }
+
 	private:
 		static std::vector<glm::vec3> dirLights;
 		static std::vector<glm::vec3> pointLights;
 		static std::string activeObjectName;
+		static std::string activeTransform;
 	};
 }
