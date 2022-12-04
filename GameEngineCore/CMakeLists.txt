@@ -14,6 +14,7 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/GameEngineCore/Vertex.hpp
 	includes/GameEngineCore/Vectors.hpp
 	includes/GameEngineCore/InterfaceManager.hpp
+	includes/GameEngineCore/TransformManager.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES
@@ -38,6 +39,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/GameEngineCore/Application.cpp
 	src/GameEngineCore/Window.cpp
 	src/GameEngineCore/InterfaceManager.cpp
+	src/GameEngineCore/TransformManager.cpp
 	src/GameEngineCore/Rendering/OpenGL/ShaderProgram.cpp
 	src/GameEngineCore/Rendering/OpenGL/VertexBuffer.cpp
 	src/GameEngineCore/Rendering/OpenGL/VertexArray.cpp

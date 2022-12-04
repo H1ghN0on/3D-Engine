@@ -43,16 +43,10 @@ namespace GameEngine {
 		static void addLight(LightType type, glm::vec3 position, glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f));
 		static void render();
 
-		static std::string getActiveObjectName() { return activeObjectName; }
-		static void updateActiveObjectName(std::string name) { activeObjectName = name; }
-
-		static std::string getActiveTransform() { return activeTransform; }
-		static void updateActiveTransform(std::string name) { activeTransform = name; }
+		
 
 	private:
 		static std::vector<glm::vec3> dirLights;
 		static std::vector<glm::vec3> pointLights;
-		static std::string activeObjectName;
-		static std::string activeTransform;
 	};
 }

@@ -8,6 +8,7 @@
 #include <GameEngineCore/Enums.hpp>
 #include <GameEngineCore/Vertex.hpp>
 #include <GameEngineCore/InterfaceManager.hpp>
+#include <GameEngineCore/TransformManager.hpp>
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -95,7 +96,7 @@ class MyApp : public GameEngine::Application {
             GameEngine::ObjectManager::getObjectNames(),
             GameEngine::ObjectManager::getObjectNames()[0],
             [](std::string name) {
-                GameEngine::Scene::updateActiveObjectName(name);
+                GameEngine::TransformManager::updateActiveObjectName(name);
             }
         );
 
@@ -104,9 +105,41 @@ class MyApp : public GameEngine::Application {
             std::vector<std::string>({ "Move", "Rotate", "Scale" }),
             std::string("Move"),
             [](std::string name) {
-                GameEngine::Scene::updateActiveTransform(name);
+
+                if (name == "Move") {
+                    GameEngine::TransformManager::updateType(GameEngine::TransformType::Move);
+                }
+
+                if (name == "Rotate") {
+                    GameEngine::TransformManager::updateType(GameEngine::TransformType::Rotate);
+                }
+
+                if (name == "Scale") {
+                    GameEngine::TransformManager::updateType(GameEngine::TransformType::Scale);
+                } 
             }
         );
+
+        GameEngine::InterfaceManager::addCombo(
+            "Axis",
+            std::vector<std::string>({ "X", "Y", "Z" }),
+            std::string("Move"),
+            [](std::string name) {
+
+                if (name == "X") {
+                    GameEngine::TransformManager::updateAxis(GameEngine::TransformAxis::X);
+                }
+
+                if (name == "Y") {
+                    GameEngine::TransformManager::updateAxis(GameEngine::TransformAxis::Y);
+                }
+
+                if (name == "Z") {
+                    GameEngine::TransformManager::updateAxis(GameEngine::TransformAxis::Z);
+                }
+            }
+        );
+
 
     }
 

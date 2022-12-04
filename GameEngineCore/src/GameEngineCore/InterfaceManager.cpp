@@ -14,7 +14,7 @@ namespace GameEngine {
 	}
 
 	void InterfaceManager::addCombo(std::string name, std::vector<std::string> items, std::string preview, std::function<void(std::string)> onSelect) {
-		combos.push_back(new InterfaceCombo(name, items, preview, onSelect));
+		combos.push_back(new InterfaceCombo(name, items, "", onSelect));
 	}
 
 	void InterfaceManager::render(float width, float height) {
@@ -31,12 +31,11 @@ namespace GameEngine {
 		
 
 		for (auto combo : combos) {
-			auto preview = combo->preview;
 			
-			if (ImGui::BeginCombo(combo->name.c_str(), preview.c_str()))
+			if (ImGui::BeginCombo(combo->name.c_str(), combo->preview.c_str()))
 			{
 				for (auto item : combo->items) {
-					bool isSelected = preview == item;
+					bool isSelected = combo->preview == item;
 
 					if (ImGui::Selectable(item.c_str(), isSelected)) {
 						combo->onSelect(item);

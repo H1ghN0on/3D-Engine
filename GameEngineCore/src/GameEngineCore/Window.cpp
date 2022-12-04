@@ -31,6 +31,7 @@
 #include <GameEngineCore/ObjectManager.hpp>
 #include <GameEngineCore/ShaderManager.hpp>
 #include <GameEngineCore/Vertex.hpp>
+#include <GameEngineCore/TransformManager.hpp>
 
 namespace GameEngine {
 
@@ -81,41 +82,13 @@ namespace GameEngine {
         };
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-            std::string transform = Scene::getActiveTransform();
-            const float speed = 2.5f;
-            const float trueSpeed = speed * Window::getDeltaTime();
-            if (transform == "Move") {
-                auto pos = ObjectManager::getObject(Scene::getActiveObjectName())->getPosition();
-                ObjectManager::getObject(Scene::getActiveObjectName())->setPosition(glm::vec3(pos.x, pos.y*(-trueSpeed), pos.z));
-            }
-
-            if (transform == "Rotate") {
-
-            }
-
-            if (transform == "Scale") {
-
-            }
+            TransformManager::updateDirection(TransformDirection::Backward);
+            TransformManager::transform();
         }
 
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-            if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-                std::string transform = Scene::getActiveTransform();
-                const float speed = 2.5f;
-                const float trueSpeed = speed * Window::getDeltaTime();
-                if (transform == "Move") {
-                    auto pos = ObjectManager::getObject(Scene::getActiveObjectName())->getPosition();
-                    ObjectManager::getObject(Scene::getActiveObjectName())->setPosition(glm::vec3(pos.x, pos.y * (trueSpeed), pos.z));
-                }
-
-                if (transform == "Rotate") {
-
-                }
-
-                if (transform == "Scale") {
-
-                }
-            }
+            TransformManager::updateDirection(TransformDirection::Forward);
+            TransformManager::transform();
         }
     }
     
