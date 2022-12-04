@@ -52,6 +52,30 @@ namespace GameEngine {
             break;
         }
         case TransformType::Scale: {
+            auto scal = ObjectManager::getObject(TransformManager::getActiveObjectName())->getScalation();
+
+            glm::vec3 scalVec = glm::vec3(0.0f, 0.0f, 0.0f);
+
+
+            if (dir == TransformDirection::Backward) {
+                trueSpeed *= -1;
+            }
+
+            switch (axis) {
+            case TransformAxis::X: {
+                scalVec.x = trueSpeed;
+                break;
+            }
+            case TransformAxis::Y: {
+                scalVec.y = trueSpeed;
+                break;
+            }
+            case TransformAxis::Z: {
+                scalVec.z = trueSpeed;
+                break;
+            }
+            }
+            ObjectManager::getObject(TransformManager::getActiveObjectName())->setScalation(scalVec + scal);
             break;
         }
         }

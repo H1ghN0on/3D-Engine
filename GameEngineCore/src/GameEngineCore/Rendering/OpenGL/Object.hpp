@@ -51,6 +51,14 @@ namespace GameEngine {
             return position;
         }
 
+        glm::vec3 getScalation() {
+            return scalation;
+        }
+
+        /*glm::vec3 getPosition() {
+            return position;
+        }*/
+
         void draw();
     
 	private:
