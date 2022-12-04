@@ -13,6 +13,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 
+const float M_PI = 3.14f;
 
 std::vector<GameEngine::Vertex> lightCubeVertices = {
            GameEngine::Vertex(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
@@ -54,7 +55,9 @@ glm::vec3 sunLightDirection = { -0.2f, -1.0f, -0.3f };
 class MyApp : public GameEngine::Application {
 	
 	void initScene() override {
-        GameEngine::Scene::addTerrain("Terrain1", 0, 0, terrainTextureLocation, nullptr);
+        //Курсовая 
+
+       /* GameEngine::Scene::addTerrain("Terrain1", 0, 0, terrainTextureLocation, nullptr);
         GameEngine::Scene::addTerrain("Terrain2", 1, 0, terrainTextureLocation, nullptr);
         GameEngine::Scene::addObject("Raiden",
             "../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
@@ -138,6 +141,42 @@ class MyApp : public GameEngine::Application {
                     GameEngine::TransformManager::updateAxis(GameEngine::TransformAxis::Z);
                 }
             }
+        );*/
+
+
+
+
+        //lab2
+
+        GameEngine::Scene::addCamera(
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.f, 0.f, 0.f),
+            GameEngine::ProjectionType::Perspective
+        );
+
+        std::vector<GameEngine::Vertex> rectangleVertices;
+        int N = 8;
+        int r = 1;
+
+        for (int i = 0; i < N; i++) {
+            GLfloat x = r * cos(2 * M_PI * i / N);
+            if (abs(x) < 0.0001) x = 0;
+            GLfloat y = r * sin(2 * M_PI * i / N);
+            if (abs(y) < 0.0001) y = 0;
+            GameEngine::Vertex vertex = GameEngine::Vertex(glm::vec3(x, y, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
+            rectangleVertices.push_back(vertex);
+        }
+    
+        GameEngine::Scene::addObject(
+            "NRectangle",
+            rectangleVertices,
+            std::vector<unsigned int>(),
+            std::vector<const char*>(),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            GameEngine::ShaderType::SIMPLE,
+            GameEngine::DrawType::TrianglesFan
         );
 
 

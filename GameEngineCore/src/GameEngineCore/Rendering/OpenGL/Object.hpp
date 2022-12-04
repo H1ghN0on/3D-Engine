@@ -67,6 +67,14 @@ namespace GameEngine {
             return lightIndex;
         }
 
+        void setDrawType(DrawType _drawType) {
+            drawType = _drawType;
+        }
+
+        DrawType getDrawType() {
+            return drawType;
+        }
+
         void draw();
     
 	private:
@@ -80,6 +88,7 @@ namespace GameEngine {
         glm::vec3 rotation;
         
         short lightIndex = -1;
+        DrawType drawType = DrawType::Triangles;
 
         std::shared_ptr<ShaderProgram> shader = nullptr;
         std::unique_ptr<Model> model = nullptr;

@@ -90,6 +90,6 @@ namespace GameEngine {
 	}
 
 	bool VertexArray::hasIndexBuffer() const {
-		return m_indicesCount == 0;
+		return m_indicesCount != 0;
 	}
 }

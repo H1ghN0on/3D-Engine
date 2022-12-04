@@ -2,15 +2,18 @@
 #include <GameEngineCore/ObjectManager.hpp>
 #include <GameEngineCore/ShaderManager.hpp>
 
+#include <iostream>
+
 namespace GameEngine {
 
 	std::vector<glm::vec3> Scene::dirLights = std::vector<glm::vec3>();
 	std::vector<glm::vec3> Scene::pointLights = std::vector<glm::vec3>();
 
-	void Scene::addObject(std::string name, std::string modelPath, glm::vec3 position, glm::vec3 scalation, glm::vec3 rotation, ShaderType shader) {
+	void Scene::addObject(std::string name, std::string modelPath, glm::vec3 position, glm::vec3 scalation, glm::vec3 rotation, ShaderType shader, DrawType drawType) {
 		Object* obj = new Object(modelPath.c_str(), position, scalation, rotation);
 		ObjectManager::addObject(name, obj);
 		ObjectManager::getObject(name)->setShader(ShaderManager::get(shader));
+		ObjectManager::getObject(name)->setDrawType(drawType);
 	}
 
 	void Scene::addObject(
@@ -21,7 +24,8 @@ namespace GameEngine {
 		glm::vec3 position,
 		glm::vec3 scalation,
 		glm::vec3 rotation,
-		ShaderType shader
+		ShaderType shader,
+		DrawType drawType
 	) {
 		std::vector<Texture> textures = std::vector<Texture>();
 		for (auto& textureLocation : textureLocations) {
@@ -37,6 +41,7 @@ namespace GameEngine {
 		Object* obj = new Object(vertices, indices, textures, position, scalation, rotation);
 		ObjectManager::addObject(name, obj);
 		ObjectManager::getObject(name)->setShader(ShaderManager::get(shader));
+		ObjectManager::getObject(name)->setDrawType(drawType);
 	}
 
 	void Scene::removeObject(std::string name) {
@@ -85,18 +90,24 @@ namespace GameEngine {
 	}
 
 	void Scene::render() {
-		ShaderManager::setLightInfo(
-			dirLights,
-			/*camera->getPosition(),
-			camera->getFront(),*/
-			pointLights
-		);
+		if (dirLights.size() && pointLights.size()) {
+			ShaderManager::setLightInfo(
+				dirLights,
+				/*camera->getPosition(),
+				camera->getFront(),*/
+				pointLights
+			);
+		}
+		
 
 		ShaderManager::setViewAndProjectionMatrix(ObjectManager::getCamera()->update());
 
+		
 
 		for (auto& [key, object] : ObjectManager::getObjects()) {
+			Renderer::setDrawType(object->getDrawType());
 			object->draw();
+			Renderer::setDrawType(DrawType::Triangles);
 		}
 
 		for (auto& [key, terrain] : ObjectManager::getTerrains()) {

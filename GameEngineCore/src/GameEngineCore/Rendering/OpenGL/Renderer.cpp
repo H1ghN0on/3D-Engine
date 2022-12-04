@@ -7,6 +7,9 @@
 #include "VertexArray.hpp"
 
 namespace GameEngine {
+
+    DrawType Renderer::drawType = DrawType::Triangles;
+
 	bool Renderer::init(GLFWwindow* pWindow) {
         glfwMakeContextCurrent(pWindow);
 
@@ -25,18 +28,38 @@ namespace GameEngine {
     void Renderer::draw(const VertexArray& vertexArray) {
         vertexArray.bind();
         
-        if (vertexArray.hasIndexBuffer()) {
+        int type;
+
+        switch (drawType) {
+        case DrawType::Triangles: {
+            type = GL_TRIANGLES;
+            break;
+        }
+        case DrawType::TrianglesFan: {
+            type = GL_TRIANGLE_FAN;
+            break;
+        }
+        case DrawType::Points: {
+            type = GL_POINT;
+            break;
+        }
+        }
+
+        if (!vertexArray.hasIndexBuffer()) {
             //ренедер при рисовании не по индексам
-            glDrawArrays(GL_TRIANGLES, 0, vertexArray.getVerticesCount());
+            glDrawArrays(type, 0, vertexArray.getVerticesCount());
+        }
+        else {
+            glDrawElements(
+                type,
+                static_cast<GLsizei>(vertexArray.getIndicesCount()),
+                GL_UNSIGNED_INT,
+                nullptr
+            );
         }
 
        
-        glDrawElements(
-            GL_TRIANGLES, 
-            static_cast<GLsizei>(vertexArray.getIndicesCount()), 
-            GL_UNSIGNED_INT, 
-            nullptr
-        );
+        
 
         vertexArray.unbind();
     }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GameEngineCore/Enums.hpp>
+
 struct GLFWwindow;
 
 namespace GameEngine {
@@ -8,6 +10,8 @@ namespace GameEngine {
 	enum class BitfieldMask {
 		Color, Depth, All
 	};
+
+	
 
 	class Renderer {
 	public:
@@ -28,5 +32,11 @@ namespace GameEngine {
 		static const char* getVendorStr();
 		static const char* getRendererStr();
 		static const char* getVersionStr();
+
+		static DrawType drawType;
+
+		static void setDrawType(DrawType _drawType) {
+			drawType = _drawType;
+		}
 	};
 }
