@@ -173,7 +173,6 @@ namespace GameEngine {
 
         InterfaceManager::init(window);
 
-        Renderer::enableDepth();
         return 0;
 
 	}

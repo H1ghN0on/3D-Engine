@@ -127,8 +127,8 @@ namespace GameEngine {
         glViewport(leftOffset, bottomOffset, width, height);
     }
 
-    void Renderer::enableDepth() {
-        glEnable(GL_DEPTH_TEST);
+    void Renderer::enableDepth(bool status) {
+        status ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
     }
 
     void Renderer::enableCullFace(bool status) {

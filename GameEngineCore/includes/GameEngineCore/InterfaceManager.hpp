@@ -11,6 +11,19 @@
 
 namespace GameEngine {
 
+	struct InterfaceCheckbox {
+		std::string name;
+		std::function<void(bool)> onChange;
+		bool active = false;
+
+		InterfaceCheckbox() {}
+
+		InterfaceCheckbox(std::string name, std::function<void(bool)> onChange) {
+			this->name = name;
+			this->onChange = onChange;
+		}
+	};
+
 	struct InterfaceCombo {
 		std::string name;
 		std::vector<std::string> items;
@@ -32,9 +45,11 @@ namespace GameEngine {
 
 	private:
 		static std::vector<InterfaceCombo*> combos;
+		static std::vector<InterfaceCheckbox*> checkboxes;
 
 	public:
 
+		static void addCheckbox(std::string name, std::function<void(bool)> onChange);
 		static void addCombo(std::string name, std::vector<std::string> items, std::string preview, std::function<void(std::string)> onSelect);
 		static void init(GLFWwindow* window);
 

@@ -5,6 +5,8 @@
 namespace GameEngine {
 
 	std::vector<InterfaceCombo*> InterfaceManager::combos = std::vector<InterfaceCombo*>();
+	std::vector<InterfaceCheckbox*> InterfaceManager::checkboxes = std::vector<InterfaceCheckbox*>();
+
 
 	void InterfaceManager::init(GLFWwindow * window) {
 		IMGUI_CHECKVERSION();
@@ -16,6 +18,12 @@ namespace GameEngine {
 	void InterfaceManager::addCombo(std::string name, std::vector<std::string> items, std::string preview, std::function<void(std::string)> onSelect) {
 		combos.push_back(new InterfaceCombo(name, items, "", onSelect));
 	}
+
+	void InterfaceManager::addCheckbox(std::string name, std::function<void(bool)> onChange) {
+		checkboxes.push_back(new InterfaceCheckbox(name, onChange));
+	}
+
+
 
 	void InterfaceManager::render(float width, float height) {
 		ImGuiIO& io = ImGui::GetIO();
@@ -48,6 +56,16 @@ namespace GameEngine {
 			}
 			
 		}
+
+		for (auto checkbox : checkboxes) {
+
+			if (ImGui::Checkbox(checkbox->name.c_str(), &checkbox->active))
+			{
+				checkbox->onChange(checkbox->active);
+			}
+
+		}
+
 
 		ImGui::End();
 		ImGui::Render();
