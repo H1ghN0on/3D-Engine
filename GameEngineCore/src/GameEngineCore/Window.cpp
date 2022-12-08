@@ -34,7 +34,9 @@
 #include <GameEngineCore/TransformManager.hpp>
 
 namespace GameEngine {
-
+    GLFWwindow* Window::window = nullptr;
+    std::map<int, std::function<void()>> Window::pressedKeysForListen = std::map<int, std::function<void()>>();
+    std::map<int, std::function<void()>> Window::pressedOnceKeysForListen = std::map<int, std::function<void()>>();
 
     float deltaTime = 0.0f;	// время между текущим и последним кадрами
     float lastFrame = 0.0f; // время последнего кадра
@@ -56,7 +58,7 @@ namespace GameEngine {
 		shutdown();
 	}
 
-    void handleKeyPress(GLFWwindow* window) {
+    void Window::handleKeyPress() {
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Forward, Window::getDeltaTime());
  
@@ -81,14 +83,9 @@ namespace GameEngine {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         };
 
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-            TransformManager::updateDirection(TransformDirection::Backward);
-            TransformManager::transform();
-        }
 
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-            TransformManager::updateDirection(TransformDirection::Forward);
-            TransformManager::transform();
+        for (auto [key, foo] : pressedKeysForListen) {
+            if (glfwGetKey(window, key) == GLFW_PRESS) foo();
         }
     }
     
@@ -117,6 +114,7 @@ namespace GameEngine {
 
         glfwSetFramebufferSizeCallback(window,
             [](GLFWwindow* pWindow, int width, int height) {
+                std::cout << "huy" << std::endl;
                 Renderer::setViewport(width, height);
             }
         );
@@ -165,6 +163,15 @@ namespace GameEngine {
                 data.eventCallbackFn(event);
             }
         );
+        glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+            {
+                for (auto [keyCode, foo] : pressedOnceKeysForListen) {
+                    if (keyCode == key) {
+                        foo();
+                    }
+                }
+            }
+        );
 
         if (ShaderManager::init() != 0) {
             LOG_CRITICAL("Failed to initialize shaders");
@@ -190,12 +197,21 @@ namespace GameEngine {
         lastFrame = currentFrame;
     }
 
+    void Window::bindKeyPress(int keyCode, std::function<void()> foo) {
+        pressedKeysForListen[keyCode] = foo;
+    }
+
+    void Window::bindKeyPressedOnce(int keyCode, std::function<void()> foo) {
+
+        pressedOnceKeysForListen[keyCode] = foo;
+    }
+
     void Window::on_update() {
 
         updateDeltaTime();
 
 
-        handleKeyPress(window);
+        handleKeyPress();
 
         Renderer::setClearColor(
             bgColor[0],

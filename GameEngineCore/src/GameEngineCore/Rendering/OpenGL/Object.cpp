@@ -100,6 +100,9 @@ namespace GameEngine {
         shader = _shader;
     }
 
+    void Object::setMaterial(ShaderMaterial _material) {
+        material = _material;
+    }
 
 
     void Object::draw() {

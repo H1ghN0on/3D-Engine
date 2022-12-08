@@ -1,7 +1,9 @@
 #include <glm/trigonometric.hpp>
 
 #include "Camera.hpp"
+#include "GameEngineCore/Window.hpp"
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 namespace GameEngine {
 
@@ -35,7 +37,32 @@ namespace GameEngine {
 
 	void Camera::updateProjectionMatrix(ProjectionType _type) {
 		//projection
-		if (_type == ProjectionType::Orthographic) {
+
+		float f = 100;
+		float n = 0.1f;
+
+		const auto &screenSize = Window::getScreenSize();
+
+		if (_type == ProjectionType::Perspective) {
+			m_projectionMatrix = glm::perspective(
+				glm::radians(90.f),
+				screenSize.x / screenSize.y,
+				n,
+				f
+			);
+		}
+		else {
+			m_projectionMatrix = glm::ortho(
+				-1 * screenSize.x / screenSize.y,
+				1 * screenSize.x / screenSize.y,
+				-1.f,
+				1.f,
+				n,
+				f
+			);
+		}
+
+		/*if (_type == ProjectionType::Orthographic) {
 			float r = 2;
 			float t = 2;
 			float f = 100;
@@ -55,7 +82,7 @@ namespace GameEngine {
 				0, n / t, 0, 0,
 				0, 0, (-f - n) / (f - n), -1,
 				0, 0, -2 * f * n / (f - n), 0);
-		}
+		}*/
 
 	}
 

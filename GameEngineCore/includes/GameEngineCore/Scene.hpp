@@ -5,16 +5,18 @@
 #include <glm/vec3.hpp>
 #include <GameEngineCore/Vertex.hpp>
 #include <GameEngineCore/Enums.hpp>
-
+#include <GameEngineCore/ShaderManager.hpp>
 
 
 namespace GameEngine {
 
+	
+
 	enum class ShaderType;
 
-	enum class LightType {
-		POINT, SPOT, DIRECTION
-	};
+	
+
+	
 
 	static class Scene {
 	public:
@@ -32,6 +34,8 @@ namespace GameEngine {
 			ShaderType shader,
 			DrawType drawType = DrawType::Triangles
 		);
+
+		static void clear();
 		static void removeObject(std::string name);
 
 		static void addTerrain(std::string name, int gridX, int gridZ, const char* textureLocation, const char* heightMapLocation);
@@ -41,17 +45,25 @@ namespace GameEngine {
 
 		//void getObject(std::string name);
 
-		static void addLight(LightType type, glm::vec3 position, glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f), const char* objectName = nullptr);
+		static void addLight(LightType type, glm::vec3 vec, glm::vec3 diffuseColor, glm::vec3 specularColor, std::string objectName = "");
 		static void render();
 
-		static std::vector<glm::vec3> getPointLights() { return pointLights; }
+		static std::vector<LightSource> getPointLights() { return pointLights; }
 		static void setPointLight(short index, glm::vec3 value) { 
-			pointLights[index] = value;
+			auto pointLight = pointLights[index];
+			pointLight.position = value;
+			pointLights[index] = pointLight;
+		}
+
+		static void updatePointLightDiffuseColor(short index, glm::vec3 value) {
+			auto pointLight = pointLights[index];
+			pointLight.diffuseColor = value;
+			pointLights[index] = pointLight;
 		}
 		
 
 	private:
-		static std::vector<glm::vec3> dirLights;
-		static std::vector<glm::vec3> pointLights;
+		static std::vector<LightSource> dirLights;
+		static std::vector<LightSource> pointLights;
 	};
 }

@@ -48,10 +48,7 @@ namespace GameEngine {
 				break;
 			}
 			case CameraDirection::Down: {
-				if (position.y > 1) {
-					position -= up * trueSpeed;
-				}
-				
+				position -= up * trueSpeed;
 				break;
 			}
 		}
@@ -72,10 +69,10 @@ namespace GameEngine {
 		rotation[0] += yoffset;
 	
 
-		if (rotation[0] > 90)
-			rotation[0] = 90;
-		if (rotation[0] < -90.f)
-			rotation[0] = -90.f;
+		if (rotation[0] > 89)
+			rotation[0] = 89;
+		if (rotation[0] < -89.f)
+			rotation[0] = -89.f;
 
 		front.x = cos(glm::radians(rotation[0])) * cos(glm::radians(rotation[1]));
 		front.y = sin(glm::radians(rotation[0]));

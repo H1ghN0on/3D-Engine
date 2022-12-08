@@ -29,6 +29,13 @@ namespace GameEngine {
         vertexBuffer->updateBuffer(vertices);
     }
 
+    void Mesh::updateColor(glm::vec3 color) {
+        for (auto& vertex : vertices) {
+            vertex.color = color;
+        }
+        vertexBuffer->updateBuffer(vertices);
+    }
+
     void Mesh::draw(std::shared_ptr<ShaderProgram> shader, bool points) {
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;

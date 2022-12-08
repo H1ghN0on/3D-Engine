@@ -18,9 +18,10 @@ namespace GameEngine {
 
 		InterfaceCheckbox() {}
 
-		InterfaceCheckbox(std::string name, std::function<void(bool)> onChange) {
+		InterfaceCheckbox(std::string name, std::function<void(bool)> onChange, bool isChecked) {
 			this->name = name;
 			this->onChange = onChange;
+			this->active = isChecked;
 		}
 	};
 
@@ -49,7 +50,7 @@ namespace GameEngine {
 
 	public:
 
-		static void addCheckbox(std::string name, std::function<void(bool)> onChange);
+		static void addCheckbox(std::string name, std::function<void(bool)> onChange, bool isChecked = false);
 		static void addCombo(std::string name, std::vector<std::string> items, std::string preview, std::function<void(std::string)> onSelect);
 		static void init(GLFWwindow* window);
 

@@ -28,6 +28,7 @@ namespace GameEngine {
 			const unsigned int leftOffset = 0,
 			const unsigned int bottomOffset = 0
 		);
+
 		static void enableDepth(bool status);
 
 		static const char* getVendorStr();

@@ -18,4 +18,14 @@ namespace GameEngine {
 	enum class CullType {
 		Fill, Line, Point
 	};
+
+	enum class ShaderMaterial {
+		EMERALD,
+		JADE,
+		PEARL,
+		GOLD,
+		RUBBER,
+		DEFAULT,
+		NONE,
+	};
 }

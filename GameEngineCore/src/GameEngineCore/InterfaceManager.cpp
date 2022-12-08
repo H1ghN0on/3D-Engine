@@ -19,8 +19,8 @@ namespace GameEngine {
 		combos.push_back(new InterfaceCombo(name, items, "", onSelect));
 	}
 
-	void InterfaceManager::addCheckbox(std::string name, std::function<void(bool)> onChange) {
-		checkboxes.push_back(new InterfaceCheckbox(name, onChange));
+	void InterfaceManager::addCheckbox(std::string name, std::function<void(bool)> onChange, bool isChecked) {
+		checkboxes.push_back(new InterfaceCheckbox(name, onChange, isChecked));
 	}
 
 

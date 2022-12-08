@@ -28,6 +28,8 @@ namespace GameEngine {
         void Mesh::updateMesh();
         Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
    
+        void updateColor(glm::vec3 color);
+
         void draw(std::shared_ptr<ShaderProgram> shader, bool points = false);
     private:
         std::shared_ptr<VertexArray> vertexArray = nullptr;

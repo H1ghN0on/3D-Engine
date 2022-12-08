@@ -59,6 +59,11 @@ namespace GameEngine {
             return rotation;
         }
 
+        std::shared_ptr<ShaderProgram> getShader() {
+            return shader;
+        }
+        
+
         void setLightIndex(short value) {
             lightIndex = value;
         }
@@ -75,6 +80,12 @@ namespace GameEngine {
             return drawType;
         }
 
+        void setMaterial(ShaderMaterial _material);
+
+        ShaderMaterial getMaterial() {
+            return material;
+        }
+
         void draw();
     
 	private:
@@ -86,6 +97,8 @@ namespace GameEngine {
         glm::vec3 scalation;
         glm::vec3 position;
         glm::vec3 rotation;
+
+        ShaderMaterial material = ShaderMaterial::DEFAULT;
         
         short lightIndex = -1;
         DrawType drawType = DrawType::Triangles;

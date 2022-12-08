@@ -1,19 +1,32 @@
 #include <GameEngineCore/Scene.hpp>
 #include <GameEngineCore/ObjectManager.hpp>
-#include <GameEngineCore/ShaderManager.hpp>
+
 
 #include <iostream>
 
 namespace GameEngine {
 
-	std::vector<glm::vec3> Scene::dirLights = std::vector<glm::vec3>();
-	std::vector<glm::vec3> Scene::pointLights = std::vector<glm::vec3>();
+	std::vector<LightSource> Scene::dirLights = std::vector<LightSource>();
+	std::vector<LightSource> Scene::pointLights = std::vector<LightSource>();
 
 	void Scene::addObject(std::string name, std::string modelPath, glm::vec3 position, glm::vec3 scalation, glm::vec3 rotation, ShaderType shader, DrawType drawType) {
 		Object* obj = new Object(modelPath.c_str(), position, scalation, rotation);
 		ObjectManager::addObject(name, obj);
 		ObjectManager::getObject(name)->setShader(ShaderManager::get(shader));
+		ObjectManager::getObject(name)->setMaterial(ShaderMaterial::NONE);
 		ObjectManager::getObject(name)->setDrawType(drawType);
+	}
+
+	void Scene::clear() {
+		for (auto& obj : ObjectManager::getObjects()) {
+			ObjectManager::removeObject(obj.first);
+		}
+		for (auto& terr : ObjectManager::getTerrains()) {
+			ObjectManager::removeTerrain(terr.first);
+		}
+
+		dirLights.clear();
+		pointLights.clear();
 	}
 
 	void Scene::addObject(
@@ -28,15 +41,27 @@ namespace GameEngine {
 		DrawType drawType
 	) {
 		std::vector<Texture> textures = std::vector<Texture>();
-		for (auto& textureLocation : textureLocations) {
+		if (textureLocations.size() > 0) {
 			textures.push_back(Texture(
-				textureLocation,
+				textureLocations[0],
 				Texture::Type::Diffusal,
 				Texture::WrappingMode::Repeat,
 				Texture::MipmapFilterMode::LinearLinear
-			));
-		}
 
+			));
+
+			if (textureLocations.size() > 1) {
+				textures.push_back(Texture(
+					textureLocations[1],
+					Texture::Type::Specular,
+					Texture::WrappingMode::Repeat,
+					Texture::MipmapFilterMode::LinearLinear
+				));
+			}
+		}
+		
+
+		
 
 		Object* obj = new Object(vertices, indices, textures, position, scalation, rotation);
 		ObjectManager::addObject(name, obj);
@@ -48,15 +73,15 @@ namespace GameEngine {
 		ObjectManager::removeObject(name);
 	}
 
-	void Scene::addLight(LightType type, glm::vec3 position, glm::vec3 direction, const char* objectName) {
+	void Scene::addLight(LightType type, glm::vec3 vec, glm::vec3 diffuseColor, glm::vec3 specularColor, std::string objectName) {
 		switch (type) {
 			case LightType::DIRECTION: {
-				dirLights.push_back(direction);
+				dirLights.push_back(LightSource(type, vec, diffuseColor, specularColor, objectName));
 				break;
 			}
 			case LightType::POINT: {
-				pointLights.push_back(position);
-				if (objectName) {
+				pointLights.push_back(LightSource(type, vec, diffuseColor, specularColor, objectName));
+				if (objectName != "") {
 					ObjectManager::getObject(objectName)->setLightIndex(pointLights.size() - 1);
 				}
 				break;
@@ -89,8 +114,10 @@ namespace GameEngine {
 		ObjectManager::addCamera(camera);
 	}
 
+
+
 	void Scene::render() {
-		if (dirLights.size() && pointLights.size()) {
+		if (pointLights.size()) {
 			ShaderManager::setLightInfo(
 				dirLights,
 				/*camera->getPosition(),
@@ -102,10 +129,13 @@ namespace GameEngine {
 
 		ShaderManager::setViewAndProjectionMatrix(ObjectManager::getCamera()->update());
 
-		
+		bool hasTextures = false;
 
 		for (auto& [key, object] : ObjectManager::getObjects()) {
 			Renderer::setDrawType(object->getDrawType());
+
+			ShaderManager::setMaterial(object->getMaterial());
+
 			object->draw();
 			Renderer::setDrawType(DrawType::Triangles);
 		}
