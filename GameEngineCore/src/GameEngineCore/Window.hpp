@@ -7,6 +7,7 @@
 #include <map>
 #include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 
 class GLFWwindow;
 
@@ -52,6 +53,13 @@ namespace GameEngine {
 			return glm::vec2(viewport[2], viewport[3]);
 		}
 
+		static void setBackgroundColor(glm::vec4 color) {
+			bgColor[0] = color.x;
+			bgColor[1] = color.y;
+			bgColor[2] = color.z;
+			bgColor[3] = color.w;
+		}
+
 
 	private:
 		static void handleKeyPress();
@@ -78,7 +86,7 @@ namespace GameEngine {
 		void shutdown();
 	
 		/*float bgColor[4] = { 0.53, 0.81f, 0.92f, 0.0f };*/
-		float bgColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		static float bgColor[4];
 
 		static std::map<int, std::function<void()>> pressedKeysForListen;
 		static std::map<int, std::function<void()>> pressedOnceKeysForListen;

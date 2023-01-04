@@ -48,6 +48,8 @@ namespace GameEngine {
     float Window::deltaTime = 0;
     float Window::lastFrame = 0;
 
+    float Window::bgColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
 	Window::Window(const unsigned int width, const unsigned int height, std::string title):
         data({width, height, std::move(title)})
     {
@@ -60,17 +62,17 @@ namespace GameEngine {
 
     void Window::handleKeyPress() {
 
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Forward, Window::getDeltaTime());
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Forward);
  
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Back, Window::getDeltaTime());
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Back);
 
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Left, Window::getDeltaTime());
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Left);
 
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Right, Window::getDeltaTime());
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Right);
 
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Up, Window::getDeltaTime());
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Up);
 
-        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Down, Window::getDeltaTime());
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) ObjectManager::getCamera()->translate(CameraDirection::Down);
             
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
             cursorEnabled = false;

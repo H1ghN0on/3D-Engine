@@ -20,12 +20,16 @@ namespace GameEngine {
 			glm::vec3 _front = { 0.f, 0.f, -1.f }
 		);
 
-		void translate(CameraDirection dir, float deltaTime);
+		void translate(CameraDirection dir);
 		void rotate(float x, float y);
 		glm::mat4 update();
 		void setType(ProjectionType type);
 		glm::vec3 getFront() const { return front;  }
 		glm::vec3 getPosition() const { return position; }
+
+		void setPosition(glm::vec3 _position);
+
+		void setSpeed(float _speed) { speed = _speed; }
 	private:
 
 		ProjectionType type;
@@ -37,7 +41,7 @@ namespace GameEngine {
 		glm::vec3 position = { 0.f, 0.f, 0.f };
 		glm::vec3 rotation = { 0.f, 0.f, 0.f };
 
-		const float speed = 2.5f;
+		float speed = 5.5f;
 		const float sensitivity = 0.05;
 
 		float lastX = 400, lastY = 300;

@@ -1,7 +1,7 @@
 #include "CameraObject.hpp"
 #include <iostream>
 #include <glm/trigonometric.hpp>
-
+#include "GameEngineCore/Window.hpp"
 
 namespace GameEngine {
 	CameraObject::CameraObject(
@@ -19,8 +19,13 @@ namespace GameEngine {
 		updateProjectionMatrix(type);
 	}
 
-	void CameraObject::translate(CameraDirection dir, float deltaTime) {
-		float trueSpeed = speed * deltaTime;
+	void CameraObject::setPosition(glm::vec3 _position) {
+		position = _position;
+		updateViewMatrix(position, position + front, up);
+	}
+
+	void CameraObject::translate(CameraDirection dir) {
+		float trueSpeed = speed * Window::getDeltaTime();
 		switch(dir) {
 
 			case CameraDirection::Forward: {

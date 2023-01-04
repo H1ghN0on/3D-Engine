@@ -49,6 +49,10 @@ namespace GameEngine {
             type = GL_LINES;
             break;
         }
+        case DrawType::TriangleStrip: {
+            type = GL_TRIANGLE_STRIP;
+            break;
+        }
         }
 
         auto draw = [type, &vertexArray]() {

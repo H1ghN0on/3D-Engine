@@ -7,6 +7,7 @@
 namespace GameEngine {
 
 	std::vector<LightSource> Scene::dirLights = std::vector<LightSource>();
+	std::vector<LightSource> Scene::spotLights = std::vector<LightSource>();
 	std::vector<LightSource> Scene::pointLights = std::vector<LightSource>();
 
 	void Scene::addObject(std::string name, std::string modelPath, glm::vec3 position, glm::vec3 scalation, glm::vec3 rotation, ShaderType shader, DrawType drawType) {
@@ -47,7 +48,6 @@ namespace GameEngine {
 				Texture::Type::Diffusal,
 				Texture::WrappingMode::Repeat,
 				Texture::MipmapFilterMode::LinearLinear
-
 			));
 
 			if (textureLocations.size() > 1) {
@@ -73,7 +73,8 @@ namespace GameEngine {
 		ObjectManager::removeObject(name);
 	}
 
-	void Scene::addLight(LightType type, glm::vec3 vec, glm::vec3 diffuseColor, glm::vec3 specularColor, std::string objectName) {
+	void Scene::addLight(LightType type, glm::vec3 vec, glm::vec3 diffuseColor, glm::vec3 specularColor, std::string objectName, float cutOff,
+		float outerCutOff, glm::vec3 specDir) {
 		switch (type) {
 			case LightType::DIRECTION: {
 				dirLights.push_back(LightSource(type, vec, diffuseColor, specularColor, objectName));
@@ -87,6 +88,10 @@ namespace GameEngine {
 				break;
 			}
 			case LightType::SPOT: {
+				spotLights.push_back(LightSource(type, vec, diffuseColor, specularColor, objectName, cutOff, outerCutOff, specDir));
+				if (objectName != "") {
+					ObjectManager::getObject(objectName)->setLightIndex(spotLights.size() - 1);
+				}
 				break;
 			}
 		}
@@ -122,7 +127,8 @@ namespace GameEngine {
 				dirLights,
 				/*camera->getPosition(),
 				camera->getFront(),*/
-				pointLights
+				pointLights,
+				spotLights
 			);
 		}
 		

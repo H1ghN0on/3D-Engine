@@ -45,7 +45,8 @@ namespace GameEngine {
 
 		//void getObject(std::string name);
 
-		static void addLight(LightType type, glm::vec3 vec, glm::vec3 diffuseColor, glm::vec3 specularColor, std::string objectName = "");
+		static void addLight(LightType type, glm::vec3 vec, glm::vec3 diffuseColor, glm::vec3 specularColor, std::string objectName = "",
+			float cutOff = 12.5f, float outerCutOff = 17.5f, glm::vec3 specDir = glm::vec3(1.0f, 1.0f, 1.0f));
 		static void render();
 
 		static std::vector<LightSource> getPointLights() { return pointLights; }
@@ -65,5 +66,6 @@ namespace GameEngine {
 	private:
 		static std::vector<LightSource> dirLights;
 		static std::vector<LightSource> pointLights;
+		static std::vector<LightSource> spotLights;
 	};
 }

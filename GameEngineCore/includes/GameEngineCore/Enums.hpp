@@ -12,7 +12,7 @@ namespace GameEngine {
 	};
 
 	enum class DrawType {
-		Triangles, TrianglesFan, Points, Lines
+		Triangles, TrianglesFan, Points, Lines, TriangleStrip
 	};
 
 	enum class CullType {

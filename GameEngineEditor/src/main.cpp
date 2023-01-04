@@ -240,7 +240,6 @@ std::pair<std::vector<GameEngine::Vertex>, std::vector<unsigned int>> createSphe
 
     return std::make_pair(vertices, indices);
 }
-
 std::pair<std::vector<GameEngine::Vertex>, std::vector<unsigned int>> createPyramid()
 {
     std::vector<GameEngine::Vertex> vertices =
@@ -285,7 +284,6 @@ std::pair<std::vector<GameEngine::Vertex>, std::vector<unsigned int>> createPyra
     return std::make_pair(vertices, indices);
 }
 
-
 void addFigure(std::vector<GameEngine::Vertex> _vertices, std::vector<unsigned int> _indices, GameEngine::DrawType drawType = GameEngine::DrawType::Triangles) {
     GameEngine::Scene::addObject(
         "NRectangle",
@@ -328,55 +326,249 @@ void addFigure(std::string name, std::vector<GameEngine::Vertex> _vertices, std:
 
 
 
-
-
-
-
+glm::vec3 cameraInitPosition = glm::vec3(214.0f, 3.f, 25.0f);
 
 void coursework() {
+
     GameEngine::Renderer::enableDepth(true);
-    GameEngine::Scene::addTerrain("Terrain1", 0, 0, terrainTextureLocation, "../../GameEngineCore/assets/heightMap.png");
-    GameEngine::Scene::addTerrain("Terrain2", 1, 0, terrainTextureLocation, "../../GameEngineCore/assets/heightMap.png");
+    GameEngine::Window::setBackgroundColor(glm::vec4(0.4f, 0.0f, 0.2f, 1.0f));
+    auto setupRoad = []() {
+        float startPositionX = 105.0f;
+        float startPositionZ = 25.0f;
+        float startPositionY = 0.6f;
+
+        for (short i = 0; i < 5; i++, startPositionX += 31.f) {
+           
+            GameEngine::Scene::addObject(std::string("Road1" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/street/untitled.obj",
+                glm::vec3(startPositionX, startPositionY, startPositionZ),
+                glm::vec3(1.f, 1.f, 1.f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING_TEXTURE
+            );
+
+            GameEngine::Scene::addObject(std::string("Road2" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/street/untitled.obj",
+                glm::vec3(startPositionX, startPositionY, startPositionZ + 4.3f),
+                glm::vec3(1.f, 1.f, 1.f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING_TEXTURE
+            );
+        }
+    };
+
+    
+
+    auto setupRoadDecorations = []() {
+        float startPositionX = 60.f;
+        float startPositionZ = 26.8f;
+        float startPositionY = 3.f;
+        float startSignPositionY = 2.f;
+        float startSignPositionZ = 22.4f;
+
+        for (short i = 0; i < 24; i++, startPositionX += 8.f) {
+            GameEngine::Scene::addObject(std::string("LampPost" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/lampost/lampost.blend",
+                glm::vec3(startPositionX, startPositionY, startPositionZ),
+                glm::vec3(.6f, .5f, .8f),
+                glm::vec3(0.0f, 90.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING
+            );
+
+            if (i % 3 == 0) {
+                GameEngine::Scene::addObject(std::string("Sign" + std::to_string(i)),
+                    "../../GameEngineCore/assets/models/sign/sign.obj",
+                    glm::vec3(startPositionX - 4.f, startSignPositionY, startSignPositionZ),
+                    glm::vec3(.3f, .3f, .26f),
+                    glm::vec3(0.0f, 0.0f, 0.0f),
+                    GameEngine::ShaderType::LIGHTING
+                );
+                GameEngine::ObjectManager::getObject(std::string("Sign" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::RUBBER);
+            }
+
+            GameEngine::ObjectManager::getObject(std::string("LampPost" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::DEFAULT);
+            GameEngine::Scene::addLight(GameEngine::LightType::POINT, GameEngine::ObjectManager::getObject("LampPost" + std::to_string(i))->getPosition() + glm::vec3(-2.0f, 1.5f, 0.0f),
+                glm::vec3(0.8f, 0.0f, 0.6f), glm::vec3(0.8f, 0.0f, 0.6f), std::string("LampPost" + std::to_string(i)), 12.5f, 17.5f, glm::vec3(0.0f, 0.5f, 0.3f));
+        }
+    };
+
+    auto setupGuardRails = []() {
+
+        float startPositionX = 60.f;
+        float startPositionY = 2.2f;
+        float startMiddlePositionZ = 26.55f;
+        float startEdgePositionZ = 22.5f;
+        
+
+        for (short i = 0; i < 50; i++, startPositionX += 4.79f) {
+            GameEngine::Scene::addObject(std::string("EdgeGuardRail" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/guardrail/guardrail.obj",
+                glm::vec3(startPositionX, startPositionY, startEdgePositionZ),
+                glm::vec3(1.f, 1.f, 1.f),
+                glm::vec3(0.0f, 90.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING
+            );
+
+            GameEngine::Scene::addObject(std::string("MiddleGuardRail" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/guardrail/guardrail.obj",
+                glm::vec3(startPositionX, startPositionY, startMiddlePositionZ),
+                glm::vec3(1.f, 1.f, 1.f),
+                glm::vec3(0.0f, -90.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING
+            );
+            GameEngine::ObjectManager::getObject(std::string("EdgeGuardRail" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::DEFAULT);
+            GameEngine::ObjectManager::getObject(std::string("MiddleGuardRail" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::DEFAULT);
+        }
+    };
+
+    auto setupBuildings = []() {
+
+        float startPositionX = 60.f;
+        float startPositionY = .3f;
+        float startPositionZ = 22.0f;
+        float startAnotherPositionZ = 34.0f;
+        for (short i = 0; i < 7; i++, startPositionX += 24.f) {
+            GameEngine::Scene::addObject(std::string("Building" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/building2/Apartment building/Apartment building.fbx",
+                glm::vec3(startPositionX, startPositionY, startPositionZ),
+                glm::vec3(.01f, .005f, .01f),
+                glm::vec3(90.0f, 0.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING
+            );
+            GameEngine::Scene::addObject(std::string("Buildings" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/buildings/model.dae",
+                glm::vec3(startPositionX + 16.f, startPositionY + 3.7f, startPositionZ - 5.f),
+                glm::vec3(.001f, .001f, .001f),
+                glm::vec3(0, -90.0f, 0),
+                GameEngine::ShaderType::LIGHTING
+            );
+            GameEngine::ObjectManager::getObject(std::string("Building" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::RUBBER);
+            GameEngine::ObjectManager::getObject(std::string("Buildings" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::RUBBER);
+
+        }
+
+        
+
+        for (short i = 0, startPositionX = 60.0f; i < 7; i++, startPositionX += 24.f) {
+            GameEngine::Scene::addObject(std::string("BuildingsRev" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/buildings/model.dae",
+                glm::vec3(startPositionX, startPositionY + 3.7f, startAnotherPositionZ + 2.f),
+                glm::vec3(.001f, .001f, .001f),
+                glm::vec3(0, 90.0f, 0),
+                GameEngine::ShaderType::LIGHTING
+            );
+
+
+            GameEngine::Scene::addObject(std::string("BuildingRev" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/building2/Apartment building/Apartment building.fbx",
+                glm::vec3(startPositionX + 16.f, startPositionY, startAnotherPositionZ),
+                glm::vec3(.01f, .005f, .01f),
+                glm::vec3(90.0f, 180.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING
+            );
+            GameEngine::ObjectManager::getObject(std::string("BuildingsRev" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::RUBBER);
+            GameEngine::ObjectManager::getObject(std::string("BuildingRev" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::RUBBER);
+        }
+        
+    };
+
+    auto setupCars = []() {
+        float startPositionX = 185.f;
+        float startPositionY = 2.15f;
+        float startPositionZ = 23.3f;
+        for (short i = 0; i < 3; i++, startPositionX += 10.f) {
+            GameEngine::Scene::addObject(std::string("Car" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/car2/Chevrolet_Camaro_SS_Low.obj",
+                glm::vec3(startPositionX, startPositionY, startPositionZ),
+                glm::vec3(.3f, .3f, .3f),
+                glm::vec3(0.0f, 90.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING
+            );
+
+            GameEngine::Scene::addObject(std::string("CarMore" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/car2/Chevrolet_Camaro_SS_Low.obj",
+                glm::vec3(startPositionX + 5.f, startPositionY, startPositionZ + 2.2f),
+                glm::vec3(.3f, .3f, .3f),
+                glm::vec3(0.0f, 90.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING
+            );
+            GameEngine::ObjectManager::getObject(std::string("Car" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::PEARL);
+            GameEngine::ObjectManager::getObject(std::string("CarMore" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::PEARL);
+
+        }
+
+        startPositionX = 110.f;
+        startPositionZ = 27.7f;
+
+        for (short i = 0; i < 13; i++, startPositionX += 12.f) {
+            GameEngine::Scene::addObject(std::string("CarToNone" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/car2/Chevrolet_Camaro_SS_Low.obj",
+                glm::vec3(startPositionX, startPositionY, startPositionZ),
+                glm::vec3(.3f, .3f, .3f),
+                glm::vec3(0.0f, -90.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING
+            );
+
+            GameEngine::Scene::addObject(std::string("CarToNoneMore" + std::to_string(i)),
+                "../../GameEngineCore/assets/models/car2/Chevrolet_Camaro_SS_Low.obj",
+                glm::vec3(startPositionX + 6.f, startPositionY, startPositionZ + 2.2f),
+                glm::vec3(.3f, .3f, .3f),
+                glm::vec3(0.0f, -90.0f, 0.0f),
+                GameEngine::ShaderType::LIGHTING
+            );
+            GameEngine::ObjectManager::getObject(std::string("CarToNone" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::PEARL);
+            GameEngine::ObjectManager::getObject(std::string("CarToNoneMore" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::PEARL);
+
+        }
+        
+    };
+
+       
+    setupRoad();
+    setupRoadDecorations();
+    setupGuardRails();
+    setupBuildings();
+    setupCars();
+
+    auto sphere = createSphere(12.f, 30, 30);
+
+
+    GameEngine::Scene::addObject(
+        "Sun",
+        sphere.first,
+        sphere.second,
+        std::vector<const char*>(),
+        glm::vec3(65.0f, 30.0f, 26.8f),
+        glm::vec3(1.f, 1.f, 1.f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        GameEngine::ShaderType::SUN,
+        GameEngine::DrawType::Triangles
+    );
+
+   
+    
+
+    
     GameEngine::Scene::addObject("Raiden",
         "../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
-        glm::vec3(50.f, 3.f, 50.f),
+        glm::vec3(124.0f, 2.0f, 27.0f),
         glm::vec3(0.8f, 0.8f, 0.8f),
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        GameEngine::ShaderType::LIGHTING_TEXTURE
-    );
-    GameEngine::Scene::addObject("Paimon",
-        "../../GameEngineCore/assets/models/paimon/paimon.obj",
-        glm::vec3(51.f, 4.f, 50.f),
-        glm::vec3(0.1f, 0.1f, 0.1f),
-        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 180.0f, 0.0f),
         GameEngine::ShaderType::LIGHTING_TEXTURE
     );
 
 
-    auto cube = createCube();
 
-    GameEngine::Scene::addObject("LightCube",
-        cube.first,
-        cube.second,
-        std::vector<const char*>(),
-        glm::vec3(51.f, 4.f, 51.f),
-        glm::vec3(0.3f, 0.3f, 0.3f),
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        GameEngine::ShaderType::SIMPLE
-    );
+    GameEngine::Scene::addTerrain("Terrain1", 0, 0, terrainTextureLocation, nullptr);
+    GameEngine::Scene::addTerrain("Terrain2", 1, 0, terrainTextureLocation, nullptr);
 
     GameEngine::Scene::addCamera(
-        glm::vec3(50.0f, 10.0f, 55.0f),
+        cameraInitPosition,
         glm::vec3(0.f, 0.f, 0.f),
         GameEngine::ProjectionType::Perspective
     );
 
-
-
-    GameEngine::Scene::addLight(GameEngine::LightType::DIRECTION, sunLightDirection, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-    GameEngine::Scene::addLight(GameEngine::LightType::POINT, GameEngine::ObjectManager::getObject("LightCube")->getPosition(),
-        glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), "LightCube");
-
+    //GameEngine::ObjectManager::getCamera()->setSpeed(10.f);
 
     GameEngine::InterfaceManager::addCombo(
         "ActiveObject",
@@ -559,13 +751,60 @@ void lab2() {
     );
 }
 
+std::pair<std::vector<GameEngine::Vertex>, std::vector<unsigned int>> createHyperboloid()
+{
+
+
+    std::vector<GameEngine::Vertex> vertices;
+    std::vector<unsigned int> indices;
+    float p = 50.f; // Number of grid columns.
+    float q = 50.f; // Number of grid rows
+
+
+    // Fuctions to map the grid vertex (u_i,v_j) to the mesh vertex (f(u_i,v_j), g(u_i,v_j), h(u_i,v_j)) on the patch.
+    auto f = [p, q](int i, int j) {
+        return (cos((-1.f + 2.0f * (float)i / p) * M_PI) / cos((-0.4f + 0.8f * (float)j / q) * M_PI));
+    };
+
+    auto g = [p, q](int i, int j)
+    {
+        return (sin((-1.f + 2.0 * (float)i / p) * M_PI) / cos((-0.4 + 0.8 * (float)j / q) * M_PI));
+    };
+
+    auto h = [p, q](int i, int j)
+    {
+        return (tan((-0.4 + 0.8 * (float)j / q) * M_PI));
+    };
+
+
+    for (int j = 0; j <= q; j++)
+        for (int i = 0; i <= p; i++)
+        {
+            vertices.push_back(GameEngine::Vertex(
+                glm::vec3(f(i, j), g(i, j), h(i, j)),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec2(0.0f, 0.0f)
+            ));
+        }
+
+    for (int j = 0; j < q; j++)
+    {
+        for (int i = 0; i <= p; i++)
+        {
+            indices.push_back(j * (p + 1) + i);
+            indices.push_back((j + 1) * (p + 1) + i);
+            
+        }
+    }
+    return std::make_pair(vertices, indices);
+}
+
 void lab3() {
 
 
     
     GameEngine::Renderer::enableCullFace(true);
     //GameEngine::Renderer::enableDepth(true);
-
     GameEngine::Scene::addCamera(
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.f, 0.f, 0.f),
@@ -615,48 +854,22 @@ void lab3() {
         std::string("Task 2"),
         [](std::string name) {
             GameEngine::Scene::clear();
+    
 
             std::vector<GameEngine::Vertex> vertices;
 
-            float p = 50.f; // Number of grid columns.
-            float q = 50.f; // Number of grid rows
-
-
-            // Fuctions to map the grid vertex (u_i,v_j) to the mesh vertex (f(u_i,v_j), g(u_i,v_j), h(u_i,v_j)) on the patch.
-            auto f = [p, q](int i, int j) {
-                return (cos((-1.f + 2.0f * (float)i / p) * M_PI) / cos((-0.4f + 0.8f * (float)j / q) * M_PI));
-            };
-
-            auto g = [p, q](int i, int j)
-            {
-                return (sin((-1.f + 2.0 * (float)i / p) * M_PI) / cos((-0.4 + 0.8 * (float)j / q) * M_PI));
-            };
-
-            auto h = [p, q](int i, int j)
-            {
-                return (tan((-0.4 + 0.8 * (float)j / q) * M_PI));
-            };
-
-            for (int j = 0; j <= q; j++)
-                for (int i = 0; i <= p; i++)
-                {
-                    vertices.push_back(GameEngine::Vertex(
-                        glm::vec3(f(i, j), g(i, j), h(i, j)),
-                        glm::vec3(0.0f, 0.0f, 0.0f),
-                        glm::vec2(0.0f, 0.0f)
-                    ));
-                }
-
+            auto hyper = createHyperboloid();
             GameEngine::Renderer::enableCullFace(true);
             addFigure(
                 "Hyperboloid",
-                vertices,
-                std::vector<unsigned int>(),
+                hyper.first,
+                hyper.second,
                 glm::vec3(0.0f, 0.0f, 0.0f),
                 glm::vec3(0.5f, 0.5f, 0.5f),
                 glm::vec3(140.f, 221.f, 55.f),
-                GameEngine::DrawType::Triangles
+                GameEngine::DrawType::TriangleStrip
             );
+            
         }
     );
 
@@ -843,7 +1056,6 @@ void intensivity2Increase() {
         intensivity2 = 0.1f;
     }
 }
-
 
 
 
@@ -1553,19 +1765,19 @@ void lab4(std::vector<const char*> textures) {
         std::string("Task 4"),
         [textures](std::string name) {
             if (name == "Pearl") {
-                GameEngine::ShaderManager::setMaterial(GameEngine::ShaderMaterial::PEARL);
+                GameEngine::ObjectManager::getObject("JustCube")->setMaterial(GameEngine::ShaderMaterial::PEARL);
             }
             else if (name == "Emerald") {
-                GameEngine::ShaderManager::setMaterial(GameEngine::ShaderMaterial::EMERALD);
+                GameEngine::ObjectManager::getObject("JustCube")->setMaterial(GameEngine::ShaderMaterial::EMERALD);
             }
             else if (name == "Gold") {
-                GameEngine::ShaderManager::setMaterial(GameEngine::ShaderMaterial::GOLD);
+                GameEngine::ObjectManager::getObject("JustCube")->setMaterial(GameEngine::ShaderMaterial::GOLD);
             }
             else if (name == "Rubber") {
-                GameEngine::ShaderManager::setMaterial(GameEngine::ShaderMaterial::RUBBER);
+                GameEngine::ObjectManager::getObject("JustCube")->setMaterial(GameEngine::ShaderMaterial::RUBBER);
             }
             else if (name == "Jade") {
-                GameEngine::ShaderManager::setMaterial(GameEngine::ShaderMaterial::JADE);
+                GameEngine::ObjectManager::getObject("JustCube")->setMaterial(GameEngine::ShaderMaterial::JADE);
             }
         }
     );
@@ -1608,7 +1820,6 @@ void lab4(std::vector<const char*> textures) {
         true
     );
 }
-
 
 float xSin = 0, yCos = 0, zSas = 0;
 void lab4Update() {
@@ -1663,18 +1874,55 @@ class MyApp : public GameEngine::Application {
 	
     void initScene() override {
 
-        lab4(std::vector<const char*>({ containerTextureLocation, containerBorderTextureLocation }));
-        //coursework();
+        coursework();
         
-
-        
-        //
-        //coursework();
+                      
     }
 
     void update() override {
-        lab4Update();
         
+        float speed = 10.f;
+        auto deltaTime = GameEngine::Window::getDeltaTime();
+        float trueSpeed = speed * deltaTime;
+        auto transformVec = glm::vec3(-trueSpeed, 0.0f, 0.0f);
+        
+        GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("Car0"));
+
+        auto pos = car->getPosition();
+   
+        if (pos.x < 137.f) {
+            float startPositionX = 185.f;
+            float startPositionY = 2.15f;
+            float startPositionZ = 23.3f;
+            for (short i = 0; i < 3; i++, startPositionX += 10.f) {
+
+                GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("Car" + std::to_string(i)));
+                GameEngine::Object* car2 = GameEngine::ObjectManager::getObject(std::string("CarMore" + std::to_string(i)));
+                GameEngine::Object* sun = GameEngine::ObjectManager::getObject("Sun");
+
+                car->setPosition(glm::vec3(startPositionX, startPositionY, startPositionZ));
+                car2->setPosition(glm::vec3(startPositionX + 5.f, startPositionY, startPositionZ + 2.2f));
+
+                GameEngine::ObjectManager::getCamera()->setPosition(cameraInitPosition);
+                sun->setPosition(GameEngine::ObjectManager::getCamera()->getPosition() + glm::vec3(-80.f, 30.0f, 1.8f));
+            }
+            
+        }
+        else {
+            for (short i = 0; i < 3; i++) {
+                GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("Car" + std::to_string(i)));
+                GameEngine::Object* car2 = GameEngine::ObjectManager::getObject(std::string("CarMore" + std::to_string(i)));
+                auto pos = car->getPosition();
+                auto pos2 = car2->getPosition();
+                car->setPosition(pos + transformVec);
+                car2->setPosition(pos2 + transformVec);
+            }
+            GameEngine::Object* sun = GameEngine::ObjectManager::getObject("Sun");
+            GameEngine::CameraObject* cam = GameEngine::ObjectManager::getCamera();
+            
+            cam->setPosition(cam->getPosition() + transformVec);
+            sun->setPosition(cam->getPosition() + glm::vec3(-80.f, 30.0f, 1.8f));
+        }
     }
 
 };
@@ -1682,7 +1930,7 @@ class MyApp : public GameEngine::Application {
 int main() {
 	
 	auto myApp = std::make_unique<MyApp>();
-	int returnCode = myApp->start(1024, 768, "Shinzo wo Sasageyo!");
+	int returnCode = myApp->start(1024, 768, "Vibin'");
 	
 
 
