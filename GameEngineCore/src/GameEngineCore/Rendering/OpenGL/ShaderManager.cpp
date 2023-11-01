@@ -69,6 +69,21 @@ namespace GameEngine {
                 ShaderManager::get(ShaderType::LIGHTING)->setFloat("material.shininess", 0.078125f * 128.f);
                 break;
             }
+    
+            case ShaderMaterial::CYAN_PLASTIC: {
+                ShaderManager::get(ShaderType::LIGHTING)->setVec3("material.diffuse", glm::vec3(0.0, 0.50980392, 0.50980392));
+                ShaderManager::get(ShaderType::LIGHTING)->setVec3("material.specular", glm::vec3(0.50196078, 0.50196078, 0.50196078));
+                ShaderManager::get(ShaderType::LIGHTING)->setFloat("material.shininess", 0.25f * 128.f);
+                break;
+            }
+
+            case ShaderMaterial::CHROME: {
+                ShaderManager::get(ShaderType::LIGHTING)->setVec3("material.diffuse", glm::vec3(0.4, 0.4, 0.4));
+                ShaderManager::get(ShaderType::LIGHTING)->setVec3("material.specular", glm::vec3(0.774597, 0.774597, 0.774597));
+                ShaderManager::get(ShaderType::LIGHTING)->setFloat("material.shininess", 0.6f * 128.f);
+                break;
+            }
+
 
             case ShaderMaterial::DEFAULT: {
                 ShaderManager::get(ShaderType::LIGHTING)->setVec3("material.diffuse", glm::vec3(1.f, 1.f, 1.f));

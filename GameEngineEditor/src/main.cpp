@@ -328,6 +328,9 @@ void addFigure(std::string name, std::vector<GameEngine::Vertex> _vertices, std:
 
 glm::vec3 cameraInitPosition = glm::vec3(214.0f, 3.f, 25.0f);
 
+bool isUpdating = true;
+
+
 void coursework() {
 
     GameEngine::Renderer::enableDepth(true);
@@ -338,7 +341,7 @@ void coursework() {
         float startPositionY = 0.6f;
 
         for (short i = 0; i < 5; i++, startPositionX += 31.f) {
-           
+
             GameEngine::Scene::addObject(std::string("Road1" + std::to_string(i)),
                 "../../GameEngineCore/assets/models/street/untitled.obj",
                 glm::vec3(startPositionX, startPositionY, startPositionZ),
@@ -357,7 +360,7 @@ void coursework() {
         }
     };
 
-    
+
 
     auto setupRoadDecorations = []() {
         float startPositionX = 60.f;
@@ -398,7 +401,7 @@ void coursework() {
         float startPositionY = 2.2f;
         float startMiddlePositionZ = 26.55f;
         float startEdgePositionZ = 22.5f;
-        
+
 
         for (short i = 0; i < 50; i++, startPositionX += 4.79f) {
             GameEngine::Scene::addObject(std::string("EdgeGuardRail" + std::to_string(i)),
@@ -447,7 +450,7 @@ void coursework() {
 
         }
 
-        
+
 
         for (short i = 0, startPositionX = 60.0f; i < 7; i++, startPositionX += 24.f) {
             GameEngine::Scene::addObject(std::string("BuildingsRev" + std::to_string(i)),
@@ -469,7 +472,7 @@ void coursework() {
             GameEngine::ObjectManager::getObject(std::string("BuildingsRev" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::RUBBER);
             GameEngine::ObjectManager::getObject(std::string("BuildingRev" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::RUBBER);
         }
-        
+
     };
 
     auto setupCars = []() {
@@ -520,10 +523,10 @@ void coursework() {
             GameEngine::ObjectManager::getObject(std::string("CarToNoneMore" + std::to_string(i)))->setMaterial(GameEngine::ShaderMaterial::PEARL);
 
         }
-        
+
     };
 
-       
+
     setupRoad();
     setupRoadDecorations();
     setupGuardRails();
@@ -545,10 +548,10 @@ void coursework() {
         GameEngine::DrawType::Triangles
     );
 
-   
-    
 
-    
+
+
+
     GameEngine::Scene::addObject("Raiden",
         "../../GameEngineCore/assets/models/raiden-shogun-genshin-impact/raiden_shogun.fbx",
         glm::vec3(124.0f, 2.0f, 27.0f),
@@ -619,15 +622,39 @@ void coursework() {
         }
     );
 
-    GameEngine::Window::bindKeyPress(GLFW_KEY_UP, []() { 
+    GameEngine::InterfaceManager::addCheckbox(
+        "Orthographic",
+        [](bool status) {
+
+            GameEngine::ObjectManager::getCamera()->setType(
+                status ?
+                GameEngine::ProjectionType::Orthographic
+                :
+                GameEngine::ProjectionType::Perspective
+            );
+        }
+    );
+
+
+
+
+
+    GameEngine::Window::bindKeyPress(GLFW_KEY_UP, []() {
         GameEngine::TransformManager::updateDirection(GameEngine::TransformDirection::Forward);
-        GameEngine::TransformManager::transform(); 
-    });
+        GameEngine::TransformManager::transform();
+        });
     GameEngine::Window::bindKeyPress(GLFW_KEY_DOWN, []() {
         GameEngine::TransformManager::updateDirection(GameEngine::TransformDirection::Backward);
         GameEngine::TransformManager::transform();
-    });
+        });
+
+
+
+
 }
+
+
+
 
 
 void lab2() {
@@ -793,7 +820,7 @@ std::pair<std::vector<GameEngine::Vertex>, std::vector<unsigned int>> createHype
         {
             indices.push_back(j * (p + 1) + i);
             indices.push_back((j + 1) * (p + 1) + i);
-            
+
         }
     }
     return std::make_pair(vertices, indices);
@@ -802,7 +829,7 @@ std::pair<std::vector<GameEngine::Vertex>, std::vector<unsigned int>> createHype
 void lab3() {
 
 
-    
+
     GameEngine::Renderer::enableCullFace(true);
     //GameEngine::Renderer::enableDepth(true);
     GameEngine::Scene::addCamera(
@@ -811,7 +838,7 @@ void lab3() {
         GameEngine::ProjectionType::Perspective
     );
 
-    
+
     GameEngine::InterfaceManager::addCombo(
         "Task 1",
         std::vector<std::string>({ "Euthymia" }),
@@ -841,9 +868,9 @@ void lab3() {
                 rectangleVertices.push_back(vertex);
             }
 
-            addFigure("Figure1", rectangleVertices, indices["Triangle"], glm::vec3(0.0f, 0.0f, 0.0f));
-            addFigure("Figure2", rectangleVertices, indices["Trapezium"], glm::vec3(0.0f, 2.0f, 0.0f));
-            addFigure("Figure3", rectangleVertices, indices["Quadrangle"], glm::vec3(0.0f, -2.0f, 0.0f));
+            addFigure("Figure1", rectangleVertices, indices["Triangle"], glm::vec3(0.0f, 2.0f, 1.5f));
+            addFigure("Figure2", rectangleVertices, indices["Trapezium"], glm::vec3(0.0f, 2.0f, 3.0f));
+            addFigure("Figure3", rectangleVertices, indices["Quadrangle"], glm::vec3(0.0f, 2.0f, 0.0f));
         }
     );
 
@@ -854,7 +881,7 @@ void lab3() {
         std::string("Task 2"),
         [](std::string name) {
             GameEngine::Scene::clear();
-    
+
 
             std::vector<GameEngine::Vertex> vertices;
 
@@ -865,17 +892,17 @@ void lab3() {
                 hyper.first,
                 hyper.second,
                 glm::vec3(0.0f, 0.0f, 0.0f),
-                glm::vec3(0.5f, 0.5f, 0.5f),
-                glm::vec3(140.f, 221.f, 55.f),
+                glm::vec3(0.8f, 0.3f, 0.5f),
+                glm::vec3(90.f, 121.f, 75.f),
                 GameEngine::DrawType::TriangleStrip
             );
-            
+
         }
     );
 
     GameEngine::InterfaceManager::addCombo(
         "Task 3",
-        std::vector<std::string>({ "Cube"}),
+        std::vector<std::string>({ "Cube" }),
         std::string("Task 1"),
         [](std::string name) {
             GameEngine::Scene::clear();
@@ -932,11 +959,12 @@ void lab3() {
         }
     );
 
-    
+
 
     GameEngine::InterfaceManager::addCheckbox(
         "Depth",
         [](bool status) {
+            std::cout << status << std::endl;
             GameEngine::Renderer::enableDepth(status);
         }
     );
@@ -950,7 +978,7 @@ void lab3() {
             else {
                 GameEngine::ObjectManager::getCamera()->setType(GameEngine::ProjectionType::Orthographic);
             }
-            
+
         }
     );
 
@@ -959,7 +987,7 @@ void lab3() {
     GameEngine::InterfaceManager::addCheckbox(
         "Grid",
         [](bool status) {
-            
+
             std::vector<GameEngine::Vertex> vertices;
 
             if (status) {
@@ -989,7 +1017,6 @@ void lab3Update() {
         GameEngine::ObjectManager::getObject("Hyperboloid")->getModel().getMeshes()[0].updateColor(glm::vec3(r, 1.f, -r));
     }
 }
-
 
 
 glm::vec3 lightColor = { 1.0f, 0.0f, 0.0f };
@@ -1134,7 +1161,7 @@ void lab4() {
                 glm::vec3(1.0f, 1.0f, -1.0f),
                 glm::vec3(1.f, 1.f, 1.f),
                 glm::vec3(0.0f, 0.0f, 0.0f),
-                GameEngine::ShaderType::LIGHTING_TEXTURE,
+                GameEngine::ShaderType::LIGHTING,
                 GameEngine::DrawType::Triangles
             );
 
@@ -1214,7 +1241,7 @@ void lab4() {
                 glm::vec3(1.0f, 1.0f, -1.0f),
                 glm::vec3(1.f, 1.f, 1.f),
                 glm::vec3(0.0f, 0.0f, 0.0f),
-                GameEngine::ShaderType::LIGHTING_TEXTURE,
+                GameEngine::ShaderType::LIGHTING,
                 GameEngine::DrawType::Triangles
             );
 
@@ -1292,16 +1319,18 @@ void lab4() {
 
 
             GameEngine::Scene::addObject(
-                "Sphere",
+                "Pyramid",
                 pyramid.first,
                 pyramid.second,
                 std::vector<const char*>(),
                 glm::vec3(1.0f, 1.0f, -1.0f),
                 glm::vec3(1.f, 1.f, 1.f),
                 glm::vec3(0.0f, 0.0f, 0.0f),
-                GameEngine::ShaderType::LIGHTING_TEXTURE,
+                GameEngine::ShaderType::LIGHTING,
                 GameEngine::DrawType::Triangles
             );
+
+
 
             GameEngine::Scene::addObject(
                 "LightCube21",
@@ -1365,7 +1394,7 @@ void lab4() {
                 glm::vec3(0.f, 0.f, 0.f),
                 glm::vec3(0.3f, 0.3f, 0.3f),
                 glm::vec3(0.0f, 0.0f, 0.0f),
-                GameEngine::ShaderType::LIGHTING_TEXTURE
+                GameEngine::ShaderType::LIGHTING
             );
 
 
@@ -1392,6 +1421,8 @@ void lab4() {
             GameEngine::Window::bindKeyPress(GLFW_KEY_RIGHT, []() {changeSpeed(true); });
         }
     );
+
+
 
     GameEngine::InterfaceManager::addCombo(
         "Materials",
@@ -1761,7 +1792,7 @@ void lab4(std::vector<const char*> textures) {
 
     GameEngine::InterfaceManager::addCombo(
         "Materials",
-        std::vector<std::string>({ "Pearl", "Emerald", "Gold", "Rubber", "Jade"}),
+        std::vector<std::string>({ "Pearl", "Emerald", "Gold", "Rubber", "Jade" }),
         std::string("Task 4"),
         [textures](std::string name) {
             if (name == "Pearl") {
@@ -1818,7 +1849,7 @@ void lab4(std::vector<const char*> textures) {
             }
         },
         true
-    );
+            );
 }
 
 float xSin = 0, yCos = 0, zSas = 0;
@@ -1864,76 +1895,174 @@ void lab4Update() {
     }
 
 
-    
-    
 
-    
+
+
+
 }
 
 class MyApp : public GameEngine::Application {
-	
+    float rotateSpeed = 50.f;
+    float transformSpeed = 2.f;
+
+    bool shouldBeStabilized = false;
+
+    void setStartPositions() {
+        float startPositionX = 185.f;
+        float startPositionY = 2.15f;
+        float startPositionZ = 23.3f;
+        auto car2 = GameEngine::ObjectManager::getObject(std::string("CarMore2"));
+        float activeZPos = car2->getPosition().z;
+        for (short i = 0; i < 3; i++, startPositionX += 10.f) {
+
+            GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("Car" + std::to_string(i)));
+            GameEngine::Object* car2 = GameEngine::ObjectManager::getObject(std::string("CarMore" + std::to_string(i)));
+            GameEngine::Object* sun = GameEngine::ObjectManager::getObject("Sun");
+
+            car->setPosition(glm::vec3(startPositionX, startPositionY, startPositionZ));
+            car2->setPosition(glm::vec3(startPositionX + 5.f, startPositionY, startPositionZ + 2.2f));
+
+            GameEngine::ObjectManager::getCamera()->setPosition(cameraInitPosition);
+            sun->setPosition(GameEngine::ObjectManager::getCamera()->getPosition() + glm::vec3(-80.f, 30.0f, 1.8f));
+        }
+        glm::vec3 pos = car2->getPosition();
+        car2->setPosition(glm::vec3(pos.x, pos.y, activeZPos));
+    }
+
+    void carRotate(bool side) {
+
+        auto deltaTime = GameEngine::Window::getDeltaTime();
+
+        float trueRotationSpeed = rotateSpeed * deltaTime;
+        float trueTransformSpeed = transformSpeed * deltaTime;
+
+        auto rotationVec = glm::vec3(0.0, trueRotationSpeed * (side ? -1 : 1), 0.0f);
+        auto transformVec = glm::vec3(0.0, 0.0f, trueTransformSpeed * (side ? 1 : -1));
+
+        GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("CarMore2"));
+
+        if (!side && car->getPosition().z > 23.4f) {
+            auto rot = car->getRotation();
+            auto pos = car->getPosition();
+
+            car->setRotation(rot + rotationVec);
+            car->setPosition(pos + transformVec);
+        }
+        else if (side && car->getPosition().z < 25.6f) {
+            auto rot = car->getRotation();
+            auto pos = car->getPosition();
+
+            car->setRotation(rot + rotationVec);
+            car->setPosition(pos + transformVec);
+        }
+        else {
+            shouldBeStabilized = true;
+        }
+
+    }
+
+    void carStabilize() {
+        GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("CarMore2"));
+
+        auto rot = car->getRotation();
+
+        if (rot.y != 90.0f) {
+            glm::vec3 rotationVec;
+            if (abs(rot.y - 90.0f) < 1.f) {
+                car->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+            }
+            else {
+                auto deltaTime = GameEngine::Window::getDeltaTime();
+                float trueRotationSpeed = (rotateSpeed + 25.0f) * deltaTime;
+                rotationVec = glm::vec3(0.0, trueRotationSpeed * (rot.y > 90.0f ? -1.f : 1.f), 0.0f);
+                car->setRotation(rot + rotationVec);
+            }
+
+        }
+        else {
+            shouldBeStabilized = false;
+        }
+
+    }
+
     void initScene() override {
 
         coursework();
         
-                      
+        
+        GameEngine::Window::bindKeyPressedOnce(GLFW_KEY_E, [&]() {
+            isUpdating = !isUpdating;
+            if (isUpdating) {
+                setStartPositions();
+            }
+        });
+
+        GameEngine::Window::bindKeyPress(GLFW_KEY_LEFT, [&]() {
+            carRotate(true);
+        });
+
+        GameEngine::Window::bindKeyPress(GLFW_KEY_RIGHT, [&]() {
+            carRotate(false);
+        });
+
+        GameEngine::Window::bindKeyRelease(GLFW_KEY_LEFT, [&]() {
+            shouldBeStabilized = true;
+        });
+
+        GameEngine::Window::bindKeyRelease(GLFW_KEY_RIGHT, [&]() {
+            shouldBeStabilized = true;
+            });
+
     }
 
+
+
     void update() override {
-        
-        float speed = 10.f;
-        auto deltaTime = GameEngine::Window::getDeltaTime();
-        float trueSpeed = speed * deltaTime;
-        auto transformVec = glm::vec3(-trueSpeed, 0.0f, 0.0f);
-        
-        GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("Car0"));
+        if (isUpdating) {
+            float speed = 11.f;
+            auto deltaTime = GameEngine::Window::getDeltaTime();
+            float trueSpeed = speed * deltaTime;
+            auto transformVec = glm::vec3(-trueSpeed, 0.0f, 0.0f);
 
-        auto pos = car->getPosition();
-   
-        if (pos.x < 137.f) {
-            float startPositionX = 185.f;
-            float startPositionY = 2.15f;
-            float startPositionZ = 23.3f;
-            for (short i = 0; i < 3; i++, startPositionX += 10.f) {
+            GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("Car0"));
 
-                GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("Car" + std::to_string(i)));
-                GameEngine::Object* car2 = GameEngine::ObjectManager::getObject(std::string("CarMore" + std::to_string(i)));
+            auto pos = car->getPosition();
+
+            if (pos.x < 137.f) {
+                setStartPositions();
+            }
+            else {
+                for (short i = 0; i < 3; i++) {
+                    GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("Car" + std::to_string(i)));
+                    GameEngine::Object* car2 = GameEngine::ObjectManager::getObject(std::string("CarMore" + std::to_string(i)));
+                    auto pos = car->getPosition();
+                    auto pos2 = car2->getPosition();
+                    car->setPosition(pos + transformVec);
+                    car2->setPosition(pos2 + transformVec);
+                }
                 GameEngine::Object* sun = GameEngine::ObjectManager::getObject("Sun");
+                GameEngine::CameraObject* cam = GameEngine::ObjectManager::getCamera();
 
-                car->setPosition(glm::vec3(startPositionX, startPositionY, startPositionZ));
-                car2->setPosition(glm::vec3(startPositionX + 5.f, startPositionY, startPositionZ + 2.2f));
+                cam->setPosition(cam->getPosition() + transformVec);
+                sun->setPosition(cam->getPosition() + glm::vec3(-80.f, 30.0f, 1.8f));
+            }
+            if (shouldBeStabilized) {
+                carStabilize();
+            }
+        }
 
-                GameEngine::ObjectManager::getCamera()->setPosition(cameraInitPosition);
-                sun->setPosition(GameEngine::ObjectManager::getCamera()->getPosition() + glm::vec3(-80.f, 30.0f, 1.8f));
-            }
-            
-        }
-        else {
-            for (short i = 0; i < 3; i++) {
-                GameEngine::Object* car = GameEngine::ObjectManager::getObject(std::string("Car" + std::to_string(i)));
-                GameEngine::Object* car2 = GameEngine::ObjectManager::getObject(std::string("CarMore" + std::to_string(i)));
-                auto pos = car->getPosition();
-                auto pos2 = car2->getPosition();
-                car->setPosition(pos + transformVec);
-                car2->setPosition(pos2 + transformVec);
-            }
-            GameEngine::Object* sun = GameEngine::ObjectManager::getObject("Sun");
-            GameEngine::CameraObject* cam = GameEngine::ObjectManager::getCamera();
-            
-            cam->setPosition(cam->getPosition() + transformVec);
-            sun->setPosition(cam->getPosition() + glm::vec3(-80.f, 30.0f, 1.8f));
-        }
+
     }
 
 };
 
 int main() {
-	
-	auto myApp = std::make_unique<MyApp>();
-	int returnCode = myApp->start(1024, 768, "Vibin'");
-	
+
+    auto myApp = std::make_unique<MyApp>();
+    int returnCode = myApp->start(1024, 768, "Vibin'");
 
 
-	return returnCode;
-	
+
+    return returnCode;
+
 }

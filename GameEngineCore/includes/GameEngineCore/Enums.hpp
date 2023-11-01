@@ -25,6 +25,8 @@ namespace GameEngine {
 		PEARL,
 		GOLD,
 		RUBBER,
+		CYAN_PLASTIC,
+		CHROME,
 		DEFAULT,
 		NONE,
 	};

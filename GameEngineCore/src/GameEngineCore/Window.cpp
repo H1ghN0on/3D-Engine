@@ -35,8 +35,10 @@
 
 namespace GameEngine {
     GLFWwindow* Window::window = nullptr;
+    bool Window::isPressed = false;
     std::map<int, std::function<void()>> Window::pressedKeysForListen = std::map<int, std::function<void()>>();
     std::map<int, std::function<void()>> Window::pressedOnceKeysForListen = std::map<int, std::function<void()>>();
+    std::map<int, std::function<void()>> Window::releasedKeysForListen = std::map<int, std::function<void()>>();
 
     float deltaTime = 0.0f;	// время между текущим и последним кадрами
     float lastFrame = 0.0f; // время последнего кадра
@@ -89,8 +91,10 @@ namespace GameEngine {
         for (auto [key, foo] : pressedKeysForListen) {
             if (glfwGetKey(window, key) == GLFW_PRESS) foo();
         }
+
     }
-    
+
+   
     
 
 	int Window::init() {
@@ -116,7 +120,6 @@ namespace GameEngine {
 
         glfwSetFramebufferSizeCallback(window,
             [](GLFWwindow* pWindow, int width, int height) {
-                std::cout << "huy" << std::endl;
                 Renderer::setViewport(width, height);
             }
         );
@@ -168,10 +171,22 @@ namespace GameEngine {
         glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
             {
                 for (auto [keyCode, foo] : pressedOnceKeysForListen) {
-                    if (keyCode == key) {
+                    if (!isPressed && keyCode == key) {
+                        isPressed = true;
                         foo();
                     }
+                    else {
+                        isPressed = false;
+                    }
                 }
+
+
+
+                for (auto [keyCode, foo] : releasedKeysForListen) {
+                    if (keyCode == key && action == GLFW_RELEASE) foo();
+                }
+                
+                
             }
         );
 
@@ -201,6 +216,10 @@ namespace GameEngine {
 
     void Window::bindKeyPress(int keyCode, std::function<void()> foo) {
         pressedKeysForListen[keyCode] = foo;
+    }
+
+    void Window::bindKeyRelease(int keyCode, std::function<void()> foo) {
+        releasedKeysForListen [keyCode] = foo;
     }
 
     void Window::bindKeyPressedOnce(int keyCode, std::function<void()> foo) {

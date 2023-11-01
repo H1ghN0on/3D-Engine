@@ -41,10 +41,12 @@ namespace GameEngine {
 
 		static void bindKeyPress(int keyCode, std::function<void()>);
 		static void bindKeyPressedOnce(int keyCode, std::function<void()>);
+		static void bindKeyRelease(int keyCode, std::function<void()>);
 
 		static void clearBinders() {
 			pressedKeysForListen.clear();
 			pressedOnceKeysForListen.clear();
+			releasedKeysForListen.clear();
 		}
 		
 		static glm::vec2 getScreenSize() {
@@ -62,6 +64,9 @@ namespace GameEngine {
 
 
 	private:
+
+		static bool isPressed;
+
 		static void handleKeyPress();
 
 		struct WindowData {
@@ -90,6 +95,7 @@ namespace GameEngine {
 
 		static std::map<int, std::function<void()>> pressedKeysForListen;
 		static std::map<int, std::function<void()>> pressedOnceKeysForListen;
+		static std::map<int, std::function<void()>> releasedKeysForListen;
 	};
 }
 
